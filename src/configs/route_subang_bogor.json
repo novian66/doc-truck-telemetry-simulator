@@ -1,0 +1,80 @@
+{
+  "route_id": "SUBANG_BOGOR_EXPRESS",
+  "name": "Subang Hatchery ke Bogor Broiler Farm",
+  "origin": {
+    "name": "Subang Hatchery (KM 0)",
+    "latitude": -6.5650,
+    "longitude": 107.7600
+  },
+  "destination": {
+    "name": "Bogor Broiler Farm (KM 145)",
+    "latitude": -6.5980,
+    "longitude": 106.7990
+  },
+  "total_distance_km": 145.0,
+  "segments": [
+    {
+      "id": 0,
+      "name": "Arteri Subang - Kalijati",
+      "road_type": "ARTERIAL",
+      "default_condition": "FREE_FLOW",
+      "speed_limit_kmh": 60,
+      "roughness_factor": 1.2
+    },
+    {
+      "id": 1,
+      "name": "Tol Cipali (KM 89 - KM 74 Dawuan)",
+      "road_type": "HIGHWAY",
+      "default_condition": "FREE_FLOW",
+      "speed_limit_kmh": 80,
+      "roughness_factor": 0.8
+    },
+    {
+      "id": 2,
+      "name": "Tol Jakarta - Cikampek (KM 57 - Cikunir)",
+      "road_type": "HIGHWAY",
+      "default_condition": "CONGESTED",
+      "speed_limit_kmh": 80,
+      "roughness_factor": 0.8
+    },
+    {
+      "id": 3,
+      "name": "Tol Jagorawi (Cibubur - Sentul Selatan)",
+      "road_type": "HIGHWAY",
+      "default_condition": "FREE_FLOW",
+      "speed_limit_kmh": 80,
+      "roughness_factor": 0.8
+    },
+    {
+      "id": 4,
+      "name": "Arteri Baranangsiang - Bogor Broiler Farm",
+      "road_type": "ARTERIAL",
+      "default_condition": "FREE_FLOW",
+      "speed_limit_kmh": 50,
+      "roughness_factor": 1.3
+    }
+  ],
+  "waypoints": [
+    { "lat": -6.5650, "lng": 107.7600, "seg": 0, "name": "Subang Hatchery (KM 0)", "altitude_m": 120 },
+    { "lat": -6.5520, "lng": 107.7200, "seg": 0, "name": "Arteri Subang", "altitude_m": 115 },
+    { "lat": -6.5380, "lng": 107.6750, "seg": 0, "name": "Kalijati", "altitude_m": 105 },
+    { "lat": -6.4950, "lng": 107.5600, "seg": 0, "name": "GT Kalijati (KM 25)", "altitude_m": 90 },
+    { "lat": -6.4680, "lng": 107.5050, "seg": 1, "name": "Tol Cipali KM 89", "altitude_m": 75 },
+    { "lat": -6.4420, "lng": 107.4500, "seg": 1, "name": "Tol Cipali KM 82", "altitude_m": 60 },
+    { "lat": -6.4180, "lng": 107.4000, "seg": 1, "name": "Tol Cipali KM 74", "altitude_m": 50 },
+    { "lat": -6.4010, "lng": 107.3800, "seg": 1, "name": "Dawuan (KM 65)", "altitude_m": 45 },
+    { "lat": -6.3680, "lng": 107.3100, "seg": 2, "name": "Japek KM 57", "altitude_m": 35 },
+    { "lat": -6.3250, "lng": 107.2100, "seg": 2, "name": "Karawang Barat", "altitude_m": 28 },
+    { "lat": -6.3000, "lng": 107.1200, "seg": 2, "name": "Cikarang Timur", "altitude_m": 25 },
+    { "lat": -6.2650, "lng": 107.0100, "seg": 2, "name": "Cibitung", "altitude_m": 30 },
+    { "lat": -6.2550, "lng": 106.9600, "seg": 2, "name": "Cikunir (KM 105)", "altitude_m": 35 },
+    { "lat": -6.3100, "lng": 106.8900, "seg": 3, "name": "Tol Jagorawi KM 7", "altitude_m": 45 },
+    { "lat": -6.3720, "lng": 106.8950, "seg": 3, "name": "Cibubur", "altitude_m": 70 },
+    { "lat": -6.4500, "lng": 106.8850, "seg": 3, "name": "Cimanggis", "altitude_m": 95 },
+    { "lat": -6.4950, "lng": 106.8650, "seg": 3, "name": "Citeureup", "altitude_m": 130 },
+    { "lat": -6.5350, "lng": 106.8550, "seg": 3, "name": "Sentul Selatan (KM 135)", "altitude_m": 175 },
+    { "lat": -6.5820, "lng": 106.8250, "seg": 4, "name": "GT Baranangsiang Bogor", "altitude_m": 240 },
+    { "lat": -6.5920, "lng": 106.8120, "seg": 4, "name": "Arteri Bogor", "altitude_m": 255 },
+    { "lat": -6.5980, "lng": 106.7990, "seg": 4, "name": "Bogor Broiler Farm (KM 145)", "altitude_m": 265 }
+  ]
+}

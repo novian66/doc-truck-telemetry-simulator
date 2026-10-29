@@ -1,0 +1,44 @@
+{
+  "type": "Feature",
+  "properties": {
+    "route_name": "Rute Inti Tol Subang Hatchery - Bogor Farm (Tol Cipali-Japek-Jagorawi)",
+    "origin_name": "Subang Hatchery (KM 0)",
+    "destination_name": "Bogor Broiler Farm (KM 145)",
+    "road_length_km": 145.0,
+    "estimated_duration_min": 175,
+    "route_type": "TOLL_HIGHWAY",
+    "segments": [
+      { "index": 0, "name": "KM 0-25: Arteri Subang", "initial_road_condition": "FREE_FLOW", "initial_signal": "GOOD" },
+      { "index": 1, "name": "KM 25-65: Tol Cipali", "initial_road_condition": "FREE_FLOW", "initial_signal": "GOOD" },
+      { "index": 2, "name": "KM 65-105: Tol Japek", "initial_road_condition": "CONGESTED", "initial_signal": "GOOD" },
+      { "index": 3, "name": "KM 105-135: Tol Jagorawi", "initial_road_condition": "FREE_FLOW", "initial_signal": "BAD" },
+      { "index": 4, "name": "KM 135-145: Arteri Bogor", "initial_road_condition": "FREE_FLOW", "initial_signal": "GOOD" }
+    ]
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [107.7600, -6.5650],
+      [107.7200, -6.5520],
+      [107.6750, -6.5380],
+      [107.5600, -6.4950],
+      [107.5050, -6.4680],
+      [107.4500, -6.4420],
+      [107.4000, -6.4180],
+      [107.3800, -6.4010],
+      [107.3100, -6.3680],
+      [107.2100, -6.3250],
+      [107.1200, -6.3000],
+      [107.0100, -6.2650],
+      [106.9600, -6.2550],
+      [106.8900, -6.3100],
+      [106.8950, -6.3720],
+      [106.8850, -6.4500],
+      [106.8650, -6.4950],
+      [106.8550, -6.5350],
+      [106.8250, -6.5820],
+      [106.8120, -6.5920],
+      [106.7990, -6.5980]
+    ]
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "version": "1.0",
+  "reference_document": "riset-blockchain-iot-logistic/data_truck.md",
+  "templates": {
+    "hatchtech_38400": {
+      "template_id": "hatchtech_38400",
+      "model_name": "HatchTech HatchTraveller 38400 (Belanda)",
+      "vendor": "HatchTech",
+      "country": "Belanda",
+      "capacity_chicks": 38400,
+      "airflow_type": "Laminar Airflow (15.000 m³/jam)",
+      "airflow_rate_m3_h": 15000,
+      "max_fresh_air_m3_h": 2800,
+      "default_setpoint_c": 25.0,
+      "cooling_capacity_kw": 8.5,
+      "zones_count": 2,
+      "sensors": [
+        "8_probe_microclimer",
+        "co2_ndir",
+        "accelerometer_3axis",
+        "gps_receiver",
+        "door_reed_switch"
+      ],
+      "reference": "references/HatchTech_HatchTraveller_38400.txt"
+    },
+    "heering_link": {
+      "template_id": "heering_link",
+      "model_name": "Heering Link Telematics Chick Trailer (Belanda)",
+      "vendor": "Heering Holland",
+      "country": "Belanda",
+      "capacity_chicks": 50000,
+      "airflow_type": "Multi-Fan Roof Array & Air Inlet Damper",
+      "airflow_rate_m3_h": 18000,
+      "max_fresh_air_m3_h": 3200,
+      "default_setpoint_c": 25.0,
+      "cooling_capacity_kw": 10.0,
+      "zones_count": 3,
+      "sensors": [
+        "multipoint_rht",
+        "co2_ndir",
+        "damper_position_sensor",
+        "door_reed_switch",
+        "genset_battery_telemetry",
+        "gps_receiver"
+      ],
+      "reference": "references/Heering_Link_Telematics.txt"
+    },
+    "thermoking_ut": {
+      "template_id": "thermoking_ut",
+      "model_name": "Thermo King UT-Series CargoWatch (Irlandia)",
+      "vendor": "Thermo King",
+      "country": "Irlandia",
+      "capacity_chicks": 60000,
+      "airflow_type": "High-Pressure Evaporator (Dual Reefer)",
+      "airflow_rate_m3_h": 20000,
+      "max_fresh_air_m3_h": 3500,
+      "default_setpoint_c": 25.0,
+      "cooling_capacity_kw": 12.0,
+      "zones_count": 3,
+      "sensors": [
+        "cargowatch_6_probe",
+        "4x_door_contact",
+        "servicewatch_audit",
+        "tracking_cellular_satellite",
+        "gps_receiver"
+      ],
+      "reference": "references/ThermoKing_UT_Series_Operators_Manual_TK60652.pdf"
+    },
+    "carrier_lynx": {
+      "template_id": "carrier_lynx",
+      "model_name": "Carrier Transicold Lynx Fleet Series (AS)",
+      "vendor": "Carrier Transicold",
+      "country": "AS",
+      "capacity_chicks": 45000,
+      "airflow_type": "High-Efficiency Evaporator",
+      "airflow_rate_m3_h": 16000,
+      "max_fresh_air_m3_h": 3000,
+      "default_setpoint_c": 25.0,
+      "cooling_capacity_kw": 9.5,
+      "zones_count": 3,
+      "sensors": [
+        "lynx_push_api_gateway_1hz",
+        "3zone_temp_rh",
+        "genset_fuel_sensor",
+        "battery_voltage_sensor",
+        "door_event_switch",
+        "gps_receiver"
+      ],
+      "reference": "references/Carrier_Lynx_Fleet_Push_API.txt"
+    },
+    "chengli_poultry": {
+      "template_id": "chengli_poultry",
+      "model_name": "Chengli Specialized Poultry Carrier (Tiongkok)",
+      "vendor": "Chengli Special Automobile",
+      "country": "Tiongkok",
+      "capacity_chicks": 30000,
+      "airflow_type": "Blower Kisi Bawah & Roof Fan",
+      "airflow_rate_m3_h": 12000,
+      "max_fresh_air_m3_h": 2200,
+      "default_setpoint_c": 25.0,
+      "cooling_capacity_kw": 6.5,
+      "zones_count": 3,
+      "sensors": [
+        "3zone_temp_rh",
+        "roof_exhaust_status",
+        "cabin_console_telemetry",
+        "gps_receiver"
+      ],
+      "reference": "references/Chengli_DOC_Carrier_Truck.txt"
+    },
+    "joinaldy_tropical_fan": {
+      "template_id": "joinaldy_tropical_fan",
+      "model_name": "Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)",
+      "vendor": "Riset Empiris Lapangan Sulsel (IPB)",
+      "country": "Indonesia",
+      "capacity_chicks": 36000,
+      "airflow_type": "Ventilasi Blower Atap Non-AC",
+      "airflow_rate_m3_h": 8500,
+      "max_fresh_air_m3_h": 2000,
+      "default_setpoint_c": 26.0,
+      "cooling_capacity_kw": 0.0,
+      "regression_equation": "Y = 1.2385*X - 6.2567",
+      "zones_count": 2,
+      "sensors": [
+        "ambient_temp_sensor",
+        "container_temp_sensor",
+        "relative_humidity_sensor",
+        "gps_receiver"
+      ],
+      "reference": "references/K16180034_Audy Joinaldy.pdf"
+    }
+  },
+  "default_fleet": [
+    {
+      "truck_id": "TRUCK-HT-38400-01",
+      "license_plate": "B 9842 KCK",
+      "template_id": "hatchtech_38400",
+      "assigned_driver": "Rahmat Santoso",
+      "status": "ACTIVE"
+    },
+    {
+      "truck_id": "TRUCK-HL-50000-02",
+      "license_plate": "D 8122 KAA",
+      "template_id": "heering_link",
+      "assigned_driver": "Ahmad Dahlan",
+      "status": "STANDBY"
+    },
+    {
+      "truck_id": "TRUCK-TK-60000-03",
+      "license_plate": "B 9134 TKG",
+      "template_id": "thermoking_ut",
+      "assigned_driver": "Bambang Sudibyo",
+      "status": "STANDBY"
+    },
+    {
+      "truck_id": "TRUCK-CR-45000-04",
+      "license_plate": "B 9512 TDF",
+      "template_id": "carrier_lynx",
+      "assigned_driver": "Hendra Pratama",
+      "status": "STANDBY"
+    },
+    {
+      "truck_id": "TRUCK-CL-30000-05",
+      "license_plate": "B 9081 POU",
+      "template_id": "chengli_poultry",
+      "assigned_driver": "Agus Triyono",
+      "status": "STANDBY"
+    },
+    {
+      "truck_id": "TRUCK-AJ-36000-06",
+      "license_plate": "DD 8741 XY",
+      "template_id": "joinaldy_tropical_fan",
+      "assigned_driver": "Syamsul Bahri",
+      "status": "STANDBY"
+    }
+  ]
+}
