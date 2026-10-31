@@ -1,79 +1,78 @@
-# Purwarupa Sistem Pemantauan Nyata & Console Simulasi Internal (Fase 1: Analisis Kebutuhan)
+# Telemetry Monitoring Dashboard & Simulation Testbed Console
 
-Arsitektur mockup dirancang dengan **pemisahan total antara aplikasi pemantau telemetri yang dilihat pengguna dengan simulator engine di balik layar**, serta telah direfaktor secara penuh ke **Standar Modular ECMAScript (ES Modules / ESM)** sehingga kode terstruktur rapi, *single-responsibility*, dan mudah diuji maupun dikembangkan lebih lanjut.
+This web client architecture provides a **complete separation of concerns between the production-facing telematics monitoring application and the underlying internal simulation engine**. The codebase is engineered entirely in **Vanilla ECMAScript Modules (ESM)** without build steps or third-party bundle bloat, ensuring maximum modularity, inspectability, and long-term academic maintainability.
 
-1. **Sistem Pemantauan Nyata (`monitor/` & Root URL)**:
-   - Aplikasi telematika & cold-chain logistik produksi nyata yang dilihat oleh pengguna umum, manajemen armada, QA hatchery, dan peternakan penerima.
-   - Truk langsung berjalan nyata di jalan (Subang Hatchery &rarr; Bogor Broiler Farm) memancarkan telemetri 1 Hz.
-   - Tidak ada tautan atau tombol yang mengarah ke simulator.
-2. **Simulator Engine Console (`config/`)**:
-   - Instrumen pengujian backend / internal simulator testbed.
-   - Digunakan oleh insinyur simulasi untuk mengendalikan fisika, mengatur cuaca, memicu rem mendadak, atau menginjeksi kerusakan (chiller breakdown, sensor drift/spike/null, blank spot 4G) di balik layar.
-
----
-
-## 🌐 Tautan Akses Live (HTTPS & SSL Aktif)
-
-- **Sistem Pemantauan Nyata (Aplikasi Utama)**:  
-  [https://mockup-truck-simulator.devnap.cloud/](https://mockup-truck-simulator.devnap.cloud/) (atau langsung ke `/monitor/`)
-- **Simulator Engine Console (Internal Testing)**:  
-  [https://mockup-truck-simulator.devnap.cloud/config/](https://mockup-truck-simulator.devnap.cloud/config/)
+1. **Production Telemetry Monitor (`monitor/` & Root URL)**:
+   - Designed for cold-chain logistics operations, hatchery dispatchers, and receiving broiler farms.
+   - Displays real-time 1.0 Hz telemetry of trucks traveling the Subang Hatchery &rarr; Bogor Broiler Farm transport corridor.
+   - Contains no simulation control buttons or developer harness elements.
+2. **Simulation Engine Console (`config/`)**:
+   - Internal testbed and harness environment for research and evaluation.
+   - Enables operators to manipulate physical parameters, road conditions, actuator setpoints, and trigger controlled fault injections (HVAC compressor breakdowns, door breaches, blower jams, cellular blind spots, and cryptographic sequence tampering).
 
 ---
 
-## 📂 Struktur Direktori Standar Modular ECMAScript (ES Modules)
+## 🌐 Live Service URLs (HTTPS & TLS v1.3)
+
+- **Production Telemetry Monitor (User-Facing)**:  
+  [https://truck-simulator.devnap.cloud/monitor/](https://truck-simulator.devnap.cloud/monitor/)
+- **Simulation Engine Console (Internal Testbed)**:  
+  [https://truck-simulator.devnap.cloud/config/](https://truck-simulator.devnap.cloud/config/)
+
+---
+
+## 📂 Modular Architecture (ES Modules)
 
 ```text
-mockup/
-├── index.html                  # Entry point utama (auto-redirect ke sistem pemantauan nyata)
-├── README.md                   # Dokumentasi arsitektur dan panduan pengembang
+static/
+├── index.html                  # Entry point (auto-redirect to production telemetry monitor)
+├── README.md                   # Technical documentation and architecture guide
 │
-├── shared/                     # MODUL BERSAMA (SHARED DOMAIN & MATH UTILITIES)
-│   ├── constants.js            # Konstanta penyimpanan, waypoints 145 km, profil jalan, armada default
-│   ├── geo.js                  # Kinematika geodesik: Haversine distance, calculateBearing, interpolateDensePath
-│   ├── biometrics.js           # Formulasi empiris: THI Index, Weight Loss %, evaluasi status mortalitas
-│   └── crypto.js               # Hashing kriptografis kanonikal murni: sha256Sync (Paper 1 Metode 12)
+├── shared/                     # SHARED DOMAIN & MATHEMATICAL UTILITIES
+│   ├── constants.js            # Storage keys, 145 km route waypoints, road roughness, fleet templates
+│   ├── geo.js                  # Geodesic kinematics: Haversine distance, calculateBearing, interpolateDensePath
+│   ├── biometrics.js           # Empirical formulations: Cobb-Vantress THI, Khosravinia weight loss %, mortality evaluation
+│   └── crypto.js               # Canonical SHA-256 state hashing (sha256Sync)
 │
-├── monitor/                    # SISTEM PEMANTAUAN TELEMETRI NYATA (USER FACING)
-│   ├── index.html              # HTML shell dengan <script type="module" src="app.js"></script>
-│   ├── style.css               # Desain pusat komando telematika armada logistik terpadu
-│   ├── app.js                  # Entry point ESM monitor, inisialisasi listener & event binding
+├── monitor/                    # PRODUCTION TELEMETRY MONITOR (USER FACING)
+│   ├── index.html              # Clean single-page application shell (<script type="module" src="app.js"></script>)
+│   ├── style.css               # Telematics command deck stylesheet
+│   ├── app.js                  # ESM entry point, WebSocket listener & DOM event orchestration
 │   └── modules/
-│       ├── state.js            # State monitor, buffer riwayat grafik, tracking ekspedisi terpilih
-│       ├── map.js              # Leaflet.js controller: custom rotated truck marker SVG & polylines
-│       ├── chart.js            # Chart.js streaming: multi-zona temperature & tab kinematika
-│       ├── trip-selector.js    # Pengelolaan dropdown pengiriman & sinkronisasi header summary
-│       └── consumer.js         # Telemetry packet ingestion 25-field, kartu mikroklimat, autonomous tick
+│       ├── state.js            # Client-side cache, graph history buffer, active expedition tracker
+│       ├── map.js              # Leaflet.js controller: rotated top-view vehicle SVG & geodesic trails
+│       ├── chart.js            # Chart.js streaming: multi-zone microclimate & kinematic telemetry
+│       ├── trip-selector.js    # Dispatch selector dropdown & summary status pill synchronization
+│       └── consumer.js         # 25-field telemetry ingestion, microclimate cards, watchdog timer
 │
-└── config/                     # SIMULATOR ENGINE CONSOLE (INTERNAL HARNESS)
-    ├── index.html              # HTML shell dengan <script type="module" src="app.js"></script>
-    ├── style.css               # Antarmuka panel operator simulasi internal
-    ├── app.js                  # Entry point ESM config console, bootstrapper aplikasi
+└── config/                     # SIMULATION ENGINE CONSOLE (INTERNAL HARNESS)
+    ├── index.html              # Operator testbed interface shell
+    ├── style.css               # Control console stylesheet
+    ├── app.js                  # ESM entry point and bootstrapper
     └── modules/
-        ├── state.js            # State runtime mesin, daftar armada, ekspedisi, kuota bahan bakar/baterai
-        ├── engine.js           # Kinematika pergerakan, ODE termodinamika 3-zona, CO2, injeksi anomali
-        ├── telemetry.js        # Pemancar paket telemetri 25-field baku via BroadcastChannel & LocalStorage
-        └── ui.js               # Render tabel pengiriman/truk, rightbar kontrol, modals, dan aksi tombol
+        ├── state.js            # Engine runtime state, fleet registry, manifests, fuel/battery quotas
+        ├── engine.js           # Kinematic integration, 3-zone thermal ODE, CO2 mass balance, anomaly triggers
+        ├── telemetry.js        # Telemetry packet dispatcher via BroadcastChannel & LocalStorage
+        └── ui.js               # Manifest table renderer, floating rightbar, modal forms, and event listeners
 ```
 
 ---
 
-## 🔄 Pemisahan & Mekanisme Sinkronisasi
+## 🔄 Separation of Concerns & State Synchronization
 
-1. **Pengguna Umum / Klien (`/monitor/`)**:
-   - Membuka `https://mockup-truck-simulator.devnap.cloud/` dan langsung disajikan layar pemantauan armada nyata.
-   - Truk bergerak aktif di jalan raya (Subang ke Bogor), kecepatan dinamis, suhu kargo teratur, status kargo optimal.
-   - Mengonsumsi paket telemetri 25-field terstruktur (data kargo, lingkungan, sub-sistem, keamanan sensor, dan hash kanonikal).
-2. **Insinyur Simulasi (`/config/`)**:
-   - Membuka `https://mockup-truck-simulator.devnap.cloud/config/` di sesi tersendiri.
-   - Mengatur skenario ekspedisi, mengubah kondisi jalan 5 segmen, memodifikasi aktuator (kecepatan kipas, damper udara).
-   - Melakukan *Controlled Fault Injection*:
-     - Chiller breakdown / HVAC shutdown
-     - Pintu belakang terbuka melebihi batas toleransi
-     - Kegagalan ventilasi kargo (damper tertutup, penumpukan CO2)
-     - Kemacetan mendadak / insiden lalu lintas
-     - Kehabisan bahan bakar genset pendingin & baterai drop
-     - Anomali sensor: Sensor Drift, Sensor Freeze, Spike Anomali, Sensor Null
-     - Blank Spot sinyal seluler 4G (Gilbert-Elliott Channel Model)
-     - Sequence gap injection (tampering test untuk audit blockchain)
-   - Seluruh perubahan dipancarkan secara instan melalui browser IPC `BroadcastChannel("truck_telematics_stream")` dan disimpan ke `localStorage`.
+1. **Client Observer (`/monitor/`)**:
+   - Opens `https://truck-simulator.devnap.cloud/monitor/` and receives live telemetry.
+   - Ingests structured 25-field telemetry streams (biometrics, cargo zones, ambient conditions, vehicle kinematics, sensor integrity, and cryptographic audit hash).
+2. **Simulation Operator (`/config/`)**:
+   - Runs `https://truck-simulator.devnap.cloud/config/` in an operator session.
+   - Adjusts road conditions across 5 distinct route segments, modifies fan blowers and dampers.
+   - Conducts **Controlled Fault Injections**:
+     - ❄️ HVAC Chiller Breakdown / Compressor shutdown
+     - 🚪 Cargo Door breach exceeding safety thresholds
+     - 🌬️ Ventilation Blower Jam (damper closure with CO2 spike)
+     - 🛑 Emergency Braking / Traffic congestion
+     - ⚡ Reefer fuel depletion (<15%) & auxiliary battery drop (<11.5V)
+     - 🔬 Sensor anomalies: Drift, Stuck-at Freeze, Outlier Spike, Null Packet Drop
+     - 📶 Cellular Blind Spot (Gilbert-Elliott Channel Model with local buffering)
+     - 🔀 Sequence gap jump (tampering test for blockchain consensus audit)
+   - Dispatches changes immediately via browser IPC `BroadcastChannel("truck_telematics_stream")` and backend REST APIs.
