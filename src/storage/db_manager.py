@@ -157,55 +157,55 @@ class DatabaseManager:
         self.seed_initial_data()
 
     def seed_initial_data(self):
-        """Seeding 6 Master Template Paten, Armada Default, Rute Default, dan Trip Default"""
+        """Seeding 6 Master Patented Templates, Default Fleet, Default Routes, and Default Trips"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
-            # Cek apakah tabel template sudah terisi
+            # Check if vehicle_templates table is empty
             cursor.execute("SELECT COUNT(*) FROM vehicle_templates")
             if cursor.fetchone()[0] == 0:
                 templates = [
                     (
-                        'hatchtech', 'HatchTech HatchTraveller 38400', 'HatchTech B.V.', 'Belanda',
+                        'hatchtech', 'HatchTech HatchTraveller 38400', 'HatchTech B.V.', 'Netherlands',
                         38400, 'HVAC', 8.5, 15000.0, 2800.0, 0.0, 'front_to_rear', '[1, 3]',
                         'AUX_GENSET', 24, 65.0, 25.0,
-                        '8 Probe MicroClimer PT100 2-Zona, SHT31 RH, SenseAir S8 NDIR, Accelerometer 3-Axis, Reed Switch Pintu, GPS 1 Hz',
-                        json.dumps(["Aliran udara laminer kecepatan rendah merata", "Mengeliminasi titik panas dan dingin", "Kontrol mikroiklim 2 zona mandiri"])
+                        '8-Probe MicroClimer PT100 2-Zone, SHT31 RH, SenseAir S8 NDIR, 3-Axis Accelerometer, Door Reed Switch, 1 Hz GPS',
+                        json.dumps(["Uniform low-velocity laminar airflow distribution", "Eliminates hot and cold thermal spots", "Independent 2-zone microclimate control"])
                     ),
                     (
-                        'heering', 'Heering Link Telematics Chick Trailer', 'Heering Holland', 'Belanda',
+                        'heering', 'Heering Link Telematics Chick Trailer', 'Heering Holland', 'Netherlands',
                         50000, 'HVAC', 10.0, 12000.0, 3200.0, 0.0, 'top_to_bottom', '[1, 2, 3]',
                         'AUX_GENSET', 12, 80.0, 25.0,
-                        'Multi-point RHT Probe, CO2 NDIR, Motorized Air Damper, Reed Switch Pintu, Genset Telemetry Logger',
-                        json.dumps(["Multi-fan roof array 12 kipas hisap buang", "Air inlet damper bermotor proporsional", "Sistem telematika Heering Link 4G"])
+                        'Multi-point RHT Probe, CO2 NDIR, Motorized Air Damper, Door Reed Switch, Genset Telemetry Logger',
+                        json.dumps(["Multi-fan roof array with 12 suction exhaust fans", "Motorized proportional air inlet damper", "Heering Link 4G telematics system"])
                     ),
                     (
-                        'thermoking', 'Thermo King UT-Series Reefer Truck', 'Thermo King Corp', 'Irlandia',
+                        'thermoking', 'Thermo King UT-Series Reefer Truck', 'Thermo King Corp', 'Ireland',
                         60000, 'HVAC', 12.0, 18000.0, 3500.0, 0.0, 'ceiling_ducted', '[1, 2, 3]',
                         'ENGINE', 12, 90.0, 25.0,
-                        'CargoWatch Data Logger 6 Sensor PT1000, TracKing Telematics GPS/4G, CO2 Optical, Door Sensor',
-                        json.dumps(["Unit pendingin underslung bertenaga tinggi", "Datalogger tersertifikasi EN 12830", "Sistem kendali mikroprosesor Smart Reefer"])
+                        'CargoWatch Data Logger 6x PT1000 Probes, TracKing Telematics GPS/4G, Optical CO2, Door Sensor',
+                        json.dumps(["Heavy-duty high-capacity underslung cooling unit", "EN 12830 certified data logger", "Smart Reefer microprocessor control system"])
                     ),
                     (
-                        'carrier', 'Carrier Transicold Lynx Fleet Carrier', 'Carrier Transicold', 'Amerika Serikat',
+                        'carrier', 'Carrier Transicold Lynx Fleet Carrier', 'Carrier Transicold', 'United States',
                         45000, 'HVAC', 9.5, 14000.0, 3000.0, 0.0, 'front_return', '[1, 2, 3]',
                         'AUX_GENSET', 24, 75.0, 25.0,
                         'Lynx IoT Edge Hub, Wireless RHT Sensor Node, CO2 NDIR, Shock Sensor, Solenoid Door Lock',
-                        json.dumps(["Platform telematika cerdas Lynx Fleet Cloud", "Integrasi edge gateway analitik suhu", "Kompresor scroll elektrik efisiensi tinggi"])
+                        json.dumps(["Lynx Fleet Cloud intelligent telematics platform", "Edge gateway temperature analytics integration", "High-efficiency electric scroll compressor"])
                     ),
                     (
-                        'chengli', 'Chengli Special Automobile Poultry Carrier', 'Chengli Automobile Co.', 'Tiongkok',
+                        'chengli', 'Chengli Special Automobile Poultry Carrier', 'Chengli Automobile Co.', 'China',
                         30000, 'HVAC', 6.5, 9000.0, 2000.0, 0.0, 'top_to_bottom', '[1, 2, 3]',
                         'AUX_GENSET', 12, 50.0, 25.0,
-                        '3-Zone Thermocouple Sensors, Analog Humidity Sensor, Tachometer Exhaust Roof Fan, Kabin Console',
-                        json.dumps(["Karoseri armada ekonomis berventilasi atap", "Kombinasi hisap atap dan kisi udara pasif bodi bawah", "Blower bantu dorong area pintu belakang"])
+                        '3-Zone Thermocouple Sensors, Analog Humidity Sensor, Roof Exhaust Fan Tachometer, Cabin Console',
+                        json.dumps(["Economical poultry transport bodywork with roof ventilation", "Combined roof exhaust suction and lower body passive air louvers", "Auxiliary booster blower in rear cargo door area"])
                     ),
                     (
-                        'joinaldy', 'Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)', 'Riset Empiris Lapangan Sulsel (IPB)', 'Indonesia',
+                        'joinaldy', 'Tropical Blower Modified Truck (Audy Joinaldy 2020)', 'IPB Empirical Field Research', 'Indonesia',
                         36000, 'REGRESSION', 0.0, 8500.0, 8500.0, 0.06, 'roof_to_rear', '[1, 3]',
                         'BATTERY', 12, 45.0, 26.0,
-                        'Suhu Ambien & Kargo Kontainer (Y=1.2385X - 6.2567), RH Sensor, CO2 NDIR, Accelerometer 3-Axis, GPS',
-                        json.dumps(["Acuan riset empiris disertasi IPB oleh Audy Joinaldy (2020)", "Representasi armada konvensional tanpa kompresor pendingin", "Membuktikan kenaikan kritis THI (>160) saat cuaca terik / macet"])
+                        'Ambient & Cargo Box Temp (Y=1.2385X - 6.2567), RH Sensor, CO2 NDIR, 3-Axis Accelerometer, GPS',
+                        json.dumps(["Empirical dissertation benchmark from IPB University by Audy Joinaldy (2020)", "Representative model of conventional non-refrigerated transport", "Demonstrates critical THI elevation (>160) during midday heat / traffic delays"])
                     )
                 ]
                 cursor.executemany("""
@@ -217,13 +217,13 @@ class DatabaseManager:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, templates)
 
-            # Cek armada awal
+            # Check initial vehicles
             cursor.execute("SELECT COUNT(*) FROM vehicles")
             if cursor.fetchone()[0] == 0:
                 vehicles = [
-                    ('TRUCK-AJ-36000-01', 'DD 8741 XY', 'joinaldy', 'Truk Blower Tropis Audy Joinaldy 01', 'AVAILABLE', 'Armada Riset Sulsel Unit 1'),
-                    ('TRUCK-AJ-36000-02', 'DD 8129 AB', 'joinaldy', 'Truk Blower Tropis Audy Joinaldy 02', 'AVAILABLE', 'Armada Riset Sulsel Unit 2'),
-                    ('TRUCK-HT-38400-01', 'B 9201 TPA', 'hatchtech', 'HatchTech HatchTraveller Primadona', 'AVAILABLE', 'Unit Berpendingin HVAC Laminer')
+                    ('TRUCK-AJ-36000-01', 'DD 8741 XY', 'joinaldy', 'Audy Joinaldy Tropical Blower Truck 01', 'AVAILABLE', 'Empirical Research Fleet Unit 1'),
+                    ('TRUCK-AJ-36000-02', 'DD 8129 AB', 'joinaldy', 'Audy Joinaldy Tropical Blower Truck 02', 'AVAILABLE', 'Empirical Research Fleet Unit 2'),
+                    ('TRUCK-HT-38400-01', 'B 9201 TPA', 'hatchtech', 'HatchTech HatchTraveller Flagship', 'AVAILABLE', 'Laminar HVAC Refrigerated Unit')
                 ]
                 cursor.executemany("""
                 INSERT INTO vehicles (truck_id, plate_number, template_key, display_name, status, notes)

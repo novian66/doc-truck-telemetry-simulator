@@ -52,30 +52,30 @@ class ConfigureRequest(BaseModel):
 
 @router.post("/start")
 async def start_simulation(req: StartRequest):
-    """Menjalankan mesin simulasi untuk trip tertentu"""
+    """Start simulation engine for a designated trip"""
     trip_dict = req.model_dump(exclude_unset=True)
     success = simulation_manager.start(req.trip_id, trip_dict)
     if req.speed_multiplier and req.speed_multiplier > 1.0:
         simulation_manager.set_speed(req.trip_id, req.speed_multiplier)
     if not success:
-        raise HTTPException(status_code=404, detail=f"Trip ID '{req.trip_id}' tidak dapat dimulai.")
-    return {"status": "SUCCESS", "message": f"Simulasi trip {req.trip_id} berhasil dijalankan."}
+        raise HTTPException(status_code=404, detail=f"Trip ID '{req.trip_id}' could not be started.")
+    return {"status": "SUCCESS", "message": f"Simulation for trip {req.trip_id} started successfully."}
 
 @router.post("/pause")
 async def pause_simulation(req: PauseRequest):
-    """Memberhentikan sementara simulasi"""
+    """Pause running simulation"""
     success = simulation_manager.pause(req.trip_id)
     return {"status": "SUCCESS" if success else "FAILED", "trip_id": req.trip_id, "is_paused": True}
 
 @router.post("/reset")
 async def reset_simulation(req: ResetRequest):
-    """Mereset kondisi simulasi ke KM 0"""
+    """Reset simulation state to KM 0"""
     success = simulation_manager.reset(req.trip_id)
-    return {"status": "SUCCESS", "message": f"Simulasi trip {req.trip_id} telah direset."}
+    return {"status": "SUCCESS", "message": f"Simulation for trip {req.trip_id} has been reset."}
 
 @router.post("/speed")
 async def set_speed(req: SpeedRequest):
-    """Mengatur percepatan waktu simulasi (1x, 2x, 5x, 10x, 20x)"""
+    """Set simulation time acceleration multiplier (1x, 2x, 5x, 10x, 20x)"""
     success = simulation_manager.set_speed(req.trip_id, req.multiplier)
     engine = simulation_manager.engines.get(req.trip_id)
     interval = engine.clock.get_tick_interval_ms() if engine else int(1000.0 / req.multiplier)
@@ -83,20 +83,20 @@ async def set_speed(req: SpeedRequest):
 
 @router.post("/actuator")
 async def update_actuators(req: ActuatorRequest):
-    """Mengendalikan status kipas, damper udara, dan pendingin"""
+    """Control blower fan speed, air inlet damper, and refrigeration compressor"""
     engine = simulation_manager.get_or_create_engine(req.trip_id)
     if not engine:
-        raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} tidak ditemukan.")
+        raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} not found.")
     
     engine.set_actuators(fan_speed=req.fan_speed, air_inlet=req.air_inlet, chiller=req.chiller_power)
-    return {"status": "SUCCESS", "message": "Status aktuator berhasil diperbarui."}
+    return {"status": "SUCCESS", "message": "Actuator status updated successfully."}
 
 @router.post("/inject-fault")
 async def inject_fault(req: FaultRequest):
-    """Menyuntikkan gangguan operasional dan anomali sensor"""
+    """Inject mechanical faults, environmental hazards, and sensor anomalies"""
     engine = simulation_manager.get_or_create_engine(req.trip_id)
     if not engine:
-        raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} tidak ditemukan.")
+        raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} not found.")
     
     anomaly = req.anomaly_type.upper()
     faults = {}
@@ -128,7 +128,7 @@ async def inject_fault(req: FaultRequest):
 
 @router.get("/status")
 async def get_simulation_status(trip_id: Optional[str] = Query(None)):
-    """Mengambil status operasional simulasi saat ini"""
+    """Retrieve current simulation operational status"""
     if not trip_id:
         trips = simulation_manager.db.get_trips()
         if not trips:
@@ -138,11 +138,11 @@ async def get_simulation_status(trip_id: Optional[str] = Query(None)):
 
 @router.get("/latest")
 async def get_latest_payload(trip_id: Optional[str] = Query(None)):
-    """Mengambil paket payload telemetri 25-field terakhir dari memori"""
+    """Retrieve latest 25-field telemetry payload from memory"""
     if not trip_id:
         trips = simulation_manager.db.get_trips()
         if not trips:
-            raise HTTPException(status_code=404, detail="Belum ada rencana pengiriman terdaftar.")
+            raise HTTPException(status_code=404, detail="No dispatch manifests registered yet.")
         trip_id = trips[0]["trip_id"]
 
     engine = simulation_manager.engines.get(trip_id)
@@ -154,7 +154,7 @@ async def get_latest_payload(trip_id: Optional[str] = Query(None)):
     if not payload:
         engine = simulation_manager.get_or_create_engine(trip_id)
         if engine:
-            # Standby baseline snapshot (Mempertahankan posisi terakhir armada dari database jika ada)
+            # Standby baseline snapshot (preserve vehicle's last position from database)
             p = engine.tick()
             payload = p.model_dump()
             payload["vehicle"]["speed_kmh"] = 0.0
@@ -174,7 +174,7 @@ async def get_latest_payload(trip_id: Optional[str] = Query(None)):
 
             simulation_manager.latest_payloads[trip_id] = payload
         else:
-            raise HTTPException(status_code=404, detail=f"Belum ada data telemetri untuk trip {trip_id}.")
+            raise HTTPException(status_code=404, detail=f"No telemetry data available for trip {trip_id}.")
 
     res = dict(payload)
     res["engineRunning"] = is_running

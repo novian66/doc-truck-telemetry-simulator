@@ -43,13 +43,13 @@ class TripCreateRequest(BaseModel):
 
 @router.get("/templates")
 def list_templates():
-    """Mengambil master 6 Template Spesifikasi Paten Truk"""
+    """Retrieve master 6 Patented Fleet Templates"""
     templates = db_manager.get_templates()
     return {"status": "SUCCESS", "count": len(templates), "templates": templates}
 
 @router.get("/vehicles")
 def list_vehicles():
-    """Mengambil daftar armada truk terdaftar beserta posisi GPS terakhir real-time"""
+    """Retrieve registered fleet vehicles with real-time last GPS telemetry"""
     vehicles = db_manager.get_vehicles()
     enriched = []
     for v in vehicles:
@@ -77,10 +77,10 @@ def list_vehicles():
 
 @router.post("/vehicles")
 def create_vehicle(req: VehicleCreateRequest):
-    """Mendaftarkan armada truk baru"""
+    """Register new fleet vehicle"""
     template = db_manager.get_template(req.template_key)
     if not template:
-        raise HTTPException(status_code=400, detail=f"Template key '{req.template_key}' tidak ditemukan.")
+        raise HTTPException(status_code=400, detail=f"Template key '{req.template_key}' not found.")
     
     with db_manager.get_connection() as conn:
         cursor = conn.cursor()
@@ -93,13 +93,13 @@ def create_vehicle(req: VehicleCreateRequest):
             """, (req.truck_id, req.plate_number, req.template_key, req.display_name, req.notes))
             conn.commit()
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Gagal mendaftarkan armada: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Failed to register vehicle: {str(e)}")
             
-    return {"status": "SUCCESS", "message": f"Armada {req.truck_id} berhasil didaftarkan."}
+    return {"status": "SUCCESS", "message": f"Vehicle {req.truck_id} registered successfully."}
 
 @router.get("/trips")
 def list_trips():
-    """Mengambil daftar rencana ekspedisi / pengiriman dengan status runtime live"""
+    """Retrieve list of dispatch itineraries with live runtime status"""
     trips = db_manager.get_trips()
     enriched = []
     for t in trips:
@@ -118,19 +118,19 @@ def list_trips():
 
 @router.post("/trips")
 async def create_trip(req: TripCreateRequest):
-    """Mendaftarkan atau memperbarui rencana pengiriman (trip) dan menghitung rute dinamis via OSRM API (profil car)"""
+    """Register or update dispatch itinerary and calculate dynamic route via OSRM API (car profile)"""
     trip_dict = req.model_dump()
 
-    # Koordinat asal, tujuan & status preferensi jalan tol dari form
+    # Origin and destination coordinates & toll preference
     o_lat = req.origin_lat if req.origin_lat is not None else -6.5650
     o_lng = req.origin_lng if req.origin_lng is not None else 107.7600
     d_lat = req.destination_lat if req.destination_lat is not None else -6.5980
     d_lng = req.destination_lng if req.destination_lng is not None else 106.7990
-    o_name = req.origin_name or "Subang Hatchery (Hulu)"
-    d_name = req.destination_name or "Bogor Broiler Farm (Hilir)"
+    o_name = req.origin_name or "Subang Hatchery"
+    d_name = req.destination_name or "Bogor Broiler Farm"
     r_type = req.route_type or "TOLL"
 
-    # Panggil OSRM API dengan profil car
+    # Call OSRM API with car profile
     try:
         osrm_res = await osrm_client.get_route(
             origin_lng=o_lng,
@@ -169,27 +169,27 @@ async def create_trip(req: TripCreateRequest):
     db_manager.insert_trip(trip_dict)
     return {
         "status": "SUCCESS",
-        "message": f"Pengiriman {req.trip_id} berhasil didaftarkan dengan rute OSRM car ({trip_dict.get('total_distance_km', 145.0)} km).",
+        "message": f"Dispatch {req.trip_id} registered successfully with OSRM car route ({trip_dict.get('total_distance_km', 145.0)} km).",
         "trip": trip_dict,
         "osrm_route": osrm_res
     }
 
 @router.delete("/trips/{trip_id}")
 def delete_trip(trip_id: str):
-    """Menghapus data pengiriman dan menghentikan simulasi jika sedang berjalan"""
+    """Delete dispatch itinerary and stop simulation if running"""
     success = simulation_manager.delete_trip(trip_id)
     if not success:
-        raise HTTPException(status_code=404, detail=f"Trip ID '{trip_id}' tidak ditemukan.")
-    return {"status": "SUCCESS", "message": f"Pengiriman {trip_id} berhasil dihapus."}
+        raise HTTPException(status_code=404, detail=f"Trip ID '{trip_id}' not found.")
+    return {"status": "SUCCESS", "message": f"Dispatch {trip_id} deleted successfully."}
 
 @router.post("/trips/clear")
 @router.delete("/trips")
 def clear_trips():
-    """Membersihkan seluruh data pengiriman lama agar antrean kosong untuk pembuatan pengiriman baru"""
+    """Clear all previous dispatch records to allow fresh testbed setup"""
     count = simulation_manager.clear_all_trips(reseed_default=False)
     trips = db_manager.get_trips()
     return {
         "status": "SUCCESS",
-        "message": f"Berhasil membersihkan seluruh data pengiriman ({count} data terhapus). Antrean pengiriman kini kosong dan siap untuk pembuatan pengiriman baru.",
+        "message": f"All dispatch manifests cleared ({count} records deleted). Dispatch queue is now empty and ready for new manifest creation.",
         "trips": trips
     }
