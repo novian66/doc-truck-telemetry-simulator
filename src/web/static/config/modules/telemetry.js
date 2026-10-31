@@ -88,7 +88,7 @@ export function broadcastTelemetry(thi = 141.2, eci = 71.4, weightLoss = 0.5) {
       total_distance_km: runtime.totalDistanceKm
     },
 
-    // 3. Mikroklimat Kargo Multi-Zona
+    // 3. Multi-Zone Cargo Microclimate
     microclimate: {
       temp_zone_1_c: readZ1,
       temp_zone_2_c: readZ2,
@@ -100,7 +100,7 @@ export function broadcastTelemetry(thi = 141.2, eci = 71.4, weightLoss = 0.5) {
       ambient_humidity_pct: 74.5,
       solar_irradiance_wm2: Math.round(runtime.solarIrradiance),
 
-      // Objek Kompatibilitas untuk Consumer Dashboard Leaflet/Chart.js
+      // Compatibility Object for Consumer Dashboard Leaflet/Chart.js
       zone_1_front: {
         temperature_c: readZ1 !== null ? readZ1 : 25.2,
         humidity_rh: parseFloat(runtime.z1_rh.toFixed(1))

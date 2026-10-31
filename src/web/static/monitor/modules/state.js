@@ -199,7 +199,7 @@ export async function syncMonitorFromBackend() {
           tripId: st.trip_id,
           routeId: st.route_id,
           deliveryOrder: st.delivery_order || `DO-CPI-SBG-${st.trip_id.replace("TRIP-", "")}`,
-          title: `Pengiriman ${st.origin_name ? st.origin_name.split(" ")[0] : "Subang"} ke ${st.destination_name ? st.destination_name.split(" ")[0] : "Bogor"} (${st.truck_id})`,
+          title: st.title || `Dispatch ${st.origin_name ? st.origin_name.split(" ")[0] : "Subang"} to ${st.destination_name ? st.destination_name.split(" ")[0] : "Bogor"} (${st.truck_id})`,
           routeType: st.route_type === "NON_TOLL" ? "NON_TOLL" : "TOLL",
           totalDistanceKm: st.total_distance_km || 145.0,
           truckId: st.truck_id,

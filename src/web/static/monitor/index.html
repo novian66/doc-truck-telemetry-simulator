@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Monitoring Telemetri Logistik Truk Bibit Ayam (DOC)</title>
+  <title>DOC Fleet Telematics & Microclimate Cold-Chain Monitoring System</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
   <link rel="alternate icon" type="image/x-icon" href="favicon.ico?v=2">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=2">
@@ -24,26 +24,26 @@
     <div class="header-left">
       <div class="logo-icon">🚚</div>
       <div>
-        <h1 class="app-title">Sistem Pemantauan Logistik & Telemetri Truk DOC</h1>
-        <div class="app-subtitle">PT Charoen Pokphand Indonesia &bull; Cold-Chain Telematics Control Center (Subang &rarr; Bogor)</div>
+        <h1 class="app-title">DOC Fleet Telematics & Microclimate Monitoring System</h1>
+        <div class="app-subtitle">Commercial Day-Old Chick Cold-Chain Logistics Control Center (Subang &rarr; Bogor Corridor)</div>
       </div>
     </div>
 
-    <!-- TRIP/PENGIRIMAN SELECTOR (PILIH PENGIRIMAN YANG MAU DILIHAT DETAIL) -->
+    <!-- TRIP/EXPEDITION SELECTOR -->
     <div class="expedition-selector-box">
-      <label for="expeditionSelector">PILIH PENGIRIMAN:</label>
+      <label for="expeditionSelector">SELECT SHIPMENT:</label>
       <select id="expeditionSelector" class="form-select-exp">
         <!-- Dynamically populated from active trips and archives -->
       </select>
-      <span class="trip-status-pill ready" id="selectedTripStatusPill">STANDBY PANGKALAN</span>
+      <span class="trip-status-pill ready" id="selectedTripStatusPill">DEPOT STANDBY</span>
     </div>
 
     <div class="header-right">
       <div class="trip-timer-box">
-        <small>WAKTU TEMPUH:</small>
+        <small>ELAPSED TIME:</small>
         <span class="trip-timer" id="tripTimer">00:00:00</span>
       </div>
-      <div class="live-stream-badge standby" id="liveStreamBadge" title="Status koneksi streaming telemetri">
+      <div class="live-stream-badge standby" id="liveStreamBadge" title="Telemetry streaming link status">
         <span class="pulse-dot" id="liveStreamDot"></span>
         <span id="liveStreamText">STANDBY</span>
         <span class="live-stream-time hidden" id="liveStreamTime"></span>
@@ -56,8 +56,8 @@
     <div class="banner-content">
       <span class="banner-icon" id="bannerIcon">ℹ️</span>
       <div>
-        <strong id="bannerTitle">Status Pengiriman</strong>
-        <p id="bannerDesc">Data riwayat kargo pengiriman.</p>
+        <strong id="bannerTitle">Shipment Status</strong>
+        <p id="bannerDesc">Historical cargo dispatch manifest data.</p>
       </div>
     </div>
   </div>
@@ -65,17 +65,17 @@
   <!-- Active Telemetry Summary Bar (Consumed Data) -->
   <div class="scenario-summary-bar">
     <div class="summary-pill"><span class="icon">📋</span> DO: <strong id="barDO">DO-CPI-SBG-20261031-01</strong></div>
-    <div class="summary-pill"><span class="icon">🚚</span> Armada: <strong id="barTruckId">TRUCK-AJ-36000-01 (DD 8741 XY)</strong></div>
-    <div class="summary-pill"><span class="icon">🏭</span> Model: <strong id="barModel">Truk Blower Tropis Audy Joinaldy 2020</strong></div>
-    <div class="summary-pill"><span class="icon">🧬</span> Galur: <strong id="barStrain">Cobb 500 (1.512 kg)</strong></div>
-    <div class="summary-pill"><span class="icon">👤</span> Supir: <strong id="barDriver">Rahmat Santoso</strong></div>
-    <div class="summary-pill"><span class="icon">🐥</span> Muatan: <strong id="barLoad">36.000 DOC</strong></div>
-    <div class="summary-pill"><span class="icon">📦</span> Kemasan: <strong id="barPackaging">Crate Plastik (100/box)</strong></div>
-    <div class="summary-pill" id="pillRouteType"><span class="icon">🛣️</span> Jalur: <strong id="barRouteType">Toll (146.9 km)</strong></div>
-    <div class="summary-pill" id="pillTime"><span class="icon">☀️</span> Waktu: <strong>2026-10-31 • 08:00 WIB (Siang)</strong></div>
-    <div class="summary-pill" id="pillWeather"><span class="icon">🌤️</span> Cuaca: <strong>Cerah</strong></div>
-    <div class="summary-pill"><span class="icon">🛣️</span> Kondisi Jalan: <strong id="currentRoadBadge" class="badge-flow">LANCAR (TOL)</strong></div>
-    <div class="summary-pill"><span class="icon">❤️</span> Status DOC: <strong id="welfareBadge" class="badge-normal">OPTIMAL (NORMAL)</strong></div>
+    <div class="summary-pill"><span class="icon">🚚</span> Vehicle: <strong id="barTruckId">TRUCK-AJ-36000-01 (DD 8741 XY)</strong></div>
+    <div class="summary-pill"><span class="icon">🏭</span> Model: <strong id="barModel">Tropical Blower Truck (Audy Joinaldy 2020)</strong></div>
+    <div class="summary-pill"><span class="icon">🧬</span> Strain: <strong id="barStrain">Cobb 500 (1,512 kg)</strong></div>
+    <div class="summary-pill"><span class="icon">👤</span> Driver: <strong id="barDriver">Rahmat Santoso</strong></div>
+    <div class="summary-pill"><span class="icon">🐥</span> Cargo Load: <strong id="barLoad">36,000 DOC</strong></div>
+    <div class="summary-pill"><span class="icon">📦</span> Packaging: <strong id="barPackaging">Perforated Crate (100/box)</strong></div>
+    <div class="summary-pill" id="pillRouteType"><span class="icon">🛣️</span> Route: <strong id="barRouteType">Tollway (146.9 km)</strong></div>
+    <div class="summary-pill" id="pillTime"><span class="icon">☀️</span> Departure: <strong>2026-10-31 • 08:00 WIB (Daytime)</strong></div>
+    <div class="summary-pill" id="pillWeather"><span class="icon">🌤️</span> Weather: <strong>Clear / Sunny</strong></div>
+    <div class="summary-pill"><span class="icon">🛣️</span> Roadway: <strong id="currentRoadBadge" class="badge-flow">FREE FLOW (HIGHWAY)</strong></div>
+    <div class="summary-pill"><span class="icon">❤️</span> Welfare Status: <strong id="welfareBadge" class="badge-normal">OPTIMAL (NORMAL)</strong></div>
   </div>
 
   <!-- Main Grid Layout -->
@@ -85,7 +85,7 @@
     <section class="map-section">
       <div class="card map-card">
         <div class="card-header">
-          <h2>Pelacakan Rute Armada Pengiriman DOC</h2>
+          <h2>Geospatial Fleet Tracking & Route Navigation</h2>
           <div class="map-badges">
             <span class="info-badge" id="gpsCoordBadge">Lat: -6.5650, Lng: 107.7600</span>
             <span class="info-badge" id="bearingBadge">Bearing: 268°</span>
@@ -97,11 +97,11 @@
 
         <!-- Map Legend -->
         <div class="map-legend">
-          <div class="legend-title">Keterangan Navigasi Peta:</div>
-          <div class="legend-item"><span class="color-box" style="background: #2563eb;"></span> Rute OSRM Jalan Tol (Subang &rarr; Bogor)</div>
-          <div class="legend-item"><span class="color-box" style="background: #38bdf8;"></span> Jejak Tempuh GPS (Breadcrumb Trail)</div>
-          <div class="legend-item"><span class="icon">📍</span> Titik A: Subang Hatchery (Hulu)</div>
-          <div class="legend-item"><span class="icon">🏁</span> Titik B: Bogor Broiler Farm (Hilir)</div>
+          <div class="legend-title">Map Navigation Legend:</div>
+          <div class="legend-item"><span class="color-box" style="background: #2563eb;"></span> OSRM Highway Route (Subang &rarr; Bogor)</div>
+          <div class="legend-item"><span class="color-box" style="background: #38bdf8;"></span> GPS Breadcrumb Trail (Active Transit)</div>
+          <div class="legend-item"><span class="icon">📍</span> Origin Point: Subang Hatchery (KM 0)</div>
+          <div class="legend-item"><span class="icon">🏁</span> Destination: Bogor Broiler Farm (KM 145)</div>
         </div>
       </div>
     </section>
@@ -112,69 +112,69 @@
       <!-- Kinematics & Road Metrics -->
       <div class="card metrics-grid">
         <div class="metric-box">
-          <div class="metric-label">Kecepatan Aktual</div>
-          <div class="metric-value" id="valSpeed">0 <small>km/jam</small></div>
+          <div class="metric-label">Current Speed</div>
+          <div class="metric-value" id="valSpeed">0 <small>km/h</small></div>
           <div class="metric-sub" id="subOdo">Odometer: 0.0 km</div>
         </div>
         <div class="metric-box">
-          <div class="metric-label">Sensor Guncangan (RMS)</div>
+          <div class="metric-label">3-Axis Vibration (RMS)</div>
           <div class="metric-value" id="valVibration">0.08 <small>g</small></div>
-          <div class="metric-sub" id="subVibStatus">Normal (Mulus)</div>
+          <div class="metric-sub" id="subVibStatus">Normal (Smooth Ride)</div>
         </div>
         <div class="metric-box">
-          <div class="metric-label">Suhu Ambien Luar</div>
+          <div class="metric-label">Ambient Temperature</div>
           <div class="metric-value" id="valAmbient">30.6 <small>°C</small></div>
-          <div class="metric-sub" id="subSolar">Radiasi: 470 W/m²</div>
+          <div class="metric-sub" id="subSolar">Radiation: 470 W/m²</div>
         </div>
         <div class="metric-box">
-          <div class="metric-label">Jarak Ditempuh</div>
+          <div class="metric-label">Distance Traveled</div>
           <div class="metric-value" id="valDistance">0.0 <small>/ 146.9 km</small></div>
-          <div class="metric-sub" id="subProgress">Progres: 0%</div>
+          <div class="metric-sub" id="subProgress">Progress: 0%</div>
         </div>
       </div>
 
       <!-- 3-Zone Microclimate Cards -->
       <div class="card microclimate-card">
         <div class="card-header">
-          <h3>🌡️ Mikroklimat Kargo Multi-Zona (Batas Aman DOC: 32°C - 35°C)</h3>
-          <span class="subsystem-pill" id="chillerStatusPill">💨 Blower: AKTIF (Truk Non-AC)</span>
+          <h3>🌡️ Multi-Zone Cargo Microclimate (Safety Envelope: 32°C - 35°C)</h3>
+          <span class="subsystem-pill" id="chillerStatusPill">💨 Ventilation: ACTIVE (Ambient Airflow)</span>
         </div>
 
         <div class="zones-container">
           <!-- Zone 1 -->
           <div class="zone-box" id="zoneBox1">
-            <div class="zone-name">ZONA 1 (DEPAN - EVAPORATOR)</div>
+            <div class="zone-name">ZONE 1 (FRONT - AIR INTAKE)</div>
             <div class="zone-temp" id="tempZ1">33.2°C</div>
             <div class="zone-rh" id="rhZ1">RH: 62%</div>
             <div class="zone-gauge"><div class="gauge-fill" id="gaugeZ1" style="width: 50%;"></div></div>
-            <div class="zone-desc">Aliran udara dingin utama</div>
+            <div class="zone-desc">Primary air intake & cooling stream</div>
           </div>
 
           <!-- Zone 2 -->
           <div class="zone-box" id="zoneBox2">
-            <div class="zone-name">ZONA 2 (TENGAH - MASSA DOC)</div>
+            <div class="zone-name">ZONE 2 (CENTER - CHICK BIOMASS)</div>
             <div class="zone-temp" id="tempZ2">34.1°C</div>
             <div class="zone-rh" id="rhZ2">RH: 59%</div>
             <div class="zone-gauge"><div class="gauge-fill" id="gaugeZ2" style="width: 65%;"></div></div>
-            <div class="zone-desc">Panas metabolik tertinggi</div>
+            <div class="zone-desc">Peak metabolic heat accumulation</div>
           </div>
 
           <!-- Zone 3 -->
           <div class="zone-box" id="zoneBox3">
-            <div class="zone-name">ZONA 3 (BELAKANG - PINTU)</div>
+            <div class="zone-name">ZONE 3 (REAR - TAILGATE DOORS)</div>
             <div class="zone-temp" id="tempZ3">34.8°C</div>
             <div class="zone-rh" id="rhZ3">RH: 57%</div>
             <div class="zone-gauge"><div class="gauge-fill" id="gaugeZ3" style="width: 80%;"></div></div>
-            <div class="zone-desc">Rentan radiasi luar & pintu kargo</div>
+            <div class="zone-desc">Solar radiation & tailgate exposure</div>
           </div>
         </div>
 
         <!-- CO2 Level -->
         <div class="co2-strip">
           <div class="co2-info">
-            <span>Konsentrasi Karbon Dioksida ($CO_2$):</span>
+            <span>Carbon Dioxide Concentration ($CO_2$):</span>
             <strong id="valCO2">1,150 ppm</strong>
-            <span class="threshold-tag">(Batas Aman: &lt; 1,500 ppm)</span>
+            <span class="threshold-tag">(Safety Threshold: &lt; 1,500 ppm)</span>
           </div>
           <div class="co2-bar"><div class="co2-fill" id="barCO2" style="width: 45%;"></div></div>
         </div>
@@ -183,10 +183,10 @@
       <!-- Real-Time Chart -->
       <div class="card chart-card">
         <div class="card-header">
-          <h3>📈 Grafik Aliran Data Sensor Real-Time</h3>
+          <h3>📈 Real-Time Sensor Telemetry Stream</h3>
           <div class="chart-toggles">
-            <button class="chart-tab active" data-chart="temp">Suhu 3 Zona</button>
-            <button class="chart-tab" data-chart="speed">Kecepatan & G-Force</button>
+            <button class="chart-tab active" data-chart="temp">Tri-Zone Temps</button>
+            <button class="chart-tab" data-chart="speed">Speed & G-Force</button>
           </div>
         </div>
         <div class="chart-container">
@@ -203,14 +203,14 @@
       <div class="inspector-title">
         <span class="pulse-indicator live" id="streamPulse"></span>
         <strong>RAW TELEMETRY STREAM INSPECTOR (1 Hz Consumer)</strong>
-        <small id="packetTs">Menunggu transmisi...</small>
+        <small id="packetTs">Waiting for transmission...</small>
       </div>
       <div class="inspector-meta" id="streamMeta">
-        Paket Diterima: 0 &bull; Protokol: WebSocket Telemetry 1 Hz (WSS)
+        Packets Ingested: 0 &bull; Protocol: WebSocket Telemetry 1 Hz (WSS)
       </div>
     </div>
     <div class="inspector-terminal">
-      <pre id="jsonPayloadDisplay">// Menghubungkan ke telemetri onboard armada (TRUCK-AJ-36000-01)...</pre>
+      <pre id="jsonPayloadDisplay">// Connecting to onboard vehicle telematics stream (TRUCK-AJ-36000-01)...</pre>
     </div>
   </footer>
 
@@ -221,6 +221,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Application JS -->
-  <script type="module" src="app.js?v=8"></script>
+  <script type="module" src="app.js?v=9"></script>
 </body>
 </html>

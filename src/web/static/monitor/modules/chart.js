@@ -27,10 +27,10 @@ export function initChart() {
     data: {
       labels: chartHistory.labels,
       datasets: [
-        { label: "Zona 1 (Depan)", data: chartHistory.z1, borderColor: "#38bdf8", tension: 0.3, borderWidth: 2, pointRadius: 0 },
-        { label: "Zona 2 (Tengah)", data: chartHistory.z2, borderColor: "#10b981", tension: 0.3, borderWidth: 2, pointRadius: 0 },
-        { label: "Zona 3 (Belakang)", data: chartHistory.z3, borderColor: "#f59e0b", tension: 0.3, borderWidth: 2, pointRadius: 0 },
-        { label: "Suhu Ambien", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], tension: 0.2, borderWidth: 1.5, pointRadius: 0 }
+        { label: "Zone 1 (Front)", data: chartHistory.z1, borderColor: "#38bdf8", tension: 0.3, borderWidth: 2, pointRadius: 0 },
+        { label: "Zone 2 (Center)", data: chartHistory.z2, borderColor: "#10b981", tension: 0.3, borderWidth: 2, pointRadius: 0 },
+        { label: "Zone 3 (Rear)", data: chartHistory.z3, borderColor: "#f59e0b", tension: 0.3, borderWidth: 2, pointRadius: 0 },
+        { label: "Ambient Temp (°C)", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], tension: 0.2, borderWidth: 1.5, pointRadius: 0 }
       ]
     },
     options: {
@@ -66,17 +66,17 @@ export function updateChartDatasets() {
 
   if (activeChartType === "temp") {
     telemetryChart.data.datasets = [
-      { label: "Zona 1 (Depan)", data: chartHistory.z1, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Zona 2 (Tengah)", data: chartHistory.z2, borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Zona 3 (Belakang)", data: chartHistory.z3, borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Suhu Ambien", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
+      { label: "Zone 1 (Front)", data: chartHistory.z1, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Zone 2 (Center)", data: chartHistory.z2, borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Zone 3 (Rear)", data: chartHistory.z3, borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Ambient Temp (°C)", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
     ];
     telemetryChart.options.scales.y.min = 20;
     telemetryChart.options.scales.y.max = 42;
   } else {
     telemetryChart.data.datasets = [
-      { label: "Kecepatan (km/j)", data: chartHistory.speed, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Getaran (RMS g x100)", data: chartHistory.vibration.map(v => v * 100), borderColor: "#ef4444", borderWidth: 2, pointRadius: 0, tension: 0.2 }
+      { label: "Speed (km/h)", data: chartHistory.speed, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Vibration (RMS g ×100)", data: chartHistory.vibration.map(v => v * 100), borderColor: "#ef4444", borderWidth: 2, pointRadius: 0, tension: 0.2 }
     ];
     telemetryChart.options.scales.y.min = 0;
     telemetryChart.options.scales.y.max = 100;

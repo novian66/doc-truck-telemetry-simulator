@@ -12,8 +12,8 @@ export const STORAGE_KEYS = {
 
 export const BROADCAST_CHANNEL_NAME = "truck_telematics_stream";
 
-// Konfigurasi Rute Ekspedisi (Jalur Tol vs Jalur Non-Tol)
-// Sesuai Spesifikasi database_and_storage_spec.md Bagian 4.3 (OSRM / OpenStreetMap Engine)
+// Dispatch Route Configuration (Toll Highway vs Arterial Non-Toll)
+// Based on OSRM / OpenStreetMap Waypoint Specifications
 export const ROUTES_CONFIG = {
   TOLL: {
     key: "TOLL",
@@ -90,11 +90,11 @@ export const ROUTES_CONFIG = {
       { lat: -6.5980, lng: 106.7990, seg: 4, name: "Bogor Broiler Farm (KM 172)" }
     ],
     segments: [
-      { id: 1, name: "KM 0-35: Arteri Subang - Sadang", sub: "Jalur Luar Kota Subang", distKm: 35 },
-      { id: 2, name: "KM 35-75: Arteri Karawang", sub: "Kawasan Padat Industri", distKm: 40 },
-      { id: 3, name: "KM 75-115: Arteri Cibarusah", sub: "Jalur Padat Truk Muatan", distKm: 40 },
-      { id: 4, name: "KM 115-150: Jalur Jonggol - Cileungsi", sub: "Jalan Bergelombang & Berbukit", distKm: 35 },
-      { id: 5, name: "KM 150-172: Arteri Cibinong - Bogor", sub: "Arteri Padat Komersial", distKm: 22 }
+      { id: 1, name: "KM 0-35: Subang - Sadang Arterial", sub: "Upstream Arterial Corridor", distKm: 35 },
+      { id: 2, name: "KM 35-75: Karawang Arterial", sub: "Industrial Corridor", distKm: 40 },
+      { id: 3, name: "KM 75-115: Cibarusah Arterial", sub: "Heavy Freight Arterial", distKm: 40 },
+      { id: 4, name: "KM 115-150: Jonggol - Cileungsi Arterial", sub: "Hilly & Rough Road Corridor", distKm: 35 },
+      { id: 5, name: "KM 150-172: Cibinong - Bogor Arterial", sub: "Commercial Destination Corridor", distKm: 22 }
     ]
   }
 };
@@ -122,222 +122,222 @@ export const ROAD_COLORS = {
 };
 
 export const ROAD_PARAMS = {
-  FREE_FLOW: { targetSpeed: 75, baseVib: 0.08, label: "LANCAR (TOL)", class: "badge-flow" },
-  CONGESTED: { targetSpeed: 25, baseVib: 0.12, label: "PADAT MERAYAP", class: "badge-congested" },
-  GRIDLOCK: { targetSpeed: 0, baseVib: 0.02, label: "MACET TOTAL", class: "badge-gridlock" },
-  DAMAGED_ROAD: { targetSpeed: 18, baseVib: 0.55, label: "JALAN RUSAK", class: "badge-damaged" },
-  FLOODED: { targetSpeed: 8, baseVib: 0.06, label: "TERGENANG BANJIR", class: "badge-flooded" },
-  DISASTER_BLOCKED: { targetSpeed: 0, baseVib: 0.01, label: "BENCANA / LONGSOR", class: "badge-disaster" }
+  FREE_FLOW: { targetSpeed: 75, baseVib: 0.08, label: "FREE FLOW (HIGHWAY)", class: "badge-flow" },
+  CONGESTED: { targetSpeed: 25, baseVib: 0.12, label: "CONGESTED / SLOW", class: "badge-congested" },
+  GRIDLOCK: { targetSpeed: 0, baseVib: 0.02, label: "GRIDLOCK TRAFFIC", class: "badge-gridlock" },
+  DAMAGED_ROAD: { targetSpeed: 18, baseVib: 0.55, label: "DAMAGED / ROUGH ROAD", class: "badge-damaged" },
+  FLOODED: { targetSpeed: 8, baseVib: 0.06, label: "FLOODED ROADWAY", class: "badge-flooded" },
+  DISASTER_BLOCKED: { targetSpeed: 0, baseVib: 0.01, label: "BLOCKED / HAZARD", class: "badge-disaster" }
 };
 
 // 1. VEHICLE TEMPLATES DARI data_truck.md (Template Paten Vendor Industri & Riset Empiris)
 export const VEHICLE_TEMPLATES = {
   hatchtech: {
     key: "hatchtech",
-    model: "HatchTech HatchTraveller 38400 (Belanda)",
+    model: "HatchTech HatchTraveller 38400 (Netherlands)",
     vendor: "HatchTech B.V.",
-    country: "Belanda",
+    country: "Netherlands",
     capacity: 38400,
-    capacityFormatted: "38.400 DOC",
-    airflow: "Laminar Airflow (15.000 m³/jam)",
-    freshAir: "2.800 m³/jam (Katup Otomatis Terkendali)",
+    capacityFormatted: "38,400 DOC",
+    airflow: "Laminar Airflow (15,000 m³/h)",
+    freshAir: "2,800 m³/h (Controlled Automated Dampers)",
     setpoint: 25.0,
     coolingCapacity: "8.5 kW MicroClimer Cooling Unit",
-    powerType: "Genset Diesel Mandiri 24V",
+    powerType: "Independent 24V Diesel Genset",
     fuelTank: 65,
-    zones: "2-Zona Mandiri (MicroClimer Front & Rear)",
-    sensors: "8 Probe MicroClimer 2-Zona, CO2 NDIR, Accelerometer 3-Axis, Reed Switch",
+    zones: "Independent 2-Zone (MicroClimer Front & Rear)",
+    sensors: "8-Probe MicroClimer 2-Zone, CO2 NDIR, 3-Axis Accelerometer, Reed Switch",
     truckImage: "/assets/images/trucks/truck_hatchtech.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_hatchtech.png?v=2",
     sensorList: [
-      "8x Probe Suhu Presisi MicroClimer PT100 (4 depan, 4 belakang)",
-      "Sensor Kelembaban Relatif SHT31 Digital (Rentang 0-100% RH)",
-      "Sensor Gas Karbon Dioksida SenseAir S8 NDIR (ppm)",
-      "Accelerometer 3-Axis Shock & Vibration RMS (g-force)",
-      "Magnetic Reed Switch Pintu Kargo Belakang (Deteksi Buka-Tutup)",
-      "GPS Receiver Multi-GNSS 1 Hz (Lat, Lng, Speed, Bearing, Alt)"
+      "8x High-Precision MicroClimer PT100 Temperature Probes (4 front, 4 rear)",
+      "SHT31 Digital Relative Humidity Sensor (0-100% RH Range)",
+      "SenseAir S8 NDIR Carbon Dioxide Gas Sensor (ppm)",
+      "3-Axis Shock & Vibration RMS Accelerometer (g-force)",
+      "Rear Cargo Magnetic Reed Switch (Door Open/Close Detection)",
+      "Multi-GNSS 1 Hz GPS Receiver (Lat, Lng, Speed, Bearing, Alt)"
     ],
     features: [
-      "Aliran udara laminer kecepatan rendah merata di setiap tumpukan boks DOC",
-      "Kisi 8-probe mengeliminasi titik panas (hot spots) dan titik dingin (cold spots)",
-      "Kontrol mikro-iklim independen 2 zona terisolasi termal"
+      "Uniform low-velocity laminar airflow across all DOC crate stacks",
+      "8-probe grid eliminating hot spots and cold spots",
+      "Independent dual-zone microclimate control with thermal insulation"
     ],
     reference: "references/HatchTech_HatchTraveller_38400.txt"
   },
   heering: {
     key: "heering",
-    model: "Heering Link Telematics Chick Trailer (Belanda)",
+    model: "Heering Link Telematics Chick Trailer (Netherlands)",
     vendor: "Heering Holland",
-    country: "Belanda",
+    country: "Netherlands",
     capacity: 50000,
-    capacityFormatted: "50.000 DOC",
+    capacityFormatted: "50,000 DOC",
     airflow: "Multi-Fan Roof Array & Air Inlet Damper",
-    freshAir: "3.200 m³/jam (Motorized Proportional Damper)",
+    freshAir: "3,200 m³/h (Motorized Proportional Damper)",
     setpoint: 25.0,
     coolingCapacity: "10.0 kW Multi-Fan Evaporator",
-    powerType: "Genset Diesel Mandiri 12V",
+    powerType: "Independent 12V Diesel Genset",
     fuelTank: 80,
-    zones: "3-Zona (Depan, Tengah, Belakang)",
-    sensors: "Multi-point RHT, CO2 NDIR, Air Damper, Reed Switch Pintu, Genset Telemetry",
+    zones: "3-Zone (Front, Center, Rear)",
+    sensors: "Multi-point RHT, CO2 NDIR, Air Damper, Door Reed Switch, Genset Telemetry",
     truckImage: "/assets/images/trucks/truck_heering.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_heering.png?v=2",
     sensorList: [
-      "Multi-point Digital Temperature & RH Probes 3-Zona",
-      "Industrial CO2 NDIR Optical Gas Analyzer",
-      "Sensor Posisi Sudut Bukaan Damper Udara Segar (0-100%)",
-      "Saklar Kontak Magnetik Pintu Belakang Kargo",
-      "Sensor Level Solar Tangki Genset & Voltase Baterai",
-      "Modem Telematika Seluler GPRS/LTE FMS Heering Link"
+      "Multi-point Digital Temperature & RH Probes (3-Zone)",
+      "Industrial Optical NDIR CO2 Gas Analyzer",
+      "Fresh Air Proportional Damper Angular Position Sensor (0-100%)",
+      "Rear Cargo Door Magnetic Contact Switch",
+      "Genset Fuel Level Sensor & Battery Voltage Telemetry",
+      "Heering Link GPRS/LTE FMS Cellular Telematics Gateway"
     ],
     features: [
-      "Sistem telematika komersial paling spesifik untuk trailer logistik DOC",
-      "Array kipas atap multi-titik dengan pemantauan kecepatan RPM individual",
-      "Alarm otomatis terintegrasi langsung ke konsol operator"
+      "Purpose-built commercial telematics system for DOC logistics trailers",
+      "Multi-point roof fan array with individual RPM tachometer monitoring",
+      "Automated alarm dispatch streaming directly to operator console"
     ],
     reference: "references/Heering_Link_Telematics.txt"
   },
   thermoking: {
     key: "thermoking",
-    model: "Thermo King UT-Series CargoWatch (Irlandia)",
+    model: "Thermo King UT-Series CargoWatch (Ireland)",
     vendor: "Thermo King",
-    country: "Irlandia",
+    country: "Ireland",
     capacity: 60000,
-    capacityFormatted: "60.000 DOC",
+    capacityFormatted: "60,000 DOC",
     airflow: "High-Pressure Evaporator (Dual Reefer)",
-    freshAir: "3.500 m³/jam (Ventilasi Buka-Tutup Pneumatik)",
+    freshAir: "3,500 m³/h (Pneumatic Controlled Venting)",
     setpoint: 25.0,
     coolingCapacity: "12.0 kW Heavy Under-mount Compressor",
     powerType: "Dual Reefer Engine PTO + Genset Standby",
     fuelTank: 90,
-    zones: "3-Zona Terpadu (Depan, Tengah, Belakang)",
-    sensors: "CargoWatch 6-probe logging, 4x Door switch, TracKing Satelit",
+    zones: "Integrated 3-Zone (Front, Center, Rear)",
+    sensors: "CargoWatch 6-probe logging, 4x Door switch, TracKing Satellite/Cellular",
     truckImage: "/assets/images/trucks/truck_thermoking.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_thermoking.png?v=2",
     sensorList: [
-      "CargoWatch 6 Probe Suhu Kargo Independen Berstandar Farmasi",
-      "4x Saklar Status Pintu Digital (Pintu Belakang & Samping)",
-      "ServiceWatch Operational Audit Logger Mesin Reefer",
-      "Modul Komunikasi Satelit & Seluler TracKing Real-Time",
-      "Sensor Tekanan Refrigeran & Hour-Meter Kompresor"
+      "CargoWatch 6 Independent Pharma-Grade Cargo Temperature Probes",
+      "4x Digital Door Status Switches (Rear & Side Doors)",
+      "ServiceWatch Operational Audit Logger for Reefer Engine",
+      "TracKing Real-Time Cellular & Satellite Telematics Module",
+      "Refrigerant Pressure Sensor & Compressor Hour-Meter"
     ],
     features: [
-      "Unit kompresor berat under-mount kapasitas pendinginan ekstra tinggi",
-      "Perekaman histori audit operasional terenkripsi ServiceWatch",
-      "Fail-safe ganda menjamin keselamatan muatan pada cuaca ekstrem"
+      "Heavy under-mount compressor unit with ultra-high cooling capacity",
+      "ServiceWatch encrypted operational audit history logging",
+      "Dual fail-safe architecture safeguarding livestock under extreme ambient heat"
     ],
     reference: "references/ThermoKing_UT_Series_Operators_Manual_TK60652.pdf"
   },
   carrier: {
     key: "carrier",
-    model: "Carrier Transicold Lynx Fleet Series (AS)",
+    model: "Carrier Transicold Lynx Fleet Series (USA)",
     vendor: "Carrier Transicold",
-    country: "Amerika Serikat",
+    country: "United States",
     capacity: 45000,
-    capacityFormatted: "45.000 DOC",
+    capacityFormatted: "45,000 DOC",
     airflow: "High-Efficiency Push Evaporator",
-    freshAir: "3.000 m³/jam (Katup Udara Otomatis)",
+    freshAir: "3,000 m³/h (Automated Air Damper)",
     setpoint: 25.0,
     coolingCapacity: "9.5 kW Lynx Intelligent Reefer",
-    powerType: "Genset Diesel Mandiri 24V",
+    powerType: "Independent 24V Diesel Genset",
     fuelTank: 75,
-    zones: "3-Zona Mikro-Iklim",
-    sensors: "Lynx Fleet Push API Gateway (1 Hz), 3-Zona Temp, RH, Battery/Fuel",
+    zones: "3-Zone Microclimate",
+    sensors: "Lynx Fleet Push API Gateway (1 Hz), 3-Zone Temp, RH, Battery/Fuel",
     truckImage: "/assets/images/trucks/truck_carrier.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_carrier.png?v=2",
     sensorList: [
       "3-Zone Digital Temperature & Relative Humidity Probes",
       "Carrier Lynx Fleet IoT Edge Gateway (Push API 1 Hz Event-driven)",
-      "Sensor Ultrasonic Level Solar Tangki Genset",
-      "Sensor Voltase Aki Kontrol 24V & Arus Pengisian",
-      "Saklar Transisi Peristiwa Pintu (Door Event Logger)",
-      "GPS Receiver High-Sensitivity dengan Dead Reckoning"
+      "Ultrasonic Genset Fuel Tank Level Sensor",
+      "24V Control Battery Voltage & Charging Current Sensor",
+      "Door Transition Event Logger Switch",
+      "High-Sensitivity Multi-GNSS Receiver with Dead Reckoning"
     ],
     features: [
-      "Arsitektur API Push Webhook rantai dingin standar industri global",
-      "Manajemen energi efisien dengan modulasi daya pendingin otomatis",
-      "Integrasi cloud telematika cerdas dan kode alarm prediktif"
+      "Global industry-standard cold chain Webhook Push API architecture",
+      "Energy-efficient management with automated cooling modulation",
+      "Intelligent telematics cloud integration with predictive alarm codes"
     ],
     reference: "references/Carrier_Lynx_Fleet_Push_API.txt"
   },
   chengli: {
     key: "chengli",
-    model: "Chengli Specialized Poultry Carrier (Tiongkok)",
+    model: "Chengli Specialized Poultry Carrier (China)",
     vendor: "Chengli Special Automobile",
-    country: "Tiongkok",
+    country: "China",
     capacity: 30000,
-    capacityFormatted: "30.000 DOC",
-    airflow: "Blower Kisi Bawah & Roof Fan",
-    freshAir: "Infiltrasi Pasif Louvers Bawah + Exhaust Fan Atap",
+    capacityFormatted: "30,000 DOC",
+    airflow: "Lower Louver Blower & Roof Fan",
+    freshAir: "Passive Lower Body Louvers + Roof Exhaust Fan",
     setpoint: 25.0,
-    coolingCapacity: "6.5 kW Evaporator Bantu",
-    powerType: "PTO Mesin Truk + Aki Kabin",
+    coolingCapacity: "6.5 kW Auxiliary Evaporator",
+    powerType: "Truck Engine PTO + Cabin Battery",
     fuelTank: 50,
-    zones: "3-Zona Dasar (Depan, Tengah, Belakang)",
-    sensors: "3-Zona Temp, RH, Status Exhaust Roof Fan, Cabin Console",
+    zones: "Basic 3-Zone (Front, Center, Rear)",
+    sensors: "3-Zone Temp, RH, Roof Exhaust Fan Status, Cabin Console",
     truckImage: "/assets/images/trucks/truck_chengli.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_chengli.png?v=2",
     sensorList: [
       "3-Zone Analog Thermocouple Temperature Sensors",
-      "Sensor Kelembaban Kargo Standar",
-      "Sensor Tachometer Status Kipas Buang Atap (Roof Exhaust)",
-      "Konsol Pemantau Digital di Ruang Kabin Pengemudi",
-      "Sensor Kontak Pintu Mekanikal",
-      "GPS Tracker GSM Komersial"
+      "Standard Cargo Relative Humidity Sensor",
+      "Roof Exhaust Fan RPM Tachometer Sensor",
+      "Digital Monitoring Display Console in Driver Cabin",
+      "Mechanical Door Contact Sensor",
+      "Commercial GSM/GPS Vehicle Tracker"
     ],
     features: [
-      "Karoseri armada ekonomis khusus negara berkembang",
-      "Kombinasi ventilasi hisap atap dan kisi udara pasif bodi bawah",
-      "Kipas bantu dorong di area pintu belakang untuk sirkulasi bongkar muat"
+      "Economical fleet bodywork tailored for emerging agricultural markets",
+      "Combination of roof suction ventilation and passive lower body louvers",
+      "Auxiliary booster blower at rear door area for crate handling airflow"
     ],
     reference: "references/Chengli_DOC_Carrier_Truck.txt"
   },
   joinaldy: {
     key: "joinaldy",
-    model: "Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)",
-    vendor: "Riset Empiris Lapangan Sulsel (IPB)",
-    country: "Indonesia (Riset)",
+    model: "Tropical Blower Modified Truck (Audy Joinaldy 2020)",
+    vendor: "South Sulawesi Empirical Research (IPB)",
+    country: "Indonesia (Empirical Research)",
     capacity: 36000,
-    capacityFormatted: "36.000 DOC",
-    airflow: "Ventilasi Blower Atap Non-AC (Model Sulsel)",
-    freshAir: "Sirkulasi Blower Atap Non-Refrigerasi",
+    capacityFormatted: "36,000 DOC",
+    airflow: "Non-AC Roof Blower Ventilation (South Sulawesi Model)",
+    freshAir: "Non-Refrigerated Roof Blower Circulation",
     setpoint: 26.0,
-    coolingCapacity: "0 kW (Non-AC, Mengandalkan Aliran Udara Ambien)",
-    powerType: "Aki Truk 12V DC Blower",
+    coolingCapacity: "0 kW (Non-AC, Ambient Air Circulation Dependent)",
+    powerType: "Truck 12V DC Battery Blower",
     fuelTank: 45,
-    zones: "2-Zona (Depan & Belakang)",
-    sensors: "Suhu Ambien & Kargo Kontainer (Y=1.2385X - 6.2567), Logging 45s",
+    zones: "2-Zone (Front & Rear)",
+    sensors: "Ambient & Cargo Box Temp (Y=1.2385X - 6.2567), 45s Logging",
     truckImage: "/assets/images/trucks/truck_joinaldy.png?v=2",
     sensorsImage: "/assets/images/sensors/sensors_joinaldy.png?v=2",
     sensorList: [
-      "Sensor Suhu Lingkungan Ambien Tropis Luar Truk (X)",
-      "Sensor Suhu Internal Kontainer Kargo Boks (Y)",
-      "Model Regresi Termal Tropis Audy Joinaldy (2020): Y = 1.2385X - 6.2567",
-      "Sensor Kelembaban Relatif (RH %) untuk Evaluasi THI Tropis",
-      "Datalogger GS-105 Logging Periodik 45 Detik",
-      "GPS Tracking Modul NMEA-0183"
+      "External Tropical Ambient Air Temperature Sensor (X)",
+      "Internal Cargo Box Core Temperature Sensor (Y)",
+      "Audy Joinaldy (2020) Tropical Thermal Regression Model: Y = 1.2385X - 6.2567",
+      "Relative Humidity Sensor (RH %) for Tropical THI Evaluation",
+      "GS-105 Datalogger with 45-Second Periodic Sampling",
+      "NMEA-0183 GPS Tracking Module"
     ],
     features: [
-      "Acuan riset empiris disertasi Sekolah Bisnis IPB oleh Audy Joinaldy (2020)",
-      "Representasi armada logistik konvensional tanpa sistem pendingin kompresor",
-      "Membuktikan kenaikan kritis THI (> 160) dan mortalitas saat cuaca terik / macet"
+      "Empirical dissertation benchmark from IPB Business School by Audy Joinaldy (2020)",
+      "Representative model of conventional non-refrigerated tropical poultry transport",
+      "Demonstrates critical THI elevation (> 160) and mortality risk during heatwaves / traffic delays"
     ],
     reference: "references/K16180034_Audy Joinaldy.pdf"
   }
 };
 
-// Default Initial Vehicles (Armada Truk Terdaftar — Khusus Berbasis Template Riset Audy Joinaldy 2020)
+// Default Initial Vehicles (Registered Fleet - Based on Audy Joinaldy 2020 Empirical Research Template)
 export const DEFAULT_VEHICLES = [
   {
     truckId: "TRUCK-AJ-36000-01",
     licensePlate: "DD 8741 XY",
     templateKey: "joinaldy",
-    model: "Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)",
-    airflow: "Ventilasi Blower Atap Non-AC (Model Sulsel)",
+    model: "Tropical Blower Modified Truck (Audy Joinaldy 2020)",
+    airflow: "Non-AC Roof Blower Ventilation (South Sulawesi Model)",
     capacity: 36000,
     setpoint: 26.0,
     fuelTank: 45,
-    powerType: "Aki Truk 12V DC Blower",
-    sensors: "Suhu Ambien & Kargo Kontainer (Y=1.2385X - 6.2567), Logging 45s",
+    powerType: "Truck 12V DC Battery Blower",
+    sensors: "Ambient & Cargo Box Temp (Y=1.2385X - 6.2567), 45s Logging",
     status: "AVAILABLE",
     lastLatitude: -6.5650,
     lastLongitude: 107.7600,
@@ -349,13 +349,13 @@ export const DEFAULT_VEHICLES = [
     truckId: "TRUCK-AJ-36000-02",
     licensePlate: "DD 8129 AB",
     templateKey: "joinaldy",
-    model: "Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)",
-    airflow: "Ventilasi Blower Atap Non-AC (Model Sulsel)",
+    model: "Tropical Blower Modified Truck (Audy Joinaldy 2020)",
+    airflow: "Non-AC Roof Blower Ventilation (South Sulawesi Model)",
     capacity: 36000,
     setpoint: 26.0,
     fuelTank: 45,
-    powerType: "Aki Truk 12V DC Blower",
-    sensors: "Suhu Ambien & Kargo Kontainer (Y=1.2385X - 6.2567), Logging 45s",
+    powerType: "Truck 12V DC Battery Blower",
+    sensors: "Ambient & Cargo Box Temp (Y=1.2385X - 6.2567), 45s Logging",
     status: "AVAILABLE",
     lastLatitude: -6.5650,
     lastLongitude: 107.7600,
@@ -372,11 +372,11 @@ export const DEFAULT_EXPEDITIONS = [];
 export const TRUCK_PAYLOAD_EXAMPLES = {
   hatchtech: {
     key: "hatchtech",
-    title: "HatchTech HatchTraveller 38400 (Belanda)",
+    title: "HatchTech HatchTraveller 38400 (Netherlands)",
     vendor: "HatchTech B.V.",
-    country: "Belanda",
-    capacityFormatted: "38.400 DOC",
-    specSummary: "Sistem aliran udara laminer 15.000 m³/jam, 2-Zona Iklim MicroClimer mandiri (depan & belakang), kisi 8-probe sensor presisi, gas CO2 NDIR, dan kapasitas muatan paten 38.400 DOC.",
+    country: "Netherlands",
+    capacityFormatted: "38,400 DOC",
+    specSummary: "15,000 m³/h laminar airflow architecture, dual independent MicroClimer climate zones (front & rear), 8-probe precision sensor array, NDIR CO2 sensor, and patented 38,400 DOC capacity.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | MQTT: truck/TRUCK-HT-38400-01/telemetry)",
     payload: {
       "identity": {
@@ -443,11 +443,11 @@ export const TRUCK_PAYLOAD_EXAMPLES = {
   },
   heering: {
     key: "heering",
-    title: "Heering Link Telematics Chick Trailer (Belanda)",
+    title: "Heering Link Telematics Chick Trailer (Netherlands)",
     vendor: "Heering Holland",
-    country: "Belanda",
-    capacityFormatted: "50.000 DOC",
-    specSummary: "Platform telemetri khusus trailer DOC berkapasitas 50.000 DOC dengan multi-fan roof array (8 fan), proportional motorized damper, probe 3-zona (depan, tengah, belakang), dan alarm ambang CO2.",
+    country: "Netherlands",
+    capacityFormatted: "50,000 DOC",
+    specSummary: "Dedicated poultry transport telematics platform for 50,000 DOC trailers with multi-fan roof array (8 fans), proportional motorized dampers, 3-zone microclimate probes, and CO2 threshold alarms.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | MQTT: truck/TRUCK-HL-50000-01/telemetry)",
     payload: {
       "identity": {
@@ -515,11 +515,11 @@ export const TRUCK_PAYLOAD_EXAMPLES = {
   },
   thermoking: {
     key: "thermoking",
-    title: "Thermo King UT-Series CargoWatch (Irlandia)",
+    title: "Thermo King UT-Series CargoWatch (Ireland)",
     vendor: "Thermo King",
-    country: "Irlandia",
-    capacityFormatted: "60.000 DOC",
-    specSummary: "Sistem pendingin heavy under-mount berkapasitas 60.000 DOC dengan data logger CargoWatch 6-probe mandiri, dual-door switch digital, ServiceWatch audit trail, dan modem TracKing satelit/4G.",
+    country: "Ireland",
+    capacityFormatted: "60,000 DOC",
+    specSummary: "Heavy undermount refrigeration system for 60,000 DOC with independent CargoWatch 6-probe logger, digital door switches, ServiceWatch audit trail, and TracKing satellite/4G telemetry.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | MQTT: truck/TRUCK-TK-60000-01/telemetry)",
     payload: {
       "identity": {
@@ -586,11 +586,11 @@ export const TRUCK_PAYLOAD_EXAMPLES = {
   },
   carrier: {
     key: "carrier",
-    title: "Carrier Transicold Lynx Fleet Series (AS)",
+    title: "Carrier Transicold Lynx Fleet Series (USA)",
     vendor: "Carrier Transicold",
-    country: "Amerika Serikat",
-    capacityFormatted: "45.000 DOC",
-    specSummary: "Format resmi Carrier Lynx Fleet Push API (1 Hz push Webhook) untuk armada berkapasitas 45.000 DOC dengan modulasi daya cerdas, sensor level solar ultrasonik, dan event tracking pintu.",
+    country: "United States",
+    capacityFormatted: "45,000 DOC",
+    specSummary: "Official Carrier Lynx Fleet Push API specification (1 Hz push Webhook) for 45,000 DOC fleets with intelligent power modulation, ultrasonic fuel level sensors, and cargo door event tracking.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | Webhook: /api/v1/lynx/push-event)",
     payload: {
       "header": {
@@ -645,11 +645,11 @@ export const TRUCK_PAYLOAD_EXAMPLES = {
   },
   chengli: {
     key: "chengli",
-    title: "Chengli Specialized Poultry Carrier (Tiongkok)",
+    title: "Chengli Specialized Poultry Carrier (China)",
     vendor: "Chengli Special Automobile",
-    country: "Tiongkok",
-    capacityFormatted: "30.000 DOC",
-    specSummary: "Karoseri spesialis DOC negara berkembang berkapasitas 30.000 DOC. Kombinasi kipas hisap atap (roof exhaust), kisi udara pasif bodi bawah, konsol kabin, dan GPS tracker komersial.",
+    country: "China",
+    capacityFormatted: "30,000 DOC",
+    specSummary: "Specialized DOC bodywork for developing markets (30,000 DOC capacity). Combines roof exhaust suction fans, passive lower body louvers, cabin console, and commercial GPS tracking.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | MQTT: truck/TRUCK-CL-30000-01/telemetry)",
     payload: {
       "identity": {
@@ -711,11 +711,11 @@ export const TRUCK_PAYLOAD_EXAMPLES = {
   },
   joinaldy: {
     key: "joinaldy",
-    title: "Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)",
-    vendor: "Riset Empiris Lapangan Sulsel (IPB)",
-    country: "Indonesia (Riset)",
-    capacityFormatted: "36.000 DOC",
-    specSummary: "Model empiris riset disertasi Sekolah Bisnis IPB oleh Audy Joinaldy (2020) berkapasitas 36.000 DOC. Tanpa AC pendingin, ventilasi blower atap, model regresi Y=1.2385X-6.2567, datalogger GS-105, THI kritis, dan RFID supir.",
+    title: "Tropical Non-AC Blower Truck (Audy Joinaldy 2020)",
+    vendor: "IPB Empirical Field Research (Trans-Sulawesi)",
+    country: "Indonesia (Research)",
+    capacityFormatted: "36,000 DOC",
+    specSummary: "Empirical model from IPB Business School dissertation by Audy Joinaldy (2020) with 36,000 DOC capacity. Non-AC roof blower ventilation, empirical thermal regression Y=1.2385X-6.2567, GS-105 datalogger, critical THI thresholds, and driver RFID verification.",
     endpointType: "Unified Stream Endpoint (WebSocket: /ws/telemetry | Datalogger GS-105 45s Sync)",
     payload: {
       "identity": {

@@ -42,7 +42,7 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
     maxZoom: 18
   }).addTo(map);
 
-  // Titik A: Start Hatchery
+  // Point A: Start Hatchery
   const startIcon = window.L.divIcon({
     className: "custom-point-marker",
     html: "📍",
@@ -50,9 +50,9 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
   });
   startMarker = window.L.marker([WAYPOINTS_RAW[0].lat, WAYPOINTS_RAW[0].lng], { icon: startIcon })
     .addTo(map)
-    .bindPopup("<b>Titik A: Subang Hatchery</b><br>Asal Pengiriman Bibit DOC");
+    .bindPopup("<b>Point A: Subang Hatchery</b><br>DOC Cargo Origin");
 
-  // Titik B: Finish Broiler Farm
+  // Point B: Finish Broiler Farm
   const lastPt = WAYPOINTS_RAW[WAYPOINTS_RAW.length - 1];
   const finishIcon = window.L.divIcon({
     className: "custom-point-marker",
@@ -61,19 +61,19 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
   });
   finishMarker = window.L.marker([lastPt.lat, lastPt.lng], { icon: finishIcon })
     .addTo(map)
-    .bindPopup("<b>Titik B: Bogor Broiler Farm</b><br>Tujuan Akhir Kargo");
+    .bindPopup("<b>Point B: Bogor Broiler Farm</b><br>DOC Final Destination");
 
-  // Trail Geodesik
+  // Geodesic Trail
   trailPolyline = window.L.polyline([], {
     color: "#38bdf8",
     weight: 4,
     opacity: 0.8
   }).addTo(map);
 
-  // Truk Marker PNG Berotasi Dinamis (View Atas / Top-View, Default Kepala Menghadap ke ATAS / 0°)
+  // Dynamic Rotated Truck Marker (Top-View PNG, Default Heading North / 0°)
   const truckImgHtml = `
     <div id="truckSvgWrapper" class="truck-marker-wrapper" style="transform-origin: center center; transition: transform 0.3s ease; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));">
-      <img src="/assets/truck_yellow_topview.png?v=3" alt="Truk DOC" style="width: 48px; height: 48px; object-fit: contain; pointer-events: none;" />
+      <img src="/assets/truck_yellow_topview.png?v=3" alt="DOC Truck" style="width: 48px; height: 48px; object-fit: contain; pointer-events: none;" />
     </div>
   `;
 
@@ -88,11 +88,11 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
     icon: truckIcon
   }).addTo(map);
 
-  truckMarker.bindPopup("<b>🚚 Truk Pengiriman DOC Aktif</b><br>Memancarkan telemetri 1 Hz...");
+  truckMarker.bindPopup("<b>🚚 Active DOC Delivery Truck</b><br>Streaming 1.0 Hz telemetry...");
 }
 
 /**
- * Render visual rute presisi OSRM (1.000+ koordinat kurva jalan riil)
+ * Render visual OSRM precision route (1,000+ real road coordinates)
  */
 export async function renderRealOsrmRoute(routeId, routeType = "TOLL") {
   if (!map) return false;
@@ -109,28 +109,28 @@ export async function renderRealOsrmRoute(routeId, routeType = "TOLL") {
         const data = await res.json();
         const coords = data?.route?.waypoints_geojson?.geometry?.coordinates;
         if (coords && Array.isArray(coords) && coords.length > 0) {
-          // Bersihkan segmen lama agar tidak menumpuk
+          // Clear previous segments
           segmentPolylines.forEach(l => map.removeLayer(l));
           segmentPolylines = [];
 
           // GeoJSON OSRM: [lng, lat] -> Leaflet: [lat, lng]
           const latlngs = coords.map(c => [c[1], c[0]]);
           osrmPolyline = window.L.polyline(latlngs, {
-            color: "#2563eb", // Biru navigasi presisi tinggi
+            color: "#2563eb", // High-precision navigation blue
             weight: 5,
             opacity: 0.9
           }).addTo(map);
 
           osrmPolyline.bindTooltip(
-            `<b>Rute Presisi OSRM:</b> ${data.route.origin_name} &rarr; ${data.route.destination_name} (${data.route.total_distance_km} km, ${data.route.waypoints_count} waypoints)`,
+            `<b>OSRM Precision Route:</b> ${data.route.origin_name} &rarr; ${data.route.destination_name} (${data.route.total_distance_km} km, ${data.route.waypoints_count} waypoints)`,
             { sticky: true }
           );
 
           if (startMarker && latlngs.length > 0) {
-            startMarker.setLatLng(latlngs[0]).bindPopup(`<b>Titik Asal:</b> ${data.route.origin_name}`);
+            startMarker.setLatLng(latlngs[0]).bindPopup(`<b>Origin:</b> ${data.route.origin_name}`);
           }
           if (finishMarker && latlngs.length > 0) {
-            finishMarker.setLatLng(latlngs[latlngs.length - 1]).bindPopup(`<b>Tujuan Akhir:</b> ${data.route.destination_name}`);
+            finishMarker.setLatLng(latlngs[latlngs.length - 1]).bindPopup(`<b>Final Destination:</b> ${data.route.destination_name}`);
           }
 
           try {
@@ -141,7 +141,7 @@ export async function renderRealOsrmRoute(routeId, routeType = "TOLL") {
         }
       }
     } catch (e) {
-      console.warn("Gagal memuat rute OSRM dari backend:", e);
+      console.warn("Failed to load OSRM route from backend:", e);
     }
   }
   return false;

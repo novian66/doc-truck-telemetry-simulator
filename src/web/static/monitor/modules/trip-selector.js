@@ -26,7 +26,7 @@ export function populateExpeditionSelector() {
   if (expeditions.length === 0) {
     const opt = document.createElement("option");
     opt.value = "";
-    opt.innerText = "Belum Ada Pengiriman Terdaftar";
+    opt.innerText = "No Dispatch Manifests Registered";
     sel.appendChild(opt);
     updateTripStatusPill();
     return;
@@ -40,10 +40,10 @@ export function populateExpeditionSelector() {
     else if (exp.status === "COMPLETED") icon = "🔵";
 
     const isNonToll = exp.routeType === "NON_TOLL";
-    const routeTag = isNonToll ? "Non-Tol" : "Tol";
-    // Teks opsi ringkas agar tidak overflow / melewati batas lebar pada tampilan mobile
+    const routeTag = isNonToll ? "Non-Toll" : "Toll";
+    // Compact option text to prevent overflow on mobile displays
     opt.innerText = `${icon} ${exp.tripId} (${routeTag})`;
-    opt.title = `${exp.tripId} [${routeTag}] - ${exp.title || "Pengiriman DOC"}${exp.deliveryOrder ? ` • ${exp.deliveryOrder}` : ""}`;
+    opt.title = `${exp.tripId} [${routeTag}] - ${exp.title || "DOC Dispatch"}${exp.deliveryOrder ? ` • ${exp.deliveryOrder}` : ""}`;
     if (exp.tripId === selectedTripId) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -62,13 +62,13 @@ export function updateTripStatusPill() {
   pill.className = "trip-status-pill";
   if (exp.status === "RUNNING") {
     pill.classList.add("running");
-    pill.innerText = "SEDANG BERJALAN";
+    pill.innerText = "EN ROUTE (LIVE 1.0 Hz)";
   } else if (exp.status === "COMPLETED") {
     pill.classList.add("completed");
-    pill.innerText = "SELESAI (ARSIP)";
+    pill.innerText = "COMPLETED (ARCHIVED)";
   } else {
     pill.classList.add("ready");
-    pill.innerText = "STANDBY PANGKALAN";
+    pill.innerText = "DEPOT STANDBY";
   }
 }
 
@@ -121,7 +121,7 @@ export function onExpeditionSelected(tripId) {
 
   const packagingEl = document.getElementById("barPackaging");
   if (packagingEl) {
-    const bType = exp.boxType && exp.boxType.includes("Plastik") ? "Crate Plastik" : "Karton";
+    const bType = exp.boxType && exp.boxType.includes("Plastik") ? "Perforated Plastic Crate" : "Cardboard Box";
     packagingEl.innerText = `${bType} (${exp.chicksPerBox || 100}/box)`;
   }
 
@@ -129,28 +129,28 @@ export function onExpeditionSelected(tripId) {
   if (pillRoute) {
     const isNT = routeType === "NON_TOLL";
     const icon = isNT ? "🛤️" : "🛣️";
-    const name = isNT ? `Non Toll (${distKm} km)` : `Toll (${distKm} km)`;
-    pillRoute.innerHTML = `<span class="icon">${icon}</span> Jalur: <strong id="barRouteType">${name}</strong>`;
+    const name = isNT ? `Non-Tollway (${distKm} km)` : `Tollway (${distKm} km)`;
+    pillRoute.innerHTML = `<span class="icon">${icon}</span> Route: <strong id="barRouteType">${name}</strong>`;
   }
 
   const depDate = exp.departureDate ? `${exp.departureDate}` : "";
   const depTime = exp.departureTime ? `${exp.departureTime} WIB` : "";
-  const timeLabel = exp.timeOfDay === "DAY" ? "Siang" : "Malam";
+  const timeLabel = exp.timeOfDay === "DAY" ? "Daytime" : "Nighttime";
   const pillTime = document.getElementById("pillTime");
   if (pillTime) {
     const timeDetail = [depDate, depTime ? `${depTime} (${timeLabel})` : timeLabel].filter(Boolean).join(" • ");
-    pillTime.innerHTML = `<span class="icon">${exp.timeOfDay === "DAY" ? "☀️" : "🌙"}</span> Waktu: <strong>${timeDetail}</strong>`;
+    pillTime.innerHTML = `<span class="icon">${exp.timeOfDay === "DAY" ? "☀️" : "🌙"}</span> Departure: <strong>${timeDetail}</strong>`;
   }
 
   const weatherLabel =
     exp.weather === "SUNNY"
-      ? "Cerah"
+      ? "Clear / Sunny"
       : exp.weather === "LIGHT_RAIN"
-      ? "Hujan"
-      : "Badai";
+      ? "Light Rain"
+      : "Heavy Rain / Storm";
   const pillWeather = document.getElementById("pillWeather");
   if (pillWeather) {
-    pillWeather.innerHTML = `<span class="icon">🌤️</span> Cuaca: <strong>${weatherLabel}</strong>`;
+    pillWeather.innerHTML = `<span class="icon">🌤️</span> Weather: <strong>${weatherLabel}</strong>`;
   }
 
   // Render rute: prioritaskan kurva jalan riil OSRM dari backend
@@ -170,18 +170,18 @@ export function onExpeditionSelected(tripId) {
 
   if (exp.status === "COMPLETED") {
     if (banner) banner.classList.remove("hidden");
-    if (bTitle) bTitle.innerText = "Pengiriman Ini Telah Selesai (Arsip Riwayat)";
+    if (bTitle) bTitle.innerText = "Delivery Completed (Archived History)";
     if (bDesc) {
-      bDesc.innerText = `Kargo telah tiba di tujuan (${exp.destination ? exp.destination.name : "Bogor Broiler Farm"}) pada ${exp.completedAt || "28 Okt 2026"}. Dokumen serah terima DOC terverifikasi 100%.`;
+      bDesc.innerText = `Cargo delivered to destination (${exp.destination ? exp.destination.name : "Bogor Broiler Farm"}). All DOC delivery handovers verified 100%.`;
     }
     setTruckMarkerToEnd(routeType);
 
     const dVal = document.getElementById("valDistance");
     if (dVal) dVal.innerHTML = `${distKm.toFixed(1)} <small>/ ${distKm} km</small>`;
     const sProg = document.getElementById("subProgress");
-    if (sProg) sProg.innerText = `Progres: 100%`;
+    if (sProg) sProg.innerText = `Progress: 100%`;
     const vSpd = document.getElementById("valSpeed");
-    if (vSpd) vSpd.innerHTML = `0 <small>km/jam</small>`;
+    if (vSpd) vSpd.innerHTML = `0 <small>km/h</small>`;
   } else if (exp.status === "RUNNING") {
     // Pengiriman aktif berjalan
     if (banner) banner.classList.add("hidden");

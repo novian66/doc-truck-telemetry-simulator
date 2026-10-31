@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulator Engine Console &bull; Pengendali Simulasi Truk IoT DOC (Internal)</title>
+  <title>Simulator Engine Console &bull; DOC IoT Truck Simulation Controller (Internal)</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
   <link rel="alternate icon" type="image/x-icon" href="favicon.ico?v=2">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=2">
@@ -27,7 +27,7 @@
             <small>Internal Testbed & Fault Injection</small>
           </div>
         </div>
-        <button type="button" class="btn-sidebar-collapse" id="btnCollapseSidebar" title="Tutup Leftbar (Sidebar)" aria-label="Tutup Sidebar">
+        <button type="button" class="btn-sidebar-collapse" id="btnCollapseSidebar" title="Collapse Sidebar" aria-label="Collapse Sidebar">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="11 17 6 12 11 7"></polyline>
             <polyline points="18 17 13 12 18 7"></polyline>
@@ -36,30 +36,30 @@
       </div>
 
       <nav class="sidebar-nav">
-        <div class="nav-section-title">KONTROL SIMULASI</div>
+        <div class="nav-section-title">SIMULATION CONTROLS</div>
         
         <button class="nav-item active" id="navExpeditions" data-view="view-expeditions">
           <span class="nav-icon">📦</span>
-          <span class="nav-label">Daftar Pengiriman</span>
+          <span class="nav-label">Dispatch Manifests</span>
           <span class="nav-badge" id="badgeExpeditionCount">2</span>
         </button>
 
         <button class="nav-item" id="navVehicles" data-view="view-vehicles">
           <span class="nav-icon">🚛</span>
-          <span class="nav-label">Daftar Kendaraan</span>
+          <span class="nav-label">Fleet Vehicles</span>
           <span class="nav-badge" id="badgeVehicleCount">2</span>
         </button>
 
         <button class="nav-item" id="navTemplates" data-view="view-templates">
           <span class="nav-icon">📐</span>
-          <span class="nav-label">Template Truk</span>
+          <span class="nav-label">Vehicle Templates</span>
           <span class="nav-badge" id="badgeTemplateCount">6</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="role-pill">SIMULATION OPERATOR (INTERNAL)</div>
-        <small>Panel pengendali simulasi internal untuk injeksi kondisi rute & kerusakan truk.</small>
+        <small>Internal simulation control panel for environmental conditions and vehicle fault injection.</small>
       </div>
     </aside>
 
@@ -72,7 +72,7 @@
       <!-- Top App Bar -->
       <header class="content-header">
         <div class="header-left-group">
-          <button type="button" class="btn-toggle-sidebar" id="btnToggleSidebar" title="Buka / Tutup Leftbar (Sidebar)" aria-label="Toggle Sidebar">
+          <button type="button" class="btn-toggle-sidebar" id="btnToggleSidebar" title="Toggle Sidebar" aria-label="Toggle Sidebar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="3" y1="12" x2="21" y2="12"></line>
               <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -80,8 +80,8 @@
             </svg>
           </button>
           <div class="header-breadcrumb">
-            <span id="breadcrumbSection">Kontrol Simulasi</span> &rsaquo; 
-            <strong id="breadcrumbPage">Daftar Pengiriman & Rencana Perjalanan</strong>
+            <span id="breadcrumbSection">Simulation Controls</span> &rsaquo; 
+            <strong id="breadcrumbPage">Dispatch Manifests & Itinerary Planning</strong>
           </div>
         </div>
         <div class="header-actions">
@@ -89,7 +89,7 @@
         </div>
       </header>
 
-      <!-- VIEW 1: DAFTAR PENGIRIMAN & RENCANA PERJALANAN -->
+      <!-- VIEW 1: DISPATCH MANIFESTS & ROUTE PLANNING -->
       <section class="view-panel active" id="view-expeditions">
         
         <!-- Split Container: Table on Left/Center, Detail & Simulation Control on Rightbar -->
@@ -100,15 +100,15 @@
             
             <div class="view-header">
               <div>
-                <h2>Daftar Pengiriman Logistik Truk DOC</h2>
-                <p>Kelola rencana perjalanan kargo DOC. <strong>Klik salah satu baris pengiriman</strong> pada tabel untuk membuka panel mengambang (<em>floating rightbar</em>) detail kargo dan pengendali simulasi.</p>
+                <h2>DOC Truck Logistics Dispatch Manifests</h2>
+                <p>Manage DOC cargo itineraries and schedules. <strong>Click any expedition row</strong> in the table to open the floating rightbar with cargo telemetry and simulation controls.</p>
               </div>
               <div style="display:flex; gap:8px;">
-                <button class="btn btn-outline" id="btnClearExpeditions" title="Bersihkan dan reset seluruh data pengiriman ke jadwal pangkalan awal" style="border-color:#ef4444; color:#ef4444;">
-                  🧹 Bersihkan Data
+                <button class="btn btn-outline" id="btnClearExpeditions" title="Clear and reset all dispatch data to initial state" style="border-color:#ef4444; color:#ef4444;">
+                  🧹 Clear Data
                 </button>
                 <button class="btn btn-primary" id="btnOpenNewExpeditionModal">
-                  <span>+</span> Buat Rencana Pengiriman Baru
+                  <span>+</span> Create New Dispatch Manifest
                 </button>
               </div>
             </div>
@@ -116,12 +116,12 @@
             <!-- TABLE OF EXPEDITIONS -->
             <div class="card table-card">
               <div class="card-header">
-                <h3>📑 Semua Pengiriman (Aktif, Rencana & Riwayat)</h3>
+                <h3>📑 All Expeditions (Active, Scheduled & History)</h3>
                 <div class="table-filters">
-                  <button class="table-filter-btn active" data-filter="ALL">Semua</button>
-                  <button class="table-filter-btn" data-filter="RUNNING">Sedang Berjalan</button>
-                  <button class="table-filter-btn" data-filter="READY">Siap Berangkat</button>
-                  <button class="table-filter-btn" data-filter="COMPLETED">Riwayat (Selesai)</button>
+                  <button class="table-filter-btn active" data-filter="ALL">All</button>
+                  <button class="table-filter-btn" data-filter="RUNNING">In Transit</button>
+                  <button class="table-filter-btn" data-filter="READY">Scheduled / Ready</button>
+                  <button class="table-filter-btn" data-filter="COMPLETED">Archived (Completed)</button>
                 </div>
               </div>
 
@@ -129,14 +129,14 @@
                 <table class="data-table" id="expeditionsTable">
                   <thead>
                     <tr>
-                      <th>ID Pengiriman</th>
-                      <th>Nama Perjalanan & Rute</th>
-                      <th>Armada Truk</th>
-                      <th>Pengemudi</th>
-                      <th>Kargo DOC</th>
-                      <th>Waktu / Cuaca</th>
+                      <th>Trip ID</th>
+                      <th>Trip Title & Route</th>
+                      <th>Assigned Fleet</th>
+                      <th>Driver</th>
+                      <th>DOC Cargo</th>
+                      <th>Schedule / Weather</th>
                       <th>Status</th>
-                      <th>Aksi</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody id="expeditionsTableBody">
@@ -151,7 +151,7 @@
           <!-- BACKDROP FLOATING RIGHTBAR -->
           <div class="rightbar-backdrop" id="tripRightbarBackdrop"></div>
 
-          <!-- FLOATING RIGHTBAR: DETAIL PENGIRIMAN & KONTROL SIMULASI -->
+          <!-- FLOATING RIGHTBAR: DISPATCH DETAILS & SIMULATION CONTROLS -->
           <aside class="app-rightbar" id="tripRightbar">
             
             <!-- Rightbar Header -->
@@ -159,24 +159,24 @@
               <div class="rightbar-header-title">
                 <span class="rb-icon">⚙️</span>
                 <div>
-                  <h3>Kontrol & Detail Pengiriman</h3>
+                  <h3>Dispatch Details & Simulation Controls</h3>
                   <small id="rbHeaderSub">Simulator Control Deck</small>
                 </div>
               </div>
               <div class="rb-header-actions">
-                <span class="status-pill ready" id="rbTripStatusBadge">SIAP BERANGKAT</span>
-                <button type="button" class="rb-close-btn" id="btnCloseRightbar" title="Tutup Panel Kontrol">&times;</button>
+                <span class="status-pill ready" id="rbTripStatusBadge">SCHEDULED / READY</span>
+                <button type="button" class="rb-close-btn" id="btnCloseRightbar" title="Close Control Deck">&times;</button>
               </div>
             </div>
 
             <!-- Rightbar Content Body -->
             <div class="rightbar-body">
               
-              <!-- SECTION 1: DETAIL INFORMASI PENGIRIMAN -->
+              <!-- SECTION 1: DISPATCH DETAILS -->
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">📦</span>
-                  <h4>DETAIL PENGIRIMAN</h4>
+                  <h4>DISPATCH DETAILS</h4>
                 </div>
 
                 <div class="rb-trip-card">
@@ -184,88 +184,88 @@
                     <span class="rb-trip-id" id="ctrlTripId">TRIP-20261029-01</span>
                     <span class="rb-do-pill" id="ctrlTripDO">DO-CPI-SBG-20261029-01</span>
                   </div>
-                  <h4 class="rb-trip-title" id="ctrlTripTitle">Pengiriman Inti Subang &rarr; Bogor Farm</h4>
+                  <h4 class="rb-trip-title" id="ctrlTripTitle">Main Dispatch Subang &rarr; Bogor Farm</h4>
                   
                   <div class="rb-detail-grid">
-                    <!-- SEKSI 2: KARAKTERISTIK BIOLOGIS DOC & KEMASAN -->
+                    <!-- SECTION 2: BIOMETRIC CHARACTERISTICS & PACKAGING -->
                     <div class="rb-detail-item">
-                      <span class="rb-label">Galur / Strain:</span>
+                      <span class="rb-label">Strain / Breed:</span>
                       <strong id="ctrlStrainInfo">Cobb 500</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Jenis Kelamin (Sexing):</span>
-                      <strong id="ctrlGenderInfo">Campur (As-Hatched)</strong>
+                      <span class="rb-label">Sexing Ratio:</span>
+                      <strong id="ctrlGenderInfo">As-Hatched (Straight Run)</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Biomassa Kargo:</span>
-                      <strong id="ctrlBiomassInfo">1.613 kg (42.0 g/ekor)</strong>
+                      <span class="rb-label">Cargo Biomass:</span>
+                      <strong id="ctrlBiomassInfo">1,613 kg (42.0 g/chick)</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Umur Induk (Breeder):</span>
-                      <strong id="ctrlBreederAgeInfo">Prime (30-50 Mgg)</strong>
+                      <span class="rb-label">Breeder Flock Age:</span>
+                      <strong id="ctrlBreederAgeInfo">Prime (30-50 Wks)</strong>
                     </div>
                     <div class="rb-detail-item full-width">
-                      <span class="rb-label">Kemasan & Kepadatan:</span>
-                      <strong id="ctrlPackagingInfo">Boks Plastik Berventilasi (100 ekor/boks)</strong>
+                      <span class="rb-label">Packaging & Density:</span>
+                      <strong id="ctrlPackagingInfo">Ventilated Plastic Crate (100 chicks/box)</strong>
                     </div>
 
-                    <!-- SEKSI 3: ARMADA, PENGEMUDI & SETPOINT MIKROKLIMAT -->
+                    <!-- SECTION 3: FLEET, DRIVER & MICROCLIMATE SETPOINT -->
                     <div class="rb-detail-item">
-                      <span class="rb-label">Armada Truk:</span>
+                      <span class="rb-label">Assigned Vehicle:</span>
                       <strong id="ctrlTruckInfo">TRUCK-AJ-36000-01 (DD 8741 XY)</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Model Vendor:</span>
-                      <strong id="ctrlModelInfo">Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)</strong>
+                      <span class="rb-label">Vehicle Template:</span>
+                      <strong id="ctrlModelInfo">Tropical Blower Truck (Audy Joinaldy 2020)</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Nama Pengemudi:</span>
+                      <span class="rb-label">Assigned Driver:</span>
                       <strong id="ctrlDriverInfo">Rahmat Santoso</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Jumlah Muatan:</span>
-                      <strong id="ctrlLoadInfo">38.400 DOC</strong>
+                      <span class="rb-label">Cargo Quantity:</span>
+                      <strong id="ctrlLoadInfo">38,400 DOC</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Target Suhu Kargo:</span>
+                      <span class="rb-label">Target Cargo Setpoint:</span>
                       <strong id="ctrlSetpointInfo">25.0°C</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Target Kelembapan:</span>
+                      <span class="rb-label">Target Humidity:</span>
                       <strong id="ctrlTargetRHInfo">65% RH</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Solar Genset / Aki:</span>
+                      <span class="rb-label">Reefer Fuel / Battery:</span>
                       <strong id="ctrlPowerInfo">100.0% &bull; 24.2 V</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Sinyal Seluler / Buffer:</span>
+                      <span class="rb-label">Cellular Signal / Buffer:</span>
                       <strong id="ctrlNetworkInfo">4G Online (0 Buf)</strong>
                     </div>
                     <div class="rb-detail-item full-width">
-                      <span class="rb-label">Paket Telemetri Streaming (IoT Stream):</span>
+                      <span class="rb-label">Telemetry IoT Stream:</span>
                       <strong id="ctrlHashInfo">Seq #1 &bull; 1.0 Hz Active</strong>
                     </div>
 
-                    <!-- SEKSI 4: RUTE GEOSPASIAL & WAKTU KEBERANGKATAN -->
+                    <!-- SECTION 4: GEOSPATIAL ROUTE & DEPARTURE SCHEDULE -->
                     <div class="rb-detail-item">
-                      <span class="rb-label">Jadwal Keberangkatan:</span>
-                      <strong id="ctrlDepartureTime">2026-10-31 • 08:00 WIB (☀️ Siang)</strong>
+                      <span class="rb-label">Departure Schedule:</span>
+                      <strong id="ctrlDepartureTime">2026-10-31 • 08:00 WIB (☀️ Daytime)</strong>
                     </div>
                     <div class="rb-detail-item">
-                      <span class="rb-label">Kondisi Cuaca:</span>
-                      <strong id="ctrlWeatherInfo">Cerah 🌤️</strong>
+                      <span class="rb-label">Weather Condition:</span>
+                      <strong id="ctrlWeatherInfo">Clear 🌤️</strong>
                     </div>
                     <div class="rb-detail-item full-width">
-                      <span class="rb-label">🛣️ Kategori Jalur:</span>
-                      <strong id="ctrlRouteType">Jalur Tol (145 km)</strong>
+                      <span class="rb-label">🛣️ Route Category:</span>
+                      <strong id="ctrlRouteType">Toll Expressway (145 km)</strong>
                     </div>
                     <div class="rb-detail-item full-width">
-                      <span class="rb-label">📍 Titik Asal (Point A):</span>
+                      <span class="rb-label">📍 Origin (Point A):</span>
                       <strong id="ctrlOriginInfo">Subang Hatchery (-6.5650, 107.7600)</strong>
                     </div>
                     <div class="rb-detail-item full-width">
-                      <span class="rb-label">🏁 Titik Tujuan (Point B):</span>
+                      <span class="rb-label">🏁 Destination (Point B):</span>
                       <strong id="ctrlDestInfo">Bogor Broiler Farm (-6.5980, 106.7990)</strong>
                     </div>
                   </div>
@@ -276,14 +276,14 @@
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">🎮</span>
-                  <h4>KONTROL MESIN & SIMULASI</h4>
+                  <h4>ENGINE & SIMULATION CONTROLS</h4>
                 </div>
 
                 <!-- Engine State Display -->
                 <div class="engine-state-display rb-engine-display">
                   <span class="engine-badge" id="engineStatusBadge">
                     <span class="engine-dot"></span>
-                    <span id="engineStatusText">MESIN MATI (STANDBY)</span>
+                    <span id="engineStatusText">ENGINE OFF (STANDBY)</span>
                   </span>
                 </div>
 
@@ -291,19 +291,19 @@
                 <button class="btn btn-engine-power btn-start rb-btn-power" id="btnToggleEngine">
                   <span class="power-icon">⚡</span>
                   <div>
-                    <strong id="btnEngineTitle">HIDUPKAN MESIN & BERANGKATKAN TRUK</strong>
-                    <small id="btnEngineSub">Kalkulasi fisika aktif & jalankan simulasi pergerakan truk</small>
+                    <strong id="btnEngineTitle">START ENGINE & DISPATCH TRUCK</strong>
+                    <small id="btnEngineSub">Activate physics pipeline & stream live telemetry</small>
                   </div>
                 </button>
 
                 <!-- Reset Button -->
                 <button class="btn btn-secondary rb-btn-reset" id="btnResetTrip">
-                  🔁 Reset ke Titik A (KM 0)
+                  🔁 Reset to Origin (KM 0)
                 </button>
 
                 <!-- Speed Multiplier -->
                 <div class="speed-control-box rb-speed-box">
-                  <label>Percepatan Waktu Simulasi:</label>
+                  <label>Simulation Time Acceleration:</label>
                   <div class="speed-btn-group">
                     <button class="speed-btn active" data-speed="1">1x</button>
                     <button class="speed-btn" data-speed="2">2x</button>
@@ -317,21 +317,21 @@
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">⚙️</span>
-                  <h4>KONTROL AKTUATOR & GANGGUAN MEKANIS</h4>
+                  <h4>ACTUATOR CONTROLS & MECHANICAL FAULTS</h4>
                 </div>
                 
                 <div style="display:flex; gap:8px; margin-bottom:10px; width:100%; box-sizing:border-box;">
                   <div style="flex:1; min-width:0;">
-                    <label style="font-size:10px; color:#94a3b8; font-weight:700; display:block; margin-bottom:3px;">Kecepatan Kipas:</label>
+                    <label style="font-size:10px; color:#94a3b8; font-weight:700; display:block; margin-bottom:3px;">Blower Fan Speed:</label>
                     <select id="ctrlFanSpeed" class="form-select-sm" style="width:100%;">
                       <option value="HIGH" selected>Fan: HIGH (15k m³/h)</option>
                       <option value="MED">Fan: MED (10k m³/h)</option>
                       <option value="LOW">Fan: LOW (5k m³/h)</option>
-                      <option value="OFF">Fan: OFF (Mati)</option>
+                      <option value="OFF">Fan: OFF</option>
                     </select>
                   </div>
                   <div style="flex:1; min-width:0;">
-                    <label style="font-size:10px; color:#94a3b8; font-weight:700; display:block; margin-bottom:3px;">Damper Kisi Udara:</label>
+                    <label style="font-size:10px; color:#94a3b8; font-weight:700; display:block; margin-bottom:3px;">Air Inlet Damper:</label>
                     <select id="ctrlAirInlet" class="form-select-sm" style="width:100%;">
                       <option value="OPEN" selected>Damper: OPEN (100%)</option>
                       <option value="PARTIAL">Damper: PARTIAL (40%)</option>
@@ -341,12 +341,12 @@
                 </div>
 
                 <div class="rb-fault-grid">
-                  <button class="btn-fault-toggle" id="toggleChiller">❄️ AC Chiller Mati</button>
-                  <button class="btn-fault-toggle" id="toggleDoor">🚪 Buka Pintu Belakang</button>
-                  <button class="btn-fault-toggle" id="toggleVent">🌬️ Matikan Kipas ($CO_2 \uparrow$)</button>
-                  <button class="btn-fault-toggle" id="toggleTraffic">🛑 Rem Mendadak (Macet)</button>
-                  <button class="btn-fault-toggle" id="toggleFuelEmpty">⚡ Habiskan Solar (&lt;15%)</button>
-                  <button class="btn-fault-toggle" id="toggleLowBattery">🔋 Voltase Aki Drop (&lt;11.5V)</button>
+                  <button class="btn-fault-toggle" id="toggleChiller">❄️ HVAC Chiller Breakdown</button>
+                  <button class="btn-fault-toggle" id="toggleDoor">🚪 Open Cargo Door</button>
+                  <button class="btn-fault-toggle" id="toggleVent">🌬️ Blower Jam ($CO_2 \uparrow$)</button>
+                  <button class="btn-fault-toggle" id="toggleTraffic">🛑 Emergency Braking (Jam)</button>
+                  <button class="btn-fault-toggle" id="toggleFuelEmpty">⚡ Low Reefer Fuel (&lt;15%)</button>
+                  <button class="btn-fault-toggle" id="toggleLowBattery">🔋 Battery Drop (&lt;11.5V)</button>
                 </div>
               </div>
 
@@ -354,15 +354,15 @@
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">🔬</span>
-                  <h4>INJEKSI SENSOR & JARINGAN (PAPER 1)</h4>
+                  <h4>SENSOR & NETWORK FAULT INJECTION (PAPER 1)</h4>
                 </div>
                 <div class="rb-fault-grid">
-                  <button class="btn-fault-toggle" id="toggleSensorDrift">🌡️ Drift Sensor (+0.2°C/m)</button>
+                  <button class="btn-fault-toggle" id="toggleSensorDrift">🌡️ Sensor Drift (+0.2°C/min)</button>
                   <button class="btn-fault-toggle" id="toggleSensorFreeze">❄️ Freeze CO₂ (Stuck-at)</button>
                   <button class="btn-fault-toggle" id="toggleSensorSpike">⚡ Outlier Spike (+50°C)</button>
                   <button class="btn-fault-toggle" id="toggleSensorNull">❌ Sensor Null (Packet Drop)</button>
-                  <button class="btn-fault-toggle" id="toggleBlankSpot">📶 Blank Spot (Buffer Local)</button>
-                  <button class="btn-fault-toggle" id="triggerSeqGap">🔀 Loncat Seq # (Tamper Test)</button>
+                  <button class="btn-fault-toggle" id="toggleBlankSpot">📶 Blank Spot (Local Buffer)</button>
+                  <button class="btn-fault-toggle" id="triggerSeqGap">🔀 Jump Seq # (Tamper Test)</button>
                 </div>
               </div>
 
@@ -370,27 +370,27 @@
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">🛣️</span>
-                  <h4>KONDISI JALAN & SINYAL (SUBANG &rarr; BOGOR)</h4>
+                  <h4>ROADWAY CONDITIONS & SIGNAL (SUBANG &rarr; BOGOR)</h4>
                 </div>
                 
                 <div class="segment-config-grid">
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                      <span class="seg-label" id="rbSegLabel1">KM 0-25: Arteri Subang</span>
-                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub1">Hatchery Hulu</small>
+                      <span class="seg-label" id="rbSegLabel1">KM 0-25: Subang Arterial</span>
+                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub1">Upstream Hatchery</small>
                     </div>
                     <div style="display:flex; gap:6px; width:100%;">
                       <select id="rbSeg1" class="form-select-sm" style="flex:1;">
-                        <option value="FREE_FLOW">🟢 Lancar</option>
-                        <option value="CONGESTED">🟡 Padat</option>
-                        <option value="GRIDLOCK">🔴 Macet</option>
-                        <option value="DAMAGED_ROAD">⚠️ Rusak</option>
-                        <option value="FLOODED">🌊 Banjir</option>
-                        <option value="DISASTER_BLOCKED">⛔ Longsor</option>
+                        <option value="FREE_FLOW">🟢 Free Flow</option>
+                        <option value="CONGESTED">🟡 Congested</option>
+                        <option value="GRIDLOCK">🔴 Gridlock</option>
+                        <option value="DAMAGED_ROAD">⚠️ Damaged</option>
+                        <option value="FLOODED">🌊 Flooded</option>
+                        <option value="DISASTER_BLOCKED">⛔ Blocked</option>
                       </select>
                       <select id="rbSig1" class="form-select-sm" style="flex:1;">
-                        <option value="GOOD">📶 4G Lancar</option>
-                        <option value="FADING">📶 Lemah</option>
+                        <option value="GOOD">📶 4G Online</option>
+                        <option value="FADING">📶 Fading</option>
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
@@ -398,21 +398,21 @@
 
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                      <span class="seg-label" id="rbSegLabel2">KM 25-65: Tol Cipali</span>
-                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub2">Jalur Tol Utama</small>
+                      <span class="seg-label" id="rbSegLabel2">KM 25-65: Cipali Tollway</span>
+                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub2">Main Expressway</small>
                     </div>
                     <div style="display:flex; gap:6px; width:100%;">
                       <select id="rbSeg2" class="form-select-sm" style="flex:1;">
-                        <option value="FREE_FLOW">🟢 Lancar</option>
-                        <option value="CONGESTED">🟡 Padat</option>
-                        <option value="GRIDLOCK">🔴 Macet</option>
-                        <option value="DAMAGED_ROAD">⚠️ Rusak</option>
-                        <option value="FLOODED">🌊 Banjir</option>
-                        <option value="DISASTER_BLOCKED">⛔ Longsor</option>
+                        <option value="FREE_FLOW">🟢 Free Flow</option>
+                        <option value="CONGESTED">🟡 Congested</option>
+                        <option value="GRIDLOCK">🔴 Gridlock</option>
+                        <option value="DAMAGED_ROAD">⚠️ Damaged</option>
+                        <option value="FLOODED">🌊 Flooded</option>
+                        <option value="DISASTER_BLOCKED">⛔ Blocked</option>
                       </select>
                       <select id="rbSig2" class="form-select-sm" style="flex:1;">
-                        <option value="GOOD">📶 4G Lancar</option>
-                        <option value="FADING">📶 Lemah</option>
+                        <option value="GOOD">📶 4G Online</option>
+                        <option value="FADING">📶 Fading</option>
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
@@ -420,21 +420,21 @@
 
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                      <span class="seg-label" id="rbSegLabel3">KM 65-105: Tol Japek</span>
-                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub3">Area Padat Industri</small>
+                      <span class="seg-label" id="rbSegLabel3">KM 65-105: Japek Tollway</span>
+                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub3">Industrial Corridor</small>
                     </div>
                     <div style="display:flex; gap:6px; width:100%;">
                       <select id="rbSeg3" class="form-select-sm" style="flex:1;">
-                        <option value="FREE_FLOW">🟢 Lancar</option>
-                        <option value="CONGESTED">🟡 Padat</option>
-                        <option value="GRIDLOCK">🔴 Macet</option>
-                        <option value="DAMAGED_ROAD">⚠️ Rusak</option>
-                        <option value="FLOODED">🌊 Banjir</option>
-                        <option value="DISASTER_BLOCKED">⛔ Longsor</option>
+                        <option value="FREE_FLOW">🟢 Free Flow</option>
+                        <option value="CONGESTED">🟡 Congested</option>
+                        <option value="GRIDLOCK">🔴 Gridlock</option>
+                        <option value="DAMAGED_ROAD">⚠️ Damaged</option>
+                        <option value="FLOODED">🌊 Flooded</option>
+                        <option value="DISASTER_BLOCKED">⛔ Blocked</option>
                       </select>
                       <select id="rbSig3" class="form-select-sm" style="flex:1;">
-                        <option value="GOOD">📶 4G Lancar</option>
-                        <option value="FADING">📶 Lemah</option>
+                        <option value="GOOD">📶 4G Online</option>
+                        <option value="FADING">📶 Fading</option>
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
@@ -442,21 +442,21 @@
 
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                      <span class="seg-label" id="rbSegLabel4">KM 105-135: Tol Jagorawi</span>
-                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub4">Perbukitan & Terowongan</small>
+                      <span class="seg-label" id="rbSegLabel4">KM 105-135: Jagorawi Tollway</span>
+                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub4">Hilly & Underpass Zone</small>
                     </div>
                     <div style="display:flex; gap:6px; width:100%;">
                       <select id="rbSeg4" class="form-select-sm" style="flex:1;">
-                        <option value="FREE_FLOW">🟢 Lancar</option>
-                        <option value="CONGESTED">🟡 Padat</option>
-                        <option value="GRIDLOCK">🔴 Macet</option>
-                        <option value="DAMAGED_ROAD">⚠️ Rusak</option>
-                        <option value="FLOODED">🌊 Banjir</option>
-                        <option value="DISASTER_BLOCKED">⛔ Longsor</option>
+                        <option value="FREE_FLOW">🟢 Free Flow</option>
+                        <option value="CONGESTED">🟡 Congested</option>
+                        <option value="GRIDLOCK">🔴 Gridlock</option>
+                        <option value="DAMAGED_ROAD">⚠️ Damaged</option>
+                        <option value="FLOODED">🌊 Flooded</option>
+                        <option value="DISASTER_BLOCKED">⛔ Blocked</option>
                       </select>
                       <select id="rbSig4" class="form-select-sm" style="flex:1;">
-                        <option value="GOOD">📶 4G Lancar</option>
-                        <option value="FADING">📶 Lemah</option>
+                        <option value="GOOD">📶 4G Online</option>
+                        <option value="FADING">📶 Fading</option>
                         <option value="BAD" selected>❌ Blank Spot</option>
                       </select>
                     </div>
@@ -464,21 +464,21 @@
 
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
-                      <span class="seg-label" id="rbSegLabel5">KM 135-145: Arteri Bogor</span>
-                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub5">Farm Kedatangan Hilir</small>
+                      <span class="seg-label" id="rbSegLabel5">KM 135-145: Bogor Arterial</span>
+                      <small style="color:#38bdf8; font-size:10px;" id="rbSegSub5">Downstream Farm Arrival</small>
                     </div>
                     <div style="display:flex; gap:6px; width:100%;">
                       <select id="rbSeg5" class="form-select-sm" style="flex:1;">
-                        <option value="FREE_FLOW">🟢 Lancar</option>
-                        <option value="CONGESTED">🟡 Padat</option>
-                        <option value="GRIDLOCK">🔴 Macet</option>
-                        <option value="DAMAGED_ROAD">⚠️ Rusak</option>
-                        <option value="FLOODED">🌊 Banjir</option>
-                        <option value="DISASTER_BLOCKED">⛔ Longsor</option>
+                        <option value="FREE_FLOW">🟢 Free Flow</option>
+                        <option value="CONGESTED">🟡 Congested</option>
+                        <option value="GRIDLOCK">🔴 Gridlock</option>
+                        <option value="DAMAGED_ROAD">⚠️ Damaged</option>
+                        <option value="FLOODED">🌊 Flooded</option>
+                        <option value="DISASTER_BLOCKED">⛔ Blocked</option>
                       </select>
                       <select id="rbSig5" class="form-select-sm" style="flex:1;">
-                        <option value="GOOD">📶 4G Lancar</option>
-                        <option value="FADING">📶 Lemah</option>
+                        <option value="GOOD">📶 4G Online</option>
+                        <option value="FADING">📶 Fading</option>
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
@@ -491,46 +491,46 @@
 
         </div>
 
-        <!-- Tombol Mengambang (Floating Action Button) Kontrol Pengiriman -->
-        <button class="floating-rb-trigger" id="btnOpenFloatingRightbar" title="Buka Panel Kontrol Pengiriman">
+        <!-- Floating Action Button for Dispatch Controls -->
+        <button class="floating-rb-trigger" id="btnOpenFloatingRightbar" title="Open Dispatch Control Deck">
           <span class="pulse-dot"></span>
-          <span>⚙️ Kontrol Pengiriman</span>
+          <span>⚙️ Dispatch Controls</span>
         </button>
       </section>
 
-      <!-- VIEW 2: DAFTAR KENDARAAN TERDAFTAR -->
+      <!-- VIEW 2: REGISTERED FLEET VEHICLES -->
       <section class="view-panel" id="view-vehicles">
         
         <div class="view-header">
           <div>
-            <h2>Daftar Armada Truk Terdaftar</h2>
-            <p>Kelola data armada operasional di sistem (berbasis template riset Audy Joinaldy 2020). Seluruh parameter fisik dan sensor otomatis mewarisi standar paten.</p>
+            <h2>Registered Vehicle Fleet</h2>
+            <p>Manage operational fleet vehicles (based on Audy Joinaldy 2020 research template). All physical and sensor parameters automatically inherit patent specifications.</p>
           </div>
           <button class="btn btn-primary" id="btnOpenNewVehicleModal">
-            <span>+</span> Daftarkan Kendaraan Baru
+            <span>+</span> Register New Vehicle
           </button>
         </div>
 
         <!-- Table of Registered Vehicles -->
         <div class="card table-card">
           <div class="card-header">
-            <h3>🚛 Armada Truk yang Terdaftar di Sistem</h3>
+            <h3>🚛 Registered Operational Fleet Vehicles</h3>
           </div>
 
           <div class="table-responsive">
             <table class="data-table" id="vehiclesTable">
               <thead>
                 <tr>
-                  <th>ID Truk</th>
-                  <th>Nomor Polisi</th>
-                  <th>Model / Vendor Acuan</th>
-                  <th>Tipe Sirkulasi Udara</th>
-                  <th>Kapasitas Maksimal</th>
-                  <th>Suhu Setpoint Standar</th>
-                  <th>Sensor Mikroklimat</th>
-                  <th>📍 Posisi GPS Terakhir</th>
+                  <th>Truck ID</th>
+                  <th>License Plate</th>
+                  <th>Reference Model & Vendor</th>
+                  <th>Airflow System</th>
+                  <th>Max Capacity</th>
+                  <th>Default Setpoint</th>
+                  <th>Microclimate Sensors</th>
+                  <th>📍 Last GPS Position</th>
                   <th>Status</th>
-                  <th>Detail Fisik & Sensor</th>
+                  <th>Physical & Sensor Spec</th>
                 </tr>
               </thead>
               <tbody id="vehiclesTableBody">
@@ -542,22 +542,22 @@
 
       </section>
 
-      <!-- VIEW 3: TEMPLATE SPESIFIKASI PATEN TRUK (data_truck.md) -->
+      <!-- VIEW 3: PATENTED VEHICLE SPECIFICATIONS (data_truck.md) -->
       <section class="view-panel" id="view-templates">
         
         <div class="view-header">
           <div>
-            <h2>Template Spesifikasi Paten Truk</h2>
-            <p>Master standar <strong>6 Template Armada Paten</strong> acuan riset empiris dan vendor industri internasional (<code>data_truck.md</code>). Seluruh dimensi fisik, tata udara, pendingin HVAC, dan suite sensor paten terkunci sebagai standar acuan.</p>
+            <h2>Patented Vehicle Specifications & Templates</h2>
+            <p>Master standards of **6 Patented Fleet Templates** from empirical research and international industry vendors (<code>data_truck.md</code>). All physical dimensions, airflow, HVAC refrigeration, and patented sensor suites are locked as reference benchmarks.</p>
           </div>
           <div class="header-actions">
             <button type="button" class="btn btn-primary" id="btnOpenAllPayloadsModal">
-              <span>📦</span> Contoh Payload Telemetri (data_truck.md)
+              <span>📦</span> Telemetry Payload Examples (data_truck.md)
             </button>
           </div>
         </div>
 
-        <!-- Vendor Reference Quick Cards (6 Template Paten Baku) -->
+        <!-- Vendor Reference Quick Cards (6 Patented Templates) -->
         <div class="vendor-cards-grid">
           
           <div class="vendor-card">
@@ -565,14 +565,14 @@
               <img src="/assets/images/trucks/truck_hatchtech.png?v=2" alt="HatchTech HatchTraveller" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_hatchtech.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">BELANDA &bull; PATEN</div>
+              <div class="vendor-badge">NETHERLANDS &bull; PATENT</div>
               <h4>HatchTech HatchTraveller</h4>
-              <p>Sistem aliran udara laminer (*Laminar Airflow*), kontrol mikro-iklim terdistribusi merata, kapasitas 38.400 DOC.</p>
-              <div class="vendor-meta">Sirkulasi: 15.000 m³/jam &bull; 2-Zona Mandiri</div>
+              <p>Laminar airflow architecture, uniformly distributed microclimate control, 38,400 DOC capacity.</p>
+              <div class="vendor-meta">Airflow: 15,000 m³/h &bull; Dual Independent Zones</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="hatchtech">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="hatchtech">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="hatchtech">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="hatchtech">📦 Example Payload</button>
             </div>
           </div>
 
@@ -581,14 +581,14 @@
               <img src="/assets/images/trucks/truck_heering.png?v=2" alt="Heering Link Telematics" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_heering.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">BELANDA &bull; PATEN</div>
+              <div class="vendor-badge">NETHERLANDS &bull; PATENT</div>
               <h4>Heering Link Telematics</h4>
-              <p>Arsitektur telematika multi-titik paling spesifik untuk armada DOC. Multi-fan array atap dan inlet udara proporsional.</p>
-              <div class="vendor-meta">Kapasitas: 50.000 DOC &bull; Alarm GPRS FMS</div>
+              <p>Multi-point telematics architecture purpose-built for poultry transport. Roof fan array and proportional fresh air inlets.</p>
+              <div class="vendor-meta">Capacity: 50,000 DOC &bull; GPRS FMS Alarms</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="heering">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="heering">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="heering">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="heering">📦 Example Payload</button>
             </div>
           </div>
 
@@ -597,14 +597,14 @@
               <img src="/assets/images/trucks/truck_thermoking.png?v=2" alt="Thermo King UT-Series" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_thermoking.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">IRLANDIA &bull; PATEN</div>
+              <div class="vendor-badge">IRELAND &bull; PATENT</div>
               <h4>Thermo King UT-Series</h4>
-              <p>Unit pendingin kompresor berat under-mount, data logger <em>CargoWatch</em> 6 probe kargo dan pemancar satelit/GPRS TracKing.</p>
-              <div class="vendor-meta">Kapasitas: 60.000 DOC &bull; Fail-safe Dual Unit</div>
+              <p>Heavy-duty undermount reefer compressor, <em>CargoWatch</em> 6-probe cargo logger and TracKing cellular/satellite tracking.</p>
+              <div class="vendor-meta">Capacity: 60,000 DOC &bull; Fail-safe Dual Unit</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="thermoking">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="thermoking">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="thermoking">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="thermoking">📦 Example Payload</button>
             </div>
           </div>
 
@@ -613,14 +613,14 @@
               <img src="/assets/images/trucks/truck_carrier.png?v=2" alt="Carrier Transicold Lynx Fleet" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_carrier.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">AMERIKA SERIKAT &bull; PATEN</div>
+              <div class="vendor-badge">UNITED STATES &bull; PATENT</div>
               <h4>Carrier Transicold Lynx Fleet</h4>
-              <p>Standar arsitektur API Push Webhook rantai dingin, manajemen energi genset mandiri, dan integrasi cloud IoT telematika.</p>
-              <div class="vendor-meta">Kapasitas: 45.000 DOC &bull; Push API 1 Hz</div>
+              <p>Cold-chain push API webhook architecture, autonomous genset energy management, and cloud IoT telematics integration.</p>
+              <div class="vendor-meta">Capacity: 45,000 DOC &bull; 1 Hz Push API</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="carrier">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="carrier">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="carrier">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="carrier">📦 Example Payload</button>
             </div>
           </div>
 
@@ -629,14 +629,14 @@
               <img src="/assets/images/trucks/truck_chengli.png?v=2" alt="Chengli Poultry Carrier" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_chengli.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">TIONGKOK &bull; PATEN</div>
+              <div class="vendor-badge">CHINA &bull; PATENT</div>
               <h4>Chengli Poultry Carrier</h4>
-              <p>Karoseri spesialis DOC negara berkembang. Ventilasi hisap atap (*roof exhaust*), kisi pasif bawah, dan konsol kabin.</p>
-              <div class="vendor-meta">Kapasitas: 30.000 DOC &bull; Blower Kisi Bawah</div>
+              <p>Specialized DOC bodywork for developing markets. Roof exhaust suction fans, passive lower louvers, and cabin console.</p>
+              <div class="vendor-meta">Capacity: 30,000 DOC &bull; Lower Louver Blowers</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="chengli">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="chengli">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="chengli">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="chengli">📦 Example Payload</button>
             </div>
           </div>
 
@@ -645,14 +645,14 @@
               <img src="/assets/images/trucks/truck_joinaldy.png?v=2" alt="Truk Blower Non-AC Tropis Audy Joinaldy" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_joinaldy.jpg';">
             </div>
             <div>
-              <div class="vendor-badge">INDONESIA (RISET) &bull; PATEN</div>
-              <h4>Truk Blower Non-AC Tropis</h4>
-              <p>Model empiris Audy Joinaldy (2020) rute Sulsel. Tanpa kompresor AC, ventilasi blower atap ($Y=1.2385X - 6.2567$).</p>
-              <div class="vendor-meta">Kapasitas: 36.000 DOC &bull; Ambang THI Kritis</div>
+              <div class="vendor-badge">INDONESIA (RESEARCH) &bull; PATENT</div>
+              <h4>Tropical Non-AC Blower Truck</h4>
+              <p>Empirical model of Audy Joinaldy (2020) for South Sulawesi route. Non-refrigerated roof blower ventilation ($Y=1.2385X - 6.2567$).</p>
+              <div class="vendor-meta">Capacity: 36,000 DOC &bull; Critical THI Threshold</div>
             </div>
             <div class="vendor-card-actions">
-              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="joinaldy">🔍 Spesifikasi Paten</button>
-              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="joinaldy">📦 Contoh Payload</button>
+              <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="joinaldy">🔍 Patent Specs</button>
+              <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="joinaldy">📦 Example Payload</button>
             </div>
           </div>
 
@@ -663,185 +663,185 @@
     </div>
   </div>
 
-  <!-- MODAL: BUAT RENCANA PENGIRIMAN BARU -->
+  <!-- MODAL: CREATE NEW DISPATCH MANIFEST -->
   <div class="modal-backdrop" id="modalNewExpedition">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         
         <div class="modal-header">
-          <h3>📦 Buat Rencana Pengiriman Baru</h3>
+          <h3>📦 Create New Dispatch Manifest</h3>
           <button class="modal-close-btn" id="btnCloseExpeditionModal">&times;</button>
         </div>
 
         <form id="formNewExpedition">
           <div class="modal-body">
             
-            <!-- GRUP 1: IDENTITAS PERJALANAN & PENUGASAN ARMADA -->
+            <!-- GROUP 1: TRIP IDENTITY & VEHICLE ASSIGNMENT -->
             <div class="modal-section-title">
               <span class="sec-badge">1</span>
-              <span>GRUP 1: IDENTITAS PERJALANAN & PENUGASAN ARMADA</span>
+              <span>GROUP 1: TRIP IDENTITY & VEHICLE ASSIGNMENT</span>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Nomor ID Pengiriman:</label>
+                <label>Dispatch ID (Trip ID):</label>
                 <input type="text" id="newTripId" class="form-input" required readonly>
-                <small class="field-hint">Dihasilkan otomatis berurutan</small>
+                <small class="field-hint">Auto-generated sequential identifier</small>
               </div>
               <div class="form-group col-half">
-                <label>Nomor Surat Jalan / Delivery Order (DO):</label>
+                <label>Delivery Order (DO) Number:</label>
                 <input type="text" id="newTripDO" class="form-input" value="DO-CPI-SBG-20261029-01" required>
-                <small class="field-hint">Nomor dokumen resmi rantai pasok (Audy Joinaldy 2020)</small>
+                <small class="field-hint">Official supply-chain consignment note</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group full-width">
-                <label>Nama Rencana Pengiriman:</label>
-                <input type="text" id="newTripTitle" class="form-input" value="Pengiriman Inti DOC Subang ke Broiler Farm Bogor" required>
+                <label>Dispatch Itinerary Title:</label>
+                <input type="text" id="newTripTitle" class="form-input" value="Main DOC Dispatch Subang to Broiler Farm Bogor" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Pilih Armada Truk Berpendingin:</label>
+                <label>Select Reefer Vehicle:</label>
                 <select id="newTripVehicleSelect" class="form-select" required>
                   <!-- Populated from vehicle list -->
                 </select>
-                <small class="field-hint">Mengacu pada Master Database Armada (data_truck.md)</small>
+                <small class="field-hint">References Fleet Master Database (data_truck.md)</small>
               </div>
               <div class="form-group col-half">
-                <label>Nama Pengemudi Utama (*Driver*):</label>
+                <label>Primary Driver Name:</label>
                 <input type="text" id="newTripDriver" class="form-input" value="Rahmat Santoso" required>
-                <small class="field-hint">Identitas pengemudi sah bersertifikasi cold-chain</small>
+                <small class="field-hint">Cold-chain certified commercial driver</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Level Solar Genset Awal (%):</label>
+                <label>Initial Reefer Fuel Level (%):</label>
                 <input type="number" id="newTripFuel" class="form-input" value="100.0" min="10" max="100" step="1" required>
-                <small class="field-hint">Bahan bakar reefer genset (Carrier Lynx &bull; Alarm &lt; 15%)</small>
+                <small class="field-hint">Reefer genset fuel (Carrier Lynx &bull; Alarm &lt; 15%)</small>
               </div>
               <div class="form-group col-half">
-                <label>Voltase Aki Kendali (Volt):</label>
+                <label>Control Battery Voltage (V):</label>
                 <input type="number" id="newTripVoltage" class="form-input" value="24.2" min="10.5" max="28.5" step="0.1" required>
-                <small class="field-hint">Standar kelistrikan chiller: 24.0V - 25.5V</small>
+                <small class="field-hint">Reefer electrical standard: 24.0V - 25.5V</small>
               </div>
             </div>
 
             <hr class="form-divider">
 
-            <!-- GRUP 2: MANIFEST KARGO DOC (CARGO MANIFEST PARAMETERS) -->
+            <!-- GROUP 2: DOC CARGO MANIFEST -->
             <div class="modal-section-title">
               <span class="sec-badge">2</span>
-              <span>GRUP 2: MANIFEST KARGO DOC (CARGO MANIFEST)</span>
+              <span>GROUP 2: DOC CARGO MANIFEST</span>
             </div>
 
             <div class="form-row">
               <div class="form-group col-3">
-                <label>Jumlah Bibit DOC (Ekor):</label>
+                <label>DOC Cargo Quantity (Chicks):</label>
                 <input type="number" id="newTripQuantity" class="form-input" value="40000" min="1000" step="1000" required>
-                <small class="field-hint">Penentu beban kalor biologis kargo (Q_meta)</small>
+                <small class="field-hint">Biological heat load driver (Q_meta)</small>
               </div>
               <div class="form-group col-3">
-                <label>Galur / Strain Bibit DOC:</label>
+                <label>DOC Breed / Strain:</label>
                 <select id="newTripStrain" class="form-select">
-                  <option value="Cobb 500" selected>Cobb 500 (Standar Industri Indonesia)</option>
-                  <option value="Ross 308">Ross 308 (Laju Pertumbuhan Cepat)</option>
-                  <option value="Hubbard Classic">Hubbard Classic (Daya Tahan Kuat)</option>
+                  <option value="Cobb 500" selected>Cobb 500 (Industry Standard)</option>
+                  <option value="Ross 308">Ross 308 (Rapid Growth Rate)</option>
+                  <option value="Hubbard Classic">Hubbard Classic (High Robustness)</option>
                 </select>
-                <small class="field-hint">Toleransi stres termal THI</small>
+                <small class="field-hint">THI thermal stress tolerance</small>
               </div>
               <div class="form-group col-3">
-                <label>Bobot Awal Rata-Rata DOC (g/ekor):</label>
+                <label>Average Initial Weight (g/chick):</label>
                 <input type="number" id="newTripWeight" class="form-input" value="42.0" min="37.0" max="50.0" step="0.1" required>
-                <small class="field-hint">SNI 2019: Min 37 g &bull; Inersia termal</small>
+                <small class="field-hint">SNI 2019: Min 37 g &bull; Thermal inertia</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Umur Indukan Pembibit (*Breeder Flock Age*):</label>
+                <label>Breeder Flock Age:</label>
                 <select id="newTripBreederAge" class="form-select">
-                  <option value="Prime (30 - 50 Minggu)" selected>Prime / Puncak (30 - 50 Minggu) — Daya Tahan Optimal</option>
-                  <option value="Young (< 30 Minggu)">Young / Muda (&lt; 30 Minggu) — Rentan Kedinginan</option>
-                  <option value="Old (> 50 Minggu)">Old / Tua (&gt; 50 Minggu) — Panas Metabolik Tinggi</option>
+                  <option value="Prime (30 - 50 Weeks)" selected>Prime / Peak (30 - 50 Weeks) — Optimal Robustness</option>
+                  <option value="Young (< 30 Weeks)">Young (&lt; 30 Weeks) — Cold Susceptible</option>
+                  <option value="Old (> 50 Weeks)">Old (&gt; 50 Weeks) — Elevated Metabolic Heat</option>
                 </select>
-                <small class="field-hint">Faktor risiko mortalitas & susut bobot (Yerpes 2021)</small>
+                <small class="field-hint">Mortality & shrinkage risk factor (Yerpes 2021)</small>
               </div>
               <div class="form-group col-half">
-                <label>Jenis Kelamin Bibit (*Sexing*):</label>
+                <label>Sexing Ratio:</label>
                 <select id="newTripGender" class="form-select">
-                  <option value="As-Hatched (Campur 50:50)" selected>Campur / As-Hatched (50:50 Jantan & Betina)</option>
-                  <option value="All-Male (Khusus Jantan)">Khusus Jantan (All-Male)</option>
-                  <option value="All-Female (Khusus Betina)">Khusus Betina (All-Female)</option>
+                  <option value="As-Hatched (Straight Run 50:50)" selected>As-Hatched / Straight Run (50:50 Male & Female)</option>
+                  <option value="All-Male">All-Male Consignment</option>
+                  <option value="All-Female">All-Female Consignment</option>
                 </select>
-                <small class="field-hint">Distribusi bobot kargo</small>
+                <small class="field-hint">Cargo weight distribution</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Tipe Boks Kemasan:</label>
+                <label>Packaging Box Type:</label>
                 <select id="newTripBoxType" class="form-select">
-                  <option value="Boks Plastik Berventilasi (Crate)" selected>Boks Plastik Berventilasi (HatchTech/Heering Crate)</option>
-                  <option value="Boks Karton Sekali Pakai (Corrugated)">Boks Karton Berlubang Sekali Pakai (Corrugated)</option>
+                  <option value="Ventilated Plastic Crate" selected>Ventilated Plastic Crate (HatchTech/Heering Crate)</option>
+                  <option value="Corrugated Paper Box">Corrugated Ventilated Box (Single-use)</option>
                 </select>
-                <small class="field-hint">Resistensi sirkulasi aerodinamika kabin</small>
+                <small class="field-hint">Cargo bay aerodynamic resistance</small>
               </div>
               <div class="form-group col-half">
-                <label>Kepadatan per Boks Kargo:</label>
+                <label>Density per Cargo Box:</label>
                 <select id="newTripDensity" class="form-select">
-                  <option value="100" selected>100 Ekor / Boks (Standar Jarak Menengah)</option>
-                  <option value="80">80 Ekor / Boks (Rute Jauh / Cuaca Ekstrem - Onuk 2023)</option>
+                  <option value="100" selected>100 Chicks / Box (Medium Route Standard)</option>
+                  <option value="80">80 Chicks / Box (Long Haul / Extreme Climate - Onuk 2023)</option>
                 </select>
-                <small class="field-hint">Mencegah akumulasi panas lokal (*hotspot*)</small>
+                <small class="field-hint">Prevents localized thermal hotspots</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>Target Setpoint Suhu AC (°C):</label>
+                <label>Target Temperature Setpoint (°C):</label>
                 <input type="number" id="newTripSetpoint" class="form-input" value="25.0" min="18.0" max="30.0" step="0.5" required>
-                <small class="field-hint">Standar pendingin: 24.0°C - 26.0°C (Deadband ±0.5°C)</small>
+                <small class="field-hint">Reefer SLA: 24.0°C - 26.0°C (Deadband ±0.5°C)</small>
               </div>
               <div class="form-group col-half">
-                <label>Target Kelembapan (% RH):</label>
+                <label>Target Relative Humidity (% RH):</label>
                 <input type="number" id="newTripTargetRH" class="form-input" value="65" min="45" max="80" step="1" required>
-                <small class="field-hint">Audy Joinaldy 2020: Rentang optimal 60% - 70% RH</small>
+                <small class="field-hint">Audy Joinaldy 2020: Optimal range 60% - 70% RH</small>
               </div>
             </div>
 
             <hr class="form-divider">
 
-            <!-- GRUP 3: KONDISI RUTE & LINGKUNGAN AMBIEN (ROUTE & ENVIRONMENT) -->
+            <!-- GROUP 3: ROUTE & AMBIENT ENVIRONMENT -->
             <div class="modal-section-title">
               <span class="sec-badge">3</span>
-              <span>GRUP 3: KONDISI RUTE & LINGKUNGAN AMBIEN</span>
+              <span>GROUP 3: ROUTE & AMBIENT ENVIRONMENT</span>
             </div>
 
             <div class="form-row">
               <div class="form-group full-width">
-                <label>🛣️ Pilihan Jalur:</label>
+                <label>🛣️ Route Category:</label>
                 <select id="newTripRouteType" class="form-select" required>
-                  <option value="TOLL" selected>Toll</option>
-                  <option value="NON_TOLL">Non Toll</option>
+                  <option value="TOLL" selected>Toll Expressway</option>
+                  <option value="NON_TOLL">Non-Toll Arterial</option>
                 </select>
-                <small class="field-hint" id="newTripRouteHint">Preferensi rute untuk kalkulasi OSRM API (Toll / Non Toll)</small>
+                <small class="field-hint" id="newTripRouteHint">Route preference for OSRM API routing calculation (Toll / Non-Toll)</small>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>📍 Lokasi Asal (Titik A):</label>
+                <label>📍 Origin Facility (Point A):</label>
                 <input type="text" id="newOriginName" class="form-input" value="Subang Hatchery (Hulu)" required>
-                <small class="field-hint">Fasilitas penetasan pemuatan DOC</small>
+                <small class="field-hint">DOC hatchery loading facility</small>
               </div>
               <div class="form-group col-half">
                 <div class="coord-label-row">
-                  <label>Koordinat Asal (Latitude, Longitude):</label>
-                  <button type="button" class="btn-link-pick" id="btnPickOriginMode" title="Aktifkan mode klik titik asal di peta">📍 Klik di Peta</button>
+                  <label>Origin Coordinates (Latitude, Longitude):</label>
+                  <button type="button" class="btn-link-pick" id="btnPickOriginMode" title="Click on map to select origin coordinates">📍 Pick on Map</button>
                 </div>
                 <div class="coord-inputs">
                   <div class="coord-field">
@@ -858,14 +858,14 @@
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>🏁 Lokasi Tujuan (Titik B):</label>
+                <label>🏁 Destination Facility (Point B):</label>
                 <input type="text" id="newDestName" class="form-input" value="Bogor Broiler Farm (Hilir)" required>
-                <small class="field-hint">Kandang broiler komersial penerima</small>
+                <small class="field-hint">Receiving commercial broiler farm</small>
               </div>
               <div class="form-group col-half">
                 <div class="coord-label-row">
-                  <label>Koordinat Tujuan (Latitude, Longitude):</label>
-                  <button type="button" class="btn-link-pick" id="btnPickDestMode" title="Aktifkan mode klik titik tujuan di peta">🏁 Klik di Peta</button>
+                  <label>Destination Coordinates (Latitude, Longitude):</label>
+                  <button type="button" class="btn-link-pick" id="btnPickDestMode" title="Click on map to select destination coordinates">🏁 Pick on Map</button>
                 </div>
                 <div class="coord-inputs">
                   <div class="coord-field">
@@ -885,56 +885,56 @@
               <div class="map-picker-header">
                 <div class="map-picker-status">
                   <span class="picker-icon">🗺️</span>
-                  <span id="pickerStatusText">Mode: Klik peta untuk menetapkan 📍 <strong>Titik Asal (A)</strong></span>
+                  <span id="pickerStatusText">Mode: Click map to set 📍 <strong>Origin Point (A)</strong></span>
                 </div>
                 <div class="picker-mode-switch">
                   <button type="button" class="btn-pick-tab active" id="tabPickOrigin">
-                    <span class="dot-green"></span> 📍 Pilih Asal (A)
+                    <span class="dot-green"></span> 📍 Pick Origin (A)
                   </button>
                   <button type="button" class="btn-pick-tab" id="tabPickDest">
-                    <span class="dot-red"></span> 🏁 Pilih Tujuan (B)
+                    <span class="dot-red"></span> 🏁 Pick Destination (B)
                   </button>
                 </div>
               </div>
               <div id="routePickerMap" class="route-picker-map-canvas"></div>
               <div class="map-picker-footer">
-                <span>💡 <em>Klik peta atau seret (drag) pin 📍 <strong>Asal (Hijau)</strong> & 🏁 <strong>Tujuan (Merah)</strong> untuk mengisi koordinat secara otomatis.</em></span>
+                <span>💡 <em>Click the map or drag 📍 <strong>Origin (Green)</strong> & 🏁 <strong>Destination (Red)</strong> pins to auto-populate coordinates.</em></span>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label>📅 Tanggal Keberangkatan:</label>
+                <label>📅 Departure Date:</label>
                 <input type="date" id="newDepartureDate" class="form-input" required>
-                <small class="field-hint" id="newDepartureDateHint">Tanggal penjemputan bibit DOC di hatchery</small>
+                <small class="field-hint" id="newDepartureDateHint">DOC pickup date at hatchery</small>
               </div>
 
               <div class="form-group col-half">
-                <label>⏰ Jam Keberangkatan (WIB):</label>
+                <label>⏰ Departure Time (WIB):</label>
                 <div class="time-picker-wrapper">
                   <input type="time" id="newDepartureTime" class="form-input" value="08:00" required>
-                  <small class="field-hint" id="newDepartureTimeHint">☀️ Siang Hari (Pukul 06:00 - 18:00)</small>
+                  <small class="field-hint" id="newDepartureTimeHint">☀️ Daytime (06:00 - 18:00)</small>
                 </div>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group" style="width: 100%;">
-                <label>Kondisi Cuaca Keberangkatan:</label>
+                <label>Departure Weather Condition:</label>
                 <select id="newTripWeather" class="form-select">
-                  <option value="SUNNY" selected>🌤️ Cerah (Radiasi Maksimal 850 W/m²)</option>
-                  <option value="LIGHT_RAIN">🌧️ Hujan Ringan (Radiasi 350 W/m²)</option>
-                  <option value="HEAVY_STORM">⛈️ Badai Ekstrem (Radiasi 150 W/m²)</option>
+                  <option value="SUNNY" selected>🌤️ Clear / Sunny (Peak Solar Radiation 850 W/m²)</option>
+                  <option value="LIGHT_RAIN">🌧️ Light Rain (Solar Radiation 350 W/m²)</option>
+                  <option value="HEAVY_STORM">⛈️ Severe Storm (Solar Radiation 150 W/m²)</option>
                 </select>
-                <small class="field-hint">Memengaruhi beban radiasi matahari kabin</small>
+                <small class="field-hint">Governs solar radiation heat load on cargo envelope</small>
               </div>
             </div>
 
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelExpeditionModal">Batal</button>
-            <button type="submit" class="btn btn-primary">💾 Simpan Rencana Pengiriman</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelExpeditionModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">💾 Save Dispatch Manifest</button>
           </div>
         </form>
 
@@ -942,15 +942,15 @@
     </div>
   </div>
 
-  <!-- MODAL: DAFTARKAN KENDARAAN BARU (CUKUP ID, PLAT NOMOR, & TEMPLATE PATEN) -->
+  <!-- MODAL: DAFTARKAN KENDARAAN BARU (STANDARDIZED FLEET REGISTRATION) -->
   <div class="modal-backdrop" id="modalNewVehicle">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         
         <div class="modal-header">
           <div>
-            <span class="badge-paten-header">🚛 REGISTRASI ARMADA TERSTANDARISASI</span>
-            <h3>Daftarkan Armada Truk Baru</h3>
+            <span class="badge-paten-header">🚛 STANDARDIZED FLEET REGISTRATION</span>
+            <h3>Register New Fleet Vehicle</h3>
           </div>
           <button class="modal-close-btn" id="btnCloseVehicleModal">&times;</button>
         </div>
@@ -960,102 +960,102 @@
 
             <div class="form-row">
               <div class="form-group col-half">
-                <label for="vTruckId">Nomor ID Truk:</label>
-                <input type="text" id="vTruckId" class="form-input" placeholder="contoh: TRUCK-AJ-36000-02" required>
-                <small class="field-hint">Format identitas armada telematika unik</small>
+                <label for="vTruckId">Vehicle ID (Truck ID):</label>
+                <input type="text" id="vTruckId" class="form-input" placeholder="e.g. TRUCK-AJ-36000-02" required>
+                <small class="field-hint">Unique telematics fleet identifier</small>
               </div>
               <div class="form-group col-half">
-                <label for="vLicensePlate">Nomor Polisi Kendaraan:</label>
-                <input type="text" id="vLicensePlate" class="form-input" placeholder="contoh: DD 8741 XY" required>
-                <small class="field-hint">Plat nomor registrasi kepolisian</small>
+                <label for="vLicensePlate">Vehicle License Plate:</label>
+                <input type="text" id="vLicensePlate" class="form-input" placeholder="e.g. DD 8741 XY" required>
+                <small class="field-hint">Official transport registration plate</small>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="vehicleTemplateSelect">Nama Model & Vendor Acuan (Pilihan Template): <span style="color: #f59e0b; font-weight: 600;">(Terkunci — Khusus Model Riset Audy Joinaldy)</span></label>
+              <label for="vehicleTemplateSelect">Reference Model & Vendor (Template Selection): <span style="color: #f59e0b; font-weight: 600;">(Locked — Audy Joinaldy Research Model)</span></label>
               <select id="vehicleTemplateSelect" class="form-select" disabled>
-                <option value="joinaldy" selected>Truk Modifikasi Blower Tropis Non-AC (Audy Joinaldy 2020) — Model Sulsel (36.000 DOC)</option>
+                <option value="joinaldy" selected>Tropical Non-AC Blower Truck (Audy Joinaldy 2020) — Sulawesi Model (36,000 DOC)</option>
               </select>
-              <small class="field-hint">📌 Sesuai fokus riset logistik DOC iklim tropis, registrasi armada baru <strong>hanya dapat memilih template Audy Joinaldy (2020)</strong>.</small>
+              <small class="field-hint">📌 Aligned with tropical DOC logistics research focus, new vehicle registrations <strong>exclusively inherit the Audy Joinaldy (2020) template</strong>.</small>
             </div>
 
-            <!-- Pratinjau Spesifikasi Paten Bawaan Template (Read-Only Langsung) -->
+            <!-- Template Patent Specifications Preview (Read-Only) -->
             <div class="template-preview-card">
               <div class="template-preview-header">
                 <div>
-                  <span class="badge-lock">🔒 DATA DETAIL TEMPLATE PATEN (OTOMATIS DIWARISI)</span>
-                  <h4 id="prevModelTitle">Truk Modifikasi Blower Tropis (Audy Joinaldy 2020)</h4>
+                  <span class="badge-lock">🔒 INHERITED PATENT SPECIFICATIONS (READ-ONLY)</span>
+                  <h4 id="prevModelTitle">Tropical Blower Truck (Audy Joinaldy 2020)</h4>
                 </div>
               </div>
 
-              <!-- Visualisasi Truk & Sensor Terpasang -->
+              <!-- Vehicle & Installed Sensors Visualization -->
               <div class="preview-visuals-grid">
                 <div class="preview-img-box">
-                  <img src="/assets/images/trucks/truck_joinaldy.png?v=2" alt="Truk Audy Joinaldy" class="preview-thumb-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_joinaldy.jpg';">
-                  <span class="preview-img-tag">🚚 VISUAL TRUK MODIFIKASI</span>
+                  <img src="/assets/images/trucks/truck_joinaldy.png?v=2" alt="Audy Joinaldy Truck" class="preview-thumb-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_joinaldy.jpg';">
+                  <span class="preview-img-tag">🚚 VEHICLE VISUALIZATION</span>
                 </div>
                 <div class="preview-img-box">
-                  <img src="/assets/images/sensors/sensors_joinaldy.png?v=2" alt="Suite Sensor Audy Joinaldy" class="preview-thumb-img">
-                  <span class="preview-img-tag">📡 SUITE SENSOR TELEMETRI IPB</span>
+                  <img src="/assets/images/sensors/sensors_joinaldy.png?v=2" alt="Audy Joinaldy Sensor Suite" class="preview-thumb-img">
+                  <span class="preview-img-tag">📡 TELEMETRY SENSOR SUITE</span>
                 </div>
               </div>
 
-              <!-- Grid Spesifikasi Fisik & Pendingin -->
+              <!-- Physical Dimensions & HVAC Specifications Grid -->
               <div class="template-preview-grid">
                 <div class="preview-item">
-                  <span class="preview-label">Kapasitas Maksimal:</span>
-                  <strong id="prevCapacity" class="preview-val">36.000 DOC</strong>
+                  <span class="preview-label">Maximum Capacity:</span>
+                  <strong id="prevCapacity" class="preview-val">36,000 DOC</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Target Suhu Standar:</span>
+                  <span class="preview-label">Standard Setpoint:</span>
                   <strong id="prevSetpoint" class="preview-val">26.0°C</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Sistem Tata Udara:</span>
-                  <strong id="prevAirflow" class="preview-val">Ventilasi Blower Atap Non-AC (Model Sulsel)</strong>
+                  <span class="preview-label">Airflow System:</span>
+                  <strong id="prevAirflow" class="preview-val">Roof Exhaust Blower Ventilation (Non-AC)</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Pasokan Udara Segar:</span>
-                  <strong id="prevFreshAir" class="preview-val">Sirkulasi Blower Atap Non-Refrigerasi</strong>
+                  <span class="preview-label">Fresh Air Intake:</span>
+                  <strong id="prevFreshAir" class="preview-val">Ambient Non-Refrigerated Forced Airflow</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Daya Pendingin (HVAC):</span>
-                  <strong id="prevCooling" class="preview-val">0 kW (Non-AC, Aliran Ambien)</strong>
+                  <span class="preview-label">Cooling Power (HVAC):</span>
+                  <strong id="prevCooling" class="preview-val">0 kW (Non-AC, Forced Ambient Flow)</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Catu Daya & Blower:</span>
-                  <strong id="prevPower" class="preview-val">Aki Truk 12V DC Blower (45 L)</strong>
+                  <span class="preview-label">Auxiliary Power & Blower:</span>
+                  <strong id="prevPower" class="preview-val">12V DC Battery-Operated Blowers (45 L)</strong>
                 </div>
                 <div class="preview-item">
-                  <span class="preview-label">Zonasi Mikroklimat:</span>
-                  <strong id="prevZones" class="preview-val">2-Zona (Depan & Belakang)</strong>
+                  <span class="preview-label">Microclimate Zoning:</span>
+                  <strong id="prevZones" class="preview-val">2-Zone (Front & Rear)</strong>
                 </div>
                 <div class="preview-item preview-col-span-2">
-                  <span class="preview-label">Dokumen Acuan Riset:</span>
-                  <strong id="prevReference" class="preview-val" style="color: #94a3b8; font-size: 10px;">Disertasi Dr. Ir. Audy Joinaldy (SB-IPB 2020)</strong>
+                  <span class="preview-label">Empirical Literature Reference:</span>
+                  <strong id="prevReference" class="preview-val" style="color: #94a3b8; font-size: 10px;">Dissertation Dr. Ir. Audy Joinaldy (SB-IPB 2020)</strong>
                 </div>
               </div>
 
               <!-- Sensor Suite Terpasang -->
               <div class="template-preview-section">
-                <span class="preview-label" style="color: #38bdf8; margin-bottom: 6px;">📡 SUITE INSTRUMEN SENSOR TELEMETRI TERPASANG:</span>
+                <span class="preview-label" style="color: #38bdf8; margin-bottom: 6px;">📡 INSTALLED TELEMETRY SENSOR INSTRUMENTATION SUITE:</span>
                 <ul class="spec-sensors-ul" id="prevSensorsList" style="margin-top: 4px;">
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Sensor Suhu Lingkungan Ambien Tropis Luar Truk (X)</span></li>
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Sensor Suhu Internal Kontainer Kargo Boks (Y)</span></li>
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Model Regresi Termal Tropis Audy Joinaldy (2020): Y = 1.2385X - 6.2567</span></li>
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Sensor Kelembaban Relatif (RH %) untuk Evaluasi THI Tropis</span></li>
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Datalogger GS-105 Logging Periodik 45 Detik (RS-485 Modbus)</span></li>
-                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>GPS Tracking Modul NMEA-0183 (Lat, Lng, Speed, Bearing)</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>External Ambient Tropical Temperature Sensor (X)</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Internal Cargo Box Multi-Zone Temperature Sensors (Y)</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Audy Joinaldy Empirical Thermal Model (2020): Y = 1.2385X - 6.2567</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>Relative Humidity Sensor (RH %) for Tropical THI Evaluation</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>GS-105 Datalogger with 45-Second Logging Cycle (RS-485 Modbus)</span></li>
+                  <li class="spec-list-item"><span class="spec-check">✓</span> <span>GPS Tracking Module NMEA-0183 (Lat, Lng, Speed, Bearing)</span></li>
                 </ul>
               </div>
 
               <!-- Keunggulan Desain -->
               <div class="template-preview-section" style="margin-top: 10px;">
-                <span class="preview-label" style="color: #34d399; margin-bottom: 6px;">⭐ KEUNGGULAN ARSITEKTUR & MODEL EMPIRIS:</span>
+                <span class="preview-label" style="color: #34d399; margin-bottom: 6px;">⭐ ARCHITECTURAL HIGHLIGHTS & EMPIRICAL BENCHMARKS:</span>
                 <ul class="spec-features-ul" id="prevFeaturesList" style="margin-top: 4px;">
-                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>Acuan riset empiris disertasi Sekolah Bisnis IPB oleh Audy Joinaldy (2020)</span></li>
-                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>Tanpa unit pendingin mekanik (non-AC) mengandalkan sirkulasi udara buang atas</span></li>
-                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>Sensitivitas tinggi terhadap suhu lingkungan luar rute Trans-Sulawesi (Makassar - Parepare - Sidrap)</span></li>
+                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>Calibrated against IPB Business School empirical dissertation field data (Audy Joinaldy, 2020)</span></li>
+                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>Non-refrigerated ventilation relying on roof exhaust suction blowers</span></li>
+                  <li class="spec-list-item"><span class="spec-bullet">•</span> <span>High sensitivity to diurnal ambient heat along the Trans-Sulawesi corridor (Makassar - Parepare - Sidrap)</span></li>
                 </ul>
               </div>
 
@@ -1064,8 +1064,8 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelVehicleModal">Batal</button>
-            <button type="submit" class="btn btn-primary">💾 Daftarkan Armada Truk</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelVehicleModal">Cancel</button>
+            <button type="submit" class="btn btn-primary">💾 Register Fleet Vehicle</button>
           </div>
         </form>
 
@@ -1073,15 +1073,15 @@
     </div>
   </div>
 
-  <!-- MODAL: LEMBAR SPESIFIKASI PATEN TRUK (READ ONLY) -->
+  <!-- MODAL: PATENT SPECIFICATION SHEET (READ ONLY) -->
   <div class="modal-backdrop" id="modalViewSpec">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         
         <div class="modal-header">
           <div class="spec-modal-header-text">
-            <span class="badge-lock">🔒 DATA TEMPLATE PATEN (data_truck.md) — READ ONLY</span>
-            <h3 id="specModalTitle">Lembar Spesifikasi Fisik & Sensor Truk</h3>
+            <span class="badge-lock">🔒 PATENT TEMPLATE DATA (data_truck.md) — READ ONLY</span>
+            <h3 id="specModalTitle">Physical & Sensor Specification Sheet</h3>
           </div>
           <button class="modal-close-btn" id="btnCloseSpecModal">&times;</button>
         </div>
@@ -1091,23 +1091,23 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline" id="btnSpecSwitchToPayload" style="color: #34d399; border-color: #059669;">📦 Buka Contoh Payload JSON</button>
-          <button type="button" class="btn btn-secondary" id="btnDismissSpecModal">Tutup</button>
+          <button type="button" class="btn btn-outline" id="btnSpecSwitchToPayload" style="color: #34d399; border-color: #059669;">📦 View Example Payload JSON</button>
+          <button type="button" class="btn btn-secondary" id="btnDismissSpecModal">Close</button>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CONTOH PAYLOAD STREAMING TELEMETRI TRUK (data_truck.md Bab 6) -->
+  <!-- MODAL: SAMPLE TELEMETRY STREAMING PAYLOAD (data_truck.md §6) -->
   <div class="modal-backdrop" id="modalViewPayload">
     <div class="modal-dialog modal-lg" style="max-width: 840px;">
       <div class="modal-content">
         
         <div class="modal-header">
           <div class="spec-modal-header-text">
-            <span class="badge-lock" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981;">📦 FORMAT KONTRAK DATA RESMI (data_truck.md Bab 6)</span>
-            <h3 id="payloadModalMainTitle">Contoh Payload Streaming JSON Telemetri Truk</h3>
+            <span class="badge-lock" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: #10b981;">📦 OFFICIAL DATA CONTRACT FORMAT (data_truck.md §6)</span>
+            <h3 id="payloadModalMainTitle">Sample Telemetry Streaming JSON Payload</h3>
           </div>
           <button class="modal-close-btn" id="btnClosePayloadModal">&times;</button>
         </div>
@@ -1115,25 +1115,25 @@
         <div class="modal-body">
           <!-- Quick Selector Tabs for 6 Templates -->
           <div class="payload-tabs" id="payloadTruckTabs">
-            <button type="button" class="payload-tab-btn active" data-template="hatchtech">🇳🇱 HatchTech 38.400</button>
-            <button type="button" class="payload-tab-btn" data-template="heering">🇳🇱 Heering 50.000</button>
-            <button type="button" class="payload-tab-btn" data-template="thermoking">🇮🇪 Thermo King 60.000</button>
-            <button type="button" class="payload-tab-btn" data-template="carrier">🇺🇸 Carrier Lynx 45.000</button>
-            <button type="button" class="payload-tab-btn" data-template="chengli">🇨🇳 Chengli 30.000</button>
-            <button type="button" class="payload-tab-btn" data-template="joinaldy">🇮🇩 Audy Joinaldy 36.000</button>
+            <button type="button" class="payload-tab-btn active" data-template="hatchtech">🇳🇱 HatchTech 38,400</button>
+            <button type="button" class="payload-tab-btn" data-template="heering">🇳🇱 Heering 50,000</button>
+            <button type="button" class="payload-tab-btn" data-template="thermoking">🇮🇪 Thermo King 60,000</button>
+            <button type="button" class="payload-tab-btn" data-template="carrier">🇺🇸 Carrier Lynx 45,000</button>
+            <button type="button" class="payload-tab-btn" data-template="chengli">🇨🇳 Chengli 30,000</button>
+            <button type="button" class="payload-tab-btn" data-template="joinaldy">🇮🇩 Audy Joinaldy 36,000</button>
           </div>
 
           <!-- Payload Metadata Card -->
           <div class="payload-meta-card" id="payloadMetaCard">
             <div class="payload-meta-header">
-              <span class="payload-meta-title" id="payloadMetaTitle">HatchTech HatchTraveller 38400 (Belanda)</span>
+              <span class="payload-meta-title" id="payloadMetaTitle">HatchTech HatchTraveller 38400 (Netherlands)</span>
               <span class="payload-meta-endpoint" id="payloadMetaEndpoint">
                 <span class="dot-live" style="width: 7px; height: 7px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
-                <span id="payloadEndpointText">1 Endpoint Terpadu (/ws/telemetry)</span>
+                <span id="payloadEndpointText">Unified Endpoint (/ws/telemetry)</span>
               </span>
             </div>
             <p class="payload-meta-desc" id="payloadMetaDesc">
-              Spesifikasi sistem aliran udara laminer 15.000 m³/jam, 2-Zona Iklim MicroClimer mandiri (depan & belakang), kisi 8-probe sensor presisi, gas CO2 NDIR, dan kapasitas muatan paten 38.400 DOC.
+              15,000 m³/h laminar airflow architecture, dual independent MicroClimer climate zones (front & rear), 8-probe precision sensor array, NDIR CO2 sensor, and patented 38,400 DOC capacity.
             </p>
           </div>
 
@@ -1145,7 +1145,7 @@
                 <span class="badge-internal-tag" style="margin-left: 6px; font-size: 9px;">1 Hz STREAM JSON</span>
               </span>
               <button type="button" class="btn-copy-payload" id="btnCopyPayload">
-                <span id="copyIcon">📋</span> <span id="copyText">Salin JSON</span>
+                <span id="copyIcon">📋</span> <span id="copyText">Copy JSON</span>
               </button>
             </div>
             <pre class="json-code-pre" id="payloadJsonPre"><code>// JSON Payload will be rendered here</code></pre>
@@ -1153,8 +1153,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="btnDismissPayloadModal">Tutup</button>
-          <button type="button" class="btn btn-primary" id="btnDownloadPayloadJson">📥 Unduh Berkas JSON</button>
+          <button type="button" class="btn btn-secondary" id="btnDismissPayloadModal">Close</button>
+          <button type="button" class="btn btn-primary" id="btnDownloadPayloadJson">📥 Download JSON File</button>
         </div>
 
       </div>

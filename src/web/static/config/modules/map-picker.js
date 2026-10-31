@@ -126,7 +126,7 @@ export function resetToDefaultCoords() {
 }
 
 /**
- * Inisialisasi Peta Pemilih Rute (Leaflet)
+ * Initialize Route Picker Map (Leaflet)
  */
 export function initRoutePickerMap() {
   if (typeof window.L === "undefined") {

@@ -51,12 +51,12 @@ export const runtime = {
   spikeActive: false,
   nullSensorActive: false,
 
-  // Integritas rantai kriptografis (Paper 1 & Paper 2)
+  // Cryptographic hash chain integrity (Paper 1 & Paper 2)
   sequenceNumber: 1,
   prevHash: "0000000000000000000000000000000000000000000000000000000000000000",
   payloadHash: "",
 
-  // Saklar Injeksi Gangguan Terkendali (Fault Injection)
+  // Controlled Fault Injection Switches
   faults: {
     chillerFail: false,
     doorOpen: false,
@@ -239,7 +239,7 @@ export async function syncConfigFromBackend() {
           tripId: st.trip_id,
           routeId: st.route_id,
           deliveryOrder: st.delivery_order || `DO-CPI-SBG-${st.trip_id.replace("TRIP-", "")}`,
-          title: `Pengiriman ${st.origin_name ? st.origin_name.split(" ")[0] : "Subang"} ke ${st.destination_name ? st.destination_name.split(" ")[0] : "Bogor"} (${st.truck_id})`,
+          title: st.title || `Dispatch ${st.origin_name ? st.origin_name.split(" ")[0] : "Subang"} to ${st.destination_name ? st.destination_name.split(" ")[0] : "Bogor"} (${st.truck_id})`,
           routeType: st.route_type === "NON_TOLL" ? "NON_TOLL" : "TOLL",
           totalDistanceKm: st.total_distance_km || 145.0,
           truckId: st.truck_id,
@@ -255,8 +255,8 @@ export async function syncConfigFromBackend() {
           weather: st.weather || "SUNNY",
           status: st.status || "SCHEDULED",
           createdAt: st.created_at,
-          origin: { name: st.origin_name || "Subang Hatchery (Hulu)", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
-          destination: { name: st.destination_name || "Bogor Broiler Farm (Hilir)", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
+          origin: { name: st.origin_name || "Subang Hatchery", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
+          destination: { name: st.destination_name || "Bogor Broiler Farm", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
         }));
         expeditions.splice(0, expeditions.length, ...mappedTrips);
         localStorage.setItem(STORAGE_KEYS.EXPEDITIONS, JSON.stringify(expeditions));

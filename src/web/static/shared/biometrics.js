@@ -39,8 +39,8 @@ export function calculateWeightLossPct(elapsedHours, distanceKm, thi) {
 }
 
 /**
- * Evaluasi Status Kesejahteraan Kargo DOC
- * Mengembalikan objek { label: string, statusClass: string, isCritical: boolean }
+ * Evaluates DOC Cargo Welfare Status
+ * Returns { label: string, statusClass: string, isCritical: boolean, alertCode: string }
  */
 export function evaluateWelfareStatus(maxTemp, minTemp, co2Ppm) {
   const maxT = parseFloat(maxTemp) || 25.0;
@@ -49,35 +49,35 @@ export function evaluateWelfareStatus(maxTemp, minTemp, co2Ppm) {
 
   if (maxT > 38.0) {
     return {
-      label: "KRITIS (HIPERTERMIA / PANAS > 38°C)",
+      label: "CRITICAL (HYPERTHERMIA / HEAT > 38°C)",
       statusClass: "badge-critical",
       isCritical: true,
       alertCode: "CRITICAL_HEAT_STRESS"
     };
   } else if (minT < 30.0) {
     return {
-      label: `KRITIS (HIPOTERMIA / DINGIN ${minT.toFixed(1)}°C < 30°C)`,
+      label: `CRITICAL (HYPOTHERMIA / COLD ${minT.toFixed(1)}°C < 30°C)`,
       statusClass: "badge-critical",
       isCritical: true,
       alertCode: "CRITICAL_COLD_STRESS"
     };
   } else if (co2 > 2500) {
     return {
-      label: `KRITIS (CO2 TINGGI ${co2} ppm)`,
+      label: `CRITICAL (EXCESS CO2 ${co2} ppm)`,
       statusClass: "badge-critical",
       isCritical: true,
       alertCode: "CRITICAL_CO2"
     };
   } else if (maxT > 35.5 || minT < 31.5 || co2 > 1500) {
     return {
-      label: "WASPADA (STRES TERMAL)",
+      label: "WARNING (THERMAL STRESS)",
       statusClass: "badge-warning",
       isCritical: false,
       alertCode: "THERMAL_STRESS_WARNING"
     };
   } else {
     return {
-      label: "OPTIMAL (NORMAL 32°C - 35°C)",
+      label: "OPTIMAL (COMFORT ZONE 32°C - 35°C)",
       statusClass: "badge-normal",
       isCritical: false,
       alertCode: "NORMAL"

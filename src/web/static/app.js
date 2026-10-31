@@ -277,7 +277,7 @@ function initMap() {
   // Custom Yellow Ventilated Box Truck Marker
   const truckSvg = `
     <div id="truckSvgWrapper" class="truck-marker-wrapper" style="transform-origin: center center; transition: transform 0.3s ease; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));">
-      <img src="/assets/truck_yellow_topview.png?v=3" alt="Truk DOC" style="width: 48px; height: 48px; object-fit: contain; pointer-events: none;" />
+      <img src="/assets/truck_yellow_topview.png?v=3" alt="DOC Truck" style="width: 48px; height: 48px; object-fit: contain; pointer-events: none;" />
     </div>
   `;
 
@@ -289,7 +289,7 @@ function initMap() {
   });
 
   truckMarker = L.marker([densePath[0].lat, densePath[0].lng], { icon: truckIcon }).addTo(map);
-  truckMarker.bindPopup("<b>🚚 Truk DOC-001</b><br>Suhu Normal: 33.5°C<br>Kargo: 40.000 DOC");
+  truckMarker.bindPopup("<b>🚚 DOC Truck-001</b><br>Target Temp: 33.5°C<br>Cargo: 40,000 DOC");
 }
 
 function renderSegmentPolylines() {
@@ -333,7 +333,7 @@ function initChart() {
       labels: [],
       datasets: [
         {
-          label: "Zona 1 (Depan)",
+          label: "Zone 1 (Front)",
           data: [],
           borderColor: "#38bdf8",
           backgroundColor: "transparent",
@@ -342,7 +342,7 @@ function initChart() {
           pointRadius: 0
         },
         {
-          label: "Zona 2 (Tengah)",
+          label: "Zone 2 (Center)",
           data: [],
           borderColor: "#10b981",
           backgroundColor: "transparent",
@@ -351,7 +351,7 @@ function initChart() {
           pointRadius: 0
         },
         {
-          label: "Zona 3 (Belakang)",
+          label: "Zone 3 (Rear)",
           data: [],
           borderColor: "#f59e0b",
           backgroundColor: "transparent",
@@ -360,7 +360,7 @@ function initChart() {
           pointRadius: 0
         },
         {
-          label: "Suhu Ambien",
+          label: "Ambient Temp",
           data: [],
           borderColor: "#94a3b8",
           borderDash: [4, 4],
@@ -400,17 +400,17 @@ function initChart() {
 function updateChartDatasets() {
   if (activeChartType === "temp") {
     telemetryChart.data.datasets = [
-      { label: "Zona 1 (Depan)", data: chartHistory.z1, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Zona 2 (Tengah)", data: chartHistory.z2, borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Zona 3 (Belakang)", data: chartHistory.z3, borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Suhu Ambien", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
+      { label: "Zone 1 (Front)", data: chartHistory.z1, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Zone 2 (Center)", data: chartHistory.z2, borderColor: "#10b981", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Zone 3 (Rear)", data: chartHistory.z3, borderColor: "#f59e0b", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Ambient Temp", data: chartHistory.ambient, borderColor: "#94a3b8", borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
     ];
     telemetryChart.options.scales.y.min = 28;
     telemetryChart.options.scales.y.max = 42;
   } else {
     telemetryChart.data.datasets = [
-      { label: "Kecepatan (km/j)", data: chartHistory.speed, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
-      { label: "Getaran (RMS g x100)", data: chartHistory.vibration.map(v => v * 100), borderColor: "#ef4444", borderWidth: 2, pointRadius: 0, tension: 0.2 }
+      { label: "Speed (km/h)", data: chartHistory.speed, borderColor: "#38bdf8", borderWidth: 2, pointRadius: 0, tension: 0.3 },
+      { label: "Vibration (RMS g ×100)", data: chartHistory.vibration.map(v => v * 100), borderColor: "#ef4444", borderWidth: 2, pointRadius: 0, tension: 0.2 }
     ];
     telemetryChart.options.scales.y.min = 0;
     telemetryChart.options.scales.y.max = 100;
@@ -500,7 +500,7 @@ function simulationStep() {
       state.speed = 0;
       updateStatusDisplay();
       clearInterval(state.timerInterval);
-      alert("🎉 Truk telah tiba dengan selamat di Peternakan Kemitraan Bogor!");
+      alert("🎉 Truck has successfully arrived at the Bogor Partner Farm!");
       return;
     }
   }
@@ -583,16 +583,16 @@ function updateTelemetryUI() {
   document.getElementById("valDistance").innerHTML = `${state.distanceTraveledKm.toFixed(1)} <small>/ 145 km</small>`;
 
   const pct = Math.round((state.distanceTraveledKm / state.totalDistanceKm) * 100);
-  document.getElementById("subProgress").innerText = `Progres: ${pct}%`;
-  document.getElementById("subSolar").innerText = `Radiasi: ${Math.round(state.solarIrradiance)} W/m²`;
+  document.getElementById("subProgress").innerText = `Progress: ${pct}%`;
+  document.getElementById("subSolar").innerText = `Irradiance: ${Math.round(state.solarIrradiance)} W/m²`;
 
   // Vibration alert status
   const vibEl = document.getElementById("subVibStatus");
   if (state.vibration > 0.40) {
-    vibEl.innerText = "⚠️ Guncangan Keras!";
+    vibEl.innerText = "⚠️ High Vibration!";
     vibEl.style.color = "#ea580c";
   } else {
-    vibEl.innerText = "Normal (Mulus)";
+    vibEl.innerText = "Normal (Smooth)";
     vibEl.style.color = "#64748b";
   }
 
@@ -620,10 +620,10 @@ function updateTelemetryUI() {
   const welfareEl = document.getElementById("welfareBadge");
 
   if (maxTemp > 38.0 || minTemp < 30.0 || state.co2_ppm > 2500) {
-    welfareEl.innerText = "KRITIS (MORTALITAS TINGGI)";
+    welfareEl.innerText = "CRITICAL (HIGH MORTALITY)";
     welfareEl.className = "badge-critical";
   } else if (maxTemp > 35.5 || minTemp < 31.5 || state.co2_ppm > 1500) {
-    welfareEl.innerText = "WASPADA (STRES TERMAL)";
+    welfareEl.innerText = "WARNING (THERMAL STRESS)";
     welfareEl.className = "badge-warning";
   } else {
     welfareEl.innerText = "OPTIMAL (NORMAL)";
@@ -640,7 +640,7 @@ function updateTelemetryUI() {
   // Chiller Status Pill
   const chillerPill = document.getElementById("chillerStatusPill");
   if (state.faults.chillerFail) {
-    chillerPill.innerText = "❌ Chiller: RUSAK / OFF";
+    chillerPill.innerText = "❌ Chiller: FAULT / OFF";
     chillerPill.className = "subsystem-pill chiller-off";
   } else {
     chillerPill.innerText = "❄️ Chiller: ON (Set 33.5°C)";
@@ -798,10 +798,10 @@ function updateStatusDisplay() {
     text.innerText = "RUNNING (AKTIF)";
   } else if (state.status === "PAUSED") {
     dot.classList.add("paused");
-    text.innerText = "PAUSED (JEDA)";
+    text.innerText = "PAUSED";
   } else if (state.status === "ARRIVED") {
     dot.classList.add("arrived");
-    text.innerText = "ARRIVED (TIBA)";
+    text.innerText = "ARRIVED";
   }
 }
 
@@ -820,7 +820,7 @@ function applyPreset(presetKey) {
     setRadio("weather", "SUNNY");
     document.getElementById("seg1Select").value = "FREE_FLOW";
     document.getElementById("seg2Select").value = "CONGESTED";
-    document.getElementById("seg3Select").value = "GRIDLOCK"; // Macet total Cikampek
+    document.getElementById("seg3Select").value = "GRIDLOCK"; // Heavy congestion Cikampek
     document.getElementById("seg4Select").value = "CONGESTED";
     document.getElementById("seg5Select").value = "FREE_FLOW";
   } else if (presetKey === "preset_night_storm") {
@@ -834,7 +834,7 @@ function applyPreset(presetKey) {
   } else if (presetKey === "preset_damaged_road") {
     setRadio("timeOfDay", "DAY");
     setRadio("weather", "SUNNY");
-    document.getElementById("seg1Select").value = "DAMAGED_ROAD"; // Jalan rusak Subang
+    document.getElementById("seg1Select").value = "DAMAGED_ROAD"; // Potholes arterial
     document.getElementById("seg2Select").value = "FREE_FLOW";
     document.getElementById("seg3Select").value = "FREE_FLOW";
     document.getElementById("seg4Select").value = "DAMAGED_ROAD";
@@ -845,7 +845,7 @@ function applyPreset(presetKey) {
     document.getElementById("seg1Select").value = "FREE_FLOW";
     document.getElementById("seg2Select").value = "FLOODED";
     document.getElementById("seg3Select").value = "FLOODED";
-    document.getElementById("seg4Select").value = "DISASTER_BLOCKED"; // Longsor
+    document.getElementById("seg4Select").value = "DISASTER_BLOCKED"; // Landslide blockage
     document.getElementById("seg5Select").value = "CONGESTED";
   }
 }
@@ -868,10 +868,10 @@ function applyModalConfig() {
   ];
 
   // Update top scenario summary pills
-  document.getElementById("pillTime").innerHTML = `<span class="icon">${state.timeOfDay === "DAY" ? "☀️" : "🌙"}</span> Waktu: <strong>${state.timeOfDay === "DAY" ? "Siang Hari" : "Malam Hari"}</strong>`;
+  document.getElementById("pillTime").innerHTML = `<span class="icon">${state.timeOfDay === "DAY" ? "☀️" : "🌙"}</span> Schedule: <strong>${state.timeOfDay === "DAY" ? "Daytime" : "Nighttime"}</strong>`;
   
-  const weatherLabel = state.weather === "SUNNY" ? "Cerah Panas" : (state.weather === "LIGHT_RAIN" ? "Hujan Ringan" : "Badai Ekstrem");
-  document.getElementById("pillWeather").innerHTML = `<span class="icon">🌤️</span> Cuaca: <strong>${weatherLabel}</strong>`;
+  const weatherLabel = state.weather === "SUNNY" ? "Sunny & Hot" : (state.weather === "LIGHT_RAIN" ? "Light Rain" : "Severe Storm");
+  document.getElementById("pillWeather").innerHTML = `<span class="icon">🌤️</span> Weather: <strong>${weatherLabel}</strong>`;
 
   renderSegmentPolylines();
   resetSimulation();
@@ -880,17 +880,17 @@ function applyModalConfig() {
 
 function updateFaultBadges() {
   const activeList = [];
-  if (state.faults.chillerFail) activeList.push("Chiller Rusak");
-  if (state.faults.doorOpen) activeList.push("Pintu Belakang Bocor");
-  if (state.faults.ventFail) activeList.push("Kipas Mati");
-  if (state.faults.trafficStop) activeList.push("Macet Tiba-tiba");
+  if (state.faults.chillerFail) activeList.push("Chiller Failure");
+  if (state.faults.doorOpen) activeList.push("Rear Door Leak/Open");
+  if (state.faults.ventFail) activeList.push("Ventilation Fan Offline");
+  if (state.faults.trafficStop) activeList.push("Sudden Gridlock");
 
   const badge = document.getElementById("activeFaultBadge");
   if (activeList.length === 0) {
-    badge.innerText = "Status Gangguan: Normal";
+    badge.innerText = "Fault Status: Normal";
     badge.style.color = "#34d399";
   } else {
-    badge.innerText = `⚠️ Gangguan: ${activeList.join(", ")}`;
+    badge.innerText = `⚠️ Active Faults: ${activeList.join(", ")}`;
     badge.style.color = "#ef4444";
   }
 }

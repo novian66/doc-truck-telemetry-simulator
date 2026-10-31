@@ -91,14 +91,14 @@ export function consumePacket(p) {
       const bTitle = document.getElementById("bannerTitle");
       const bDesc = document.getElementById("bannerDesc");
       if (isCompleted) {
-        if (bTitle) bTitle.innerText = "Pengiriman Ini Telah Selesai (Arsip Riwayat)";
-        if (bDesc) bDesc.innerText = `Kargo telah tiba di tujuan (${exp?.destination?.name || "Bogor Broiler Farm"}). Seluruh data telemetri tersimpan aman.`;
+        if (bTitle) bTitle.innerText = "Delivery Completed (Archived History)";
+        if (bDesc) bDesc.innerText = `Cargo delivered to destination (${exp?.destination?.name || "Bogor Broiler Farm"}). All telematics data securely archived.`;
       } else if (isPaused) {
-        if (bTitle) bTitle.innerText = "Simulasi Dihentikan Sementara (PAUSED)";
-        if (bDesc) bDesc.innerText = "Laju telemetri sedang dijeda. Tekan tombol jalankan mesin pada panel kontrol simulator untuk melanjutkan.";
+        if (bTitle) bTitle.innerText = "Simulation Paused (Engine Inactive)";
+        if (bDesc) bDesc.innerText = "Telemetry streaming paused. Press 'Start Engine' on simulator control console to resume transit.";
       } else {
-        if (bTitle) bTitle.innerText = "Truk Sedang Parkir / Mesin Mati";
-        if (bDesc) bDesc.innerText = `Status armada ${truckId} saat ini standby di pangkalan Subang.`;
+        if (bTitle) bTitle.innerText = "Vehicle Parked / Engine Inactive";
+        if (bDesc) bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at Subang Hatchery depot.`;
       }
     }
   }
@@ -113,7 +113,7 @@ export function consumePacket(p) {
   const timerEl = document.getElementById("tripTimer");
   if (timerEl) timerEl.innerText = `${hrs}:${mins}:${secs}`;
 
-  // 5. Header Ringkasan Kargo (Top Summary Bar)
+  // 5. Cargo Summary Header (Top Summary Bar)
   const doCode = p.identity?.delivery_order || p.expedition?.deliveryOrder || exp?.deliveryOrder || `DO-CPI-SBG-${tripId?.replace("TRIP-", "") || "01"}`;
   const doEl = document.getElementById("barDO");
   if (doEl) doEl.innerText = doCode;
@@ -126,14 +126,14 @@ export function consumePacket(p) {
 
   const modelEl = document.getElementById("barModel");
   if (modelEl) {
-    modelEl.innerText = vehicle?.model || p.truck?.model || "Truk Modifikasi Blower Tropis";
+    modelEl.innerText = vehicle?.model || p.truck?.model || "Tropical Blower Modified Truck";
   }
 
   const strain = p.biometrics?.strain || p.chickCargo?.strain || exp?.strain || "Cobb 500";
   const biomass = p.biometrics?.total_biomass_kg || p.chickCargo?.totalBiomassKg || ((exp?.quantity || 36000) * 0.042);
   const strainEl = document.getElementById("barStrain");
   if (strainEl) {
-    strainEl.innerText = `${strain} (${Math.round(biomass).toLocaleString("id-ID")} kg)`;
+    strainEl.innerText = `${strain} (${Math.round(biomass).toLocaleString("en-US")} kg)`;
   }
 
   const drvEl = document.getElementById("barDriver");
@@ -141,17 +141,17 @@ export function consumePacket(p) {
 
   const qty = p.biometrics?.chick_quantity || p.chickQuantity || exp?.quantity || 36000;
   const loadEl = document.getElementById("barLoad");
-  if (loadEl) loadEl.innerText = `${qty.toLocaleString("id-ID")} DOC`;
+  if (loadEl) loadEl.innerText = `${qty.toLocaleString("en-US")} DOC`;
 
   const packagingEl = document.getElementById("barPackaging");
   if (packagingEl) {
-    const bType = p.chickCargo?.boxType || exp?.boxType || "Boks Plastik Berventilasi (Crate)";
-    const shortBox = bType.includes("Plastik") ? "Crate Plastik" : "Karton";
+    const bType = p.chickCargo?.boxType || exp?.boxType || "Ventilated Plastic Crates";
+    const shortBox = bType.includes("Plastic") || bType.includes("Plastik") ? "Plastic Crate" : "Cardboard Box";
     const perBox = p.chickCargo?.chicksPerBox || exp?.chicksPerBox || 100;
     packagingEl.innerText = `${shortBox} (${perBox}/box)`;
   }
 
-  // 6. Rute, Jarak & Lingkungan (Environment)
+  // 6. Route, Distance & Environment
   const routeType = exp?.routeType || "TOLL";
   const totalDist = p.vehicle?.total_distance_km || exp?.totalDistanceKm || 146.91;
 
@@ -159,53 +159,53 @@ export function consumePacket(p) {
   if (pillRoute) {
     const isNT = routeType === "NON_TOLL";
     const icon = isNT ? "🛤️" : "🛣️";
-    const name = isNT ? `Non Toll (${totalDist} km)` : `Toll (${totalDist} km)`;
-    pillRoute.innerHTML = `<span class="icon">${icon}</span> Jalur: <strong id="barRouteType">${name}</strong>`;
+    const name = isNT ? `Non-Toll (${totalDist} km)` : `Toll (${totalDist} km)`;
+    pillRoute.innerHTML = `<span class="icon">${icon}</span> Route: <strong id="barRouteType">${name}</strong>`;
   }
 
-  // Waktu Keberangkatan Rencana Pengiriman (Tanggal & Jam Riil)
+  // Dispatch Manifest Departure Schedule (Real Date & Time)
   const depDate = exp?.departureDate || (p.identity?.timestamp ? p.identity.timestamp.slice(0, 10) : "2026-10-31");
   const depTime = exp?.departureTime || "08:00";
   const hour = parseInt(depTime.split(":")[0]) || 8;
   const isDay = hour >= 6 && hour < 18;
-  const timeLabel = `${depDate} • ${depTime} WIB (${isDay ? "Siang" : "Malam"})`;
+  const timeLabel = `${depDate} • ${depTime} WIB (${isDay ? "Daytime" : "Nighttime"})`;
   const pillTime = document.getElementById("pillTime");
   if (pillTime) {
-    pillTime.innerHTML = `<span class="icon">${isDay ? "☀️" : "🌙"}</span> Waktu: <strong>${timeLabel}</strong>`;
+    pillTime.innerHTML = `<span class="icon">${isDay ? "☀️" : "🌙"}</span> Schedule: <strong>${timeLabel}</strong>`;
   }
 
-  // Cuaca (diambil dari data pengiriman riil)
+  // Weather (extracted from dispatch manifest)
   const rawWeather = exp?.weather || p.weather || "SUNNY";
   const weatherLabel =
     rawWeather === "SUNNY"
-      ? "Cerah"
+      ? "Clear"
       : rawWeather === "LIGHT_RAIN"
-      ? "Hujan Ringan"
+      ? "Light Rain"
       : rawWeather === "HEAVY_STORM"
-      ? "Hujan Lebat / Badai"
+      ? "Heavy Storm"
       : rawWeather;
   const weatherIcon = rawWeather === "SUNNY" ? "☀️" : (rawWeather === "LIGHT_RAIN" ? "🌧️" : "⛈️");
   const pillWeather = document.getElementById("pillWeather");
   if (pillWeather) {
-    pillWeather.innerHTML = `<span class="icon">${weatherIcon}</span> Cuaca: <strong>${weatherLabel}</strong>`;
+    pillWeather.innerHTML = `<span class="icon">${weatherIcon}</span> Weather: <strong>${weatherLabel}</strong>`;
   }
 
-  // Kondisi Lalu Lintas (dievaluasi dari kecepatan telemetri aktual)
+  // Traffic / Roadway Conditions (evaluated from live vehicle speed)
   const currentSpeed = isEngineRunning ? (p.vehicle?.speed_kmh != null ? p.vehicle.speed_kmh : 0) : 0;
-  let roadLabel = "LANCAR (TOL)";
+  let roadLabel = "FREE FLOW (EXPRESSWAY)";
   let roadClass = "badge-flow";
   if (!isEngineRunning) {
-    roadLabel = isCompleted ? "TIBA DI TUJUAN" : (isPaused ? "DIJEDA SEMENTARA" : "PARKIR / MESIN MATI");
+    roadLabel = isCompleted ? "ARRIVED AT DESTINATION" : (isPaused ? "SIMULATION PAUSED" : "PARKED / ENGINE OFF");
     roadClass = "badge-gridlock";
   } else if (currentSpeed === 0) {
-    roadLabel = "BERHENTI (0 km/j)";
+    roadLabel = "STOPPED (0 km/h)";
     roadClass = "badge-gridlock";
   } else if (currentSpeed < 40) {
-    roadLabel = `PADAT MERAYAP (${Math.round(currentSpeed)} km/j)`;
+    roadLabel = `CONGESTED / SLOW (${Math.round(currentSpeed)} km/h)`;
     roadClass = "badge-congested";
   } else {
     const isNT = routeType === "NON_TOLL";
-    roadLabel = isNT ? `LANCAR (${Math.round(currentSpeed)} km/j)` : `LANCAR (TOL ${Math.round(currentSpeed)} km/j)`;
+    roadLabel = isNT ? `FREE FLOW (${Math.round(currentSpeed)} km/h)` : `FREE FLOW (EXPRESSWAY ${Math.round(currentSpeed)} km/h)`;
     roadClass = "badge-flow";
   }
   const roadBadge = document.getElementById("currentRoadBadge");
@@ -222,7 +222,7 @@ export function consumePacket(p) {
   const solarIrr = p.microclimate?.solar_irradiance_wm2 != null ? p.microclimate.solar_irradiance_wm2 : 850;
 
   const spdEl = document.getElementById("valSpeed");
-  if (spdEl) spdEl.innerHTML = `${Math.round(speed)} <small>km/jam</small>`;
+  if (spdEl) spdEl.innerHTML = `${Math.round(speed)} <small>km/h</small>`;
 
   const vibEl = document.getElementById("valVibration");
   if (vibEl) vibEl.innerHTML = `${vibration.toFixed(2)} <small>g</small>`;
@@ -237,19 +237,19 @@ export function consumePacket(p) {
   if (odoEl) odoEl.innerText = `Odometer: ${distTraveled.toFixed(1)} km`;
 
   const solEl = document.getElementById("subSolar");
-  if (solEl) solEl.innerText = `Radiasi: ${Math.round(solarIrr)} W/m²`;
+  if (solEl) solEl.innerText = `Radiation: ${Math.round(solarIrr)} W/m²`;
 
   const pct = Math.min(100, Math.round((distTraveled / (totalDist || 145)) * 100));
   const progEl = document.getElementById("subProgress");
-  if (progEl) progEl.innerText = `Progres: ${pct}%`;
+  if (progEl) progEl.innerText = `Progress: ${pct}%`;
 
   const subVibEl = document.getElementById("subVibStatus");
   if (subVibEl) {
     if (vibration > 0.40) {
-      subVibEl.innerText = "⚠️ Guncangan Keras!";
+      subVibEl.innerText = "⚠️ Severe Vibration!";
       subVibEl.style.color = "#ea580c";
     } else {
-      subVibEl.innerText = "Normal (Mulus)";
+      subVibEl.innerText = "Normal (Smooth Ride)";
       subVibEl.style.color = "#64748b";
     }
   }
@@ -305,7 +305,7 @@ export function consumePacket(p) {
     const isChillerOn = coolingSys ? coolingSys.hvac_status === "COOLING" : false;
     const isNonAC = vehicle?.templateKey === "joinaldy" || (vehicle?.model && vehicle.model.toLowerCase().includes("blower"));
     if (isNonAC) {
-      chillerPill.innerText = "💨 Blower: AKTIF (Truk Non-AC)";
+      chillerPill.innerText = "💨 Ventilation: ACTIVE (Ambient Airflow)";
       chillerPill.className = "subsystem-pill";
     } else if (!isChillerOn) {
       chillerPill.innerText = "❌ Chiller: STANDBY / OFF";
@@ -361,35 +361,35 @@ export function updateWatchdogUI() {
   const streamMetaEl = document.getElementById("streamMeta");
 
   let state = "live";
-  let label = "LIVE 1 Hz";
+  let label = "LIVE 1.0 Hz";
   let timeText = "";
 
   if (tripStatus === "COMPLETED") {
     state = "completed";
-    label = "SELESAI (ARSIP)";
+    label = "COMPLETED (ARCHIVED)";
     timeText = "";
   } else if (tripStatus === "SCHEDULED") {
-    // Mesin mati / belum berangkat: Murni status STANDBY tanpa hitungan detik palsu
+    // Engine off / pre-departure: Pure STANDBY status without false stale timer
     state = "standby";
-    label = "STANDBY PANGKALAN";
+    label = "DEPOT STANDBY";
     timeText = "";
   } else if (tripStatus === "PAUSED") {
     state = "paused";
-    label = "SIMULASI DIJEDA";
+    label = "SIMULATION PAUSED";
     timeText = "";
   } else if (!isWsConnected && timeSinceNew > 3500) {
     state = "disconnected";
-    label = "TERPUTUS";
+    label = "DISCONNECTED";
     const sec = Math.round(timeSinceNew / 1000);
-    timeText = sec < 60 ? `${sec}d lalu` : `${Math.floor(sec / 60)}m lalu`;
+    timeText = sec < 60 ? `${sec}s ago` : `${Math.floor(sec / 60)}m ago`;
   } else if (timeSinceNew > 3000) {
     state = "stale";
-    label = "DATA TERHENTI";
+    label = "STALE TELEMETRY";
     const sec = Math.round(timeSinceNew / 1000);
-    timeText = sec < 60 ? `${sec}d lalu` : `${Math.floor(sec / 60)}m lalu`;
+    timeText = sec < 60 ? `${sec}s ago` : `${Math.floor(sec / 60)}m ago`;
   } else {
     state = "live";
-    label = "LIVE 1 Hz";
+    label = "LIVE 1.0 Hz";
     timeText = "";
   }
 
@@ -418,19 +418,19 @@ export function updateWatchdogUI() {
   if (streamMetaEl) {
     const proto = isWsConnected ? "WebSocket 1 Hz (WSS)" : "REST Polling";
     if (state === "live") {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Protokol: ${proto} (Aktif)`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Protocol: ${proto} (Active)`;
     } else if (state === "stale") {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Data Terhenti (${timeText})`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Stale Telemetry (${timeText})`;
     } else if (state === "disconnected") {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Sinyal Terputus (${timeText})`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Connection Lost (${timeText})`;
     } else if (state === "paused") {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Simulasi Dijeda (${timeText})`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Simulation Paused (${timeText})`;
     } else if (state === "completed") {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Pengiriman Selesai`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Delivery Completed`;
     } else if (state === "standby") {
-      streamMetaEl.innerText = `Status: Standby Pangkalan (Mesin Mati) • Menunggu transmisi`;
+      streamMetaEl.innerText = `Status: Depot Standby (Engine Inactive) • Awaiting ignition`;
     } else {
-      streamMetaEl.innerText = `Paket Diterima: ${packetCounter.toLocaleString()} • Status: ${label}`;
+      streamMetaEl.innerText = `Packets Ingested: ${packetCounter.toLocaleString()} • Status: ${label}`;
     }
   }
 }
@@ -502,7 +502,7 @@ export function renderStandbyState(exp, lastPayload = null) {
   const timerEl = document.getElementById("tripTimer");
   if (timerEl) timerEl.innerText = `${hrs}:${mins}:${secs}`;
 
-  // 3. Header Ringkasan Kargo (Metadata Standby)
+  // 3. Cargo Summary Header (Standby Metadata)
   const doCode = exp.deliveryOrder || `DO-CPI-SBG-${tripId?.replace("TRIP-", "") || "01"}`;
   const doEl = document.getElementById("barDO");
   if (doEl) doEl.innerText = doCode;
@@ -515,25 +515,25 @@ export function renderStandbyState(exp, lastPayload = null) {
 
   const modelEl = document.getElementById("barModel");
   if (modelEl) {
-    modelEl.innerText = vehicle?.model || "Truk Modifikasi Blower Tropis";
+    modelEl.innerText = vehicle?.model || "Tropical Blower Modified Truck";
   }
 
   const strainEl = document.getElementById("barStrain");
   if (strainEl) {
     const biomass = ((exp.quantity || 36000) * (exp.averageWeightGrams || 42.0)) / 1000.0;
-    strainEl.innerText = `${exp.strain || "Cobb 500"} (${Math.round(biomass).toLocaleString("id-ID")} kg)`;
+    strainEl.innerText = `${exp.strain || "Cobb 500"} (${Math.round(biomass).toLocaleString("en-US")} kg)`;
   }
 
   const drvEl = document.getElementById("barDriver");
-  if (drvEl) drvEl.innerText = exp.driverName || "Supir Logistik";
+  if (drvEl) drvEl.innerText = exp.driverName || "Fleet Driver";
 
   const loadEl = document.getElementById("barLoad");
-  if (loadEl) loadEl.innerText = `${(exp.quantity || 36000).toLocaleString("id-ID")} DOC`;
+  if (loadEl) loadEl.innerText = `${(exp.quantity || 36000).toLocaleString("en-US")} DOC`;
 
   const packagingEl = document.getElementById("barPackaging");
   if (packagingEl) {
-    const bType = exp.boxType || "Boks Plastik Berventilasi (Crate)";
-    const shortBox = bType.includes("Plastik") ? "Crate Plastik" : "Karton";
+    const bType = exp.boxType || "Ventilated Plastic Crates";
+    const shortBox = bType.includes("Plastic") || bType.includes("Plastik") ? "Plastic Crate" : "Cardboard Box";
     packagingEl.innerText = `${shortBox} (${exp.chicksPerBox || 100}/box)`;
   }
 
@@ -541,41 +541,41 @@ export function renderStandbyState(exp, lastPayload = null) {
   if (pillRoute) {
     const isNT = routeType === "NON_TOLL";
     const icon = isNT ? "🛤️" : "🛣️";
-    const name = isNT ? `Non Toll (${totalDist} km)` : `Toll (${totalDist} km)`;
-    pillRoute.innerHTML = `<span class="icon">${icon}</span> Jalur: <strong id="barRouteType">${name}</strong>`;
+    const name = isNT ? `Non-Toll (${totalDist} km)` : `Toll (${totalDist} km)`;
+    pillRoute.innerHTML = `<span class="icon">${icon}</span> Route: <strong id="barRouteType">${name}</strong>`;
   }
 
   const depDate = exp.departureDate || "2026-10-31";
   const depTime = exp.departureTime || "08:00";
   const hour = parseInt(depTime.split(":")[0], 10) || 8;
   const isDay = hour >= 6 && hour < 18;
-  const timeLabel = `${depDate} • ${depTime} WIB (${isDay ? "Siang" : "Malam"})`;
+  const timeLabel = `${depDate} • ${depTime} UTC+7 (${isDay ? "Daytime" : "Nighttime"})`;
   const pillTime = document.getElementById("pillTime");
   if (pillTime) {
-    pillTime.innerHTML = `<span class="icon">${isDay ? "☀️" : "🌙"}</span> Waktu: <strong>${timeLabel}</strong>`;
+    pillTime.innerHTML = `<span class="icon">${isDay ? "☀️" : "🌙"}</span> Schedule: <strong>${timeLabel}</strong>`;
   }
 
   const rawWeather = exp.weather || "SUNNY";
-  const weatherLabel = rawWeather === "SUNNY" ? "Cerah" : (rawWeather === "LIGHT_RAIN" ? "Hujan Ringan" : "Hujan Lebat");
+  const weatherLabel = rawWeather === "SUNNY" ? "Clear" : (rawWeather === "LIGHT_RAIN" ? "Light Rain" : "Heavy Storm");
   const weatherIcon = rawWeather === "SUNNY" ? "☀️" : "🌧️";
   const pillWeather = document.getElementById("pillWeather");
   if (pillWeather) {
-    pillWeather.innerHTML = `<span class="icon">${weatherIcon}</span> Cuaca: <strong>${weatherLabel}</strong>`;
+    pillWeather.innerHTML = `<span class="icon">${weatherIcon}</span> Weather: <strong>${weatherLabel}</strong>`;
   }
 
-  // 4. Status Kinematika: Kecepatan 0 km/jam, Getaran -- g, Ambient -- °C
+  // 4. Status Kinematika: Kecepatan 0 km/h, Getaran -- g, Ambient -- °C
   const roadBadge = document.getElementById("currentRoadBadge");
   if (roadBadge) {
     if (lastDistance > 0.5) {
-      roadBadge.innerText = `BERHENTI (KM ${lastDistance.toFixed(1)} - MESIN MATI)`;
+      roadBadge.innerText = `STOPPED (KM ${lastDistance.toFixed(1)} - ENGINE OFF)`;
     } else {
-      roadBadge.innerText = "PARKIR PANGKALAN (MESIN MATI)";
+      roadBadge.innerText = "DEPOT STANDBY (ENGINE OFF)";
     }
     roadBadge.className = "badge-gridlock";
   }
 
   const spdEl = document.getElementById("valSpeed");
-  if (spdEl) spdEl.innerHTML = `0 <small>km/jam</small>`;
+  if (spdEl) spdEl.innerHTML = `0 <small>km/h</small>`;
 
   const vibEl = document.getElementById("valVibration");
   if (vibEl) vibEl.innerHTML = `-- <small>g</small>`;
@@ -588,19 +588,19 @@ export function renderStandbyState(exp, lastPayload = null) {
 
   const odoEl = document.getElementById("subOdo");
   if (odoEl) {
-    odoEl.innerText = lastDistance > 0.05 ? `Odometer: KM ${lastDistance.toFixed(1)} (Mesin Mati)` : "Odometer: Standby";
+    odoEl.innerText = lastDistance > 0.05 ? `Odometer: KM ${lastDistance.toFixed(1)} (Engine Off)` : "Odometer: Standby";
   }
 
   const solEl = document.getElementById("subSolar");
-  if (solEl) solEl.innerText = "Radiasi: -- W/m²";
+  if (solEl) solEl.innerText = "Radiation: -- W/m²";
 
   const progPct = Math.min(100, Math.round((lastDistance / totalDist) * 100));
   const progEl = document.getElementById("subProgress");
-  if (progEl) progEl.innerText = `Progres: ${progPct}%`;
+  if (progEl) progEl.innerText = `Progress: ${progPct}%`;
 
   const subVibEl = document.getElementById("subVibStatus");
   if (subVibEl) {
-    subVibEl.innerText = "Truk Diam (Mesin Mati)";
+    subVibEl.innerText = "Stationary (Engine Off)";
     subVibEl.style.color = "#64748b";
   }
 
@@ -609,7 +609,7 @@ export function renderStandbyState(exp, lastPayload = null) {
   if (coordBadge) coordBadge.innerText = `Lat: ${lastLat.toFixed(4)}, Lng: ${lastLng.toFixed(4)}`;
 
   const bearBadge = document.getElementById("bearingBadge");
-  if (bearBadge) bearBadge.innerText = `Arah: ${Math.round(lastHeading)}° (Mesin Mati)`;
+  if (bearBadge) bearBadge.innerText = `Heading: ${Math.round(lastHeading)}° (Engine Off)`;
 
   updateTruckPosition(lastLat, lastLng, lastHeading, false, true);
 
@@ -640,7 +640,7 @@ export function renderStandbyState(exp, lastPayload = null) {
   // 7. Indeks Kesejahteraan & CO2
   const welfareEl = document.getElementById("welfareBadge");
   if (welfareEl) {
-    welfareEl.innerText = exp.status === "PAUSED" ? "SIMULASI DIHENTIKAN SEMENTARA" : "STANDBY PANGKALAN (BELUM BERANGKAT)";
+    welfareEl.innerText = exp.status === "PAUSED" ? "SIMULATION PAUSED (ENGINE OFF)" : "DEPOT STANDBY (PRE-DEPARTURE)";
     welfareEl.className = "badge-normal";
   }
 
@@ -655,7 +655,7 @@ export function renderStandbyState(exp, lastPayload = null) {
   // 8. Chiller / Blower Pill
   const chillerPill = document.getElementById("chillerStatusPill");
   if (chillerPill) {
-    chillerPill.innerText = "💨 Blower: MATI (Mesin Off)";
+    chillerPill.innerText = "💨 Ventilation Blower: OFF (Engine Inactive)";
     chillerPill.className = "subsystem-pill chiller-off";
   }
 
@@ -666,24 +666,24 @@ export function renderStandbyState(exp, lastPayload = null) {
     const bTitle = document.getElementById("bannerTitle");
     const bDesc = document.getElementById("bannerDesc");
     const isPaused = exp.status === "PAUSED";
-    if (bTitle) bTitle.innerText = isPaused ? "Simulasi Dihentikan Sementara (Mesin Mati)" : "Truk Sedang Parkir / Mesin Mati";
+    if (bTitle) bTitle.innerText = isPaused ? "Simulation Paused (Engine Inactive)" : "Vehicle Parked / Engine Inactive";
     if (bDesc) {
       if (lastDistance > 0.5) {
-        bDesc.innerText = `Status armada ${truckId} saat ini berhenti di KM ${lastDistance.toFixed(1)}. Mesin mati, sensor telemetri tidak aktif hingga mesin dihidupkan kembali.`;
+        bDesc.innerText = `Fleet vehicle ${truckId} is currently stopped at KM ${lastDistance.toFixed(1)}. Engine is inactive, telematics telemetry stream offline until ignition.`;
       } else {
-        bDesc.innerText = `Status armada ${truckId} saat ini standby di pangkalan Subang. Sensor telemetri tidak aktif hingga mesin dihidupkan.`;
+        bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at Subang Hatchery depot. Sensors remain offline until ignition.`;
       }
     }
   }
 
   // 10. Raw Stream Inspector Terminal
   const tsEl = document.getElementById("packetTs");
-  if (tsEl) tsEl.innerText = "Timestamp: -- (Mesin Mati)";
+  if (tsEl) tsEl.innerText = "Timestamp: -- (Engine Off)";
 
   const jsonEl = document.getElementById("jsonPayloadDisplay");
   if (jsonEl) {
     jsonEl.innerText = JSON.stringify({
-      status: exp.status === "PAUSED" ? "SIMULASI_DIJEDA" : "STANDBY_PANGKALAN",
+      status: exp.status === "PAUSED" ? "SIMULATION_PAUSED" : "DEPOT_STANDBY",
       engine: "OFF",
       last_known_position: {
         latitude: lastLat,
@@ -691,7 +691,7 @@ export function renderStandbyState(exp, lastPayload = null) {
         heading_deg: lastHeading,
         distance_traveled_km: lastDistance
       },
-      message: "Mesin armada mati. Nilai sensor telemetri tidak aktif. Posisi armada pada peta dikunci pada koordinat terakhir."
+      message: "Fleet vehicle engine is inactive. Telematics sensor stream is offline. GPS coordinates locked at last verified location."
     }, null, 2);
   }
 

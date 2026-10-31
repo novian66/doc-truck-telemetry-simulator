@@ -59,12 +59,12 @@ export function renderExpeditionsTable(filter = "ALL") {
     tr.innerHTML = `
       <td colspan="8" style="text-align: center; padding: 3rem 1.5rem; color: #94a3b8;">
         <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🚚</div>
-        <strong style="color: #f1f5f9; font-size: 1.05rem;">Belum ada rencana pengiriman terdaftar.</strong>
+        <strong style="color: #f1f5f9; font-size: 1.05rem;">No dispatch manifests registered.</strong>
         <p style="margin: 0.5rem 0 1rem; font-size: 0.875rem; color: #64748b;">
-          Seluruh data pengiriman lama telah dibersihkan. Anda dapat membuat pengiriman baru untuk pengujian.
+          All previous dispatch records have been cleared. You can create a new dispatch manifest for testing.
         </p>
         <button type="button" class="btn btn-primary btn-sm" id="btnEmptyCreateTrip">
-          <span>+</span> Buat Rencana Pengiriman Baru
+          <span>+</span> Create New Dispatch Manifest
         </button>
       </td>
     `;
@@ -86,44 +86,44 @@ export function renderExpeditionsTable(filter = "ALL") {
     if (isCurrent) tr.className = "row-active-trip";
 
     let statusPillClass = "ready";
-    let statusLabel = "SIAP BERANGKAT";
+    let statusLabel = "SCHEDULED / READY";
     if (exp.status === "RUNNING") {
       statusPillClass = "running";
-      statusLabel = "SEDANG BERJALAN";
+      statusLabel = "IN TRANSIT";
     } else if (exp.status === "COMPLETED") {
       statusPillClass = "completed";
-      statusLabel = "SELESAI (ARSIP)";
+      statusLabel = "COMPLETED (ARCHIVED)";
     }
 
     const depDateStr = exp.departureDate ? `📅 ${exp.departureDate}` : "";
     const depTimeStr = exp.departureTime ? `⏰ ${exp.departureTime} WIB` : "";
     const scheduleStr = [depDateStr, depTimeStr].filter(Boolean).join(" &bull; ");
-    const timeLabel = exp.timeOfDay === "DAY" ? "☀️ Siang" : "🌙 Malam";
+    const timeLabel = exp.timeOfDay === "DAY" ? "☀️ Daytime" : "🌙 Nighttime";
     const weatherLabel =
       exp.weather === "SUNNY"
-        ? "🌤️ Cerah"
+        ? "🌤️ Clear"
         : exp.weather === "LIGHT_RAIN"
-        ? "🌧️ Hujan"
-        : "⛈️ Badai";
+        ? "🌧️ Rain"
+        : "⛈️ Storm";
     const strainInfo = exp.strain
       ? `<small style="color:#38bdf8;">${exp.strain} &bull; ${exp.averageWeightGrams || 42}g</small>`
       : "";
     const packagingInfo = exp.boxType
-      ? `<small style="color:#94a3b8;">${exp.boxType.includes("Plastik") ? "Crate" : "Karton"} (${exp.chicksPerBox || 100}/box)</small>`
+      ? `<small style="color:#94a3b8;">${exp.boxType.includes("Plastik") || exp.boxType.includes("Plastic") ? "Crate" : "Corrugated"} (${exp.chicksPerBox || 100}/box)</small>`
       : "";
     const doCode = exp.deliveryOrder || `DO-CPI-SBG-${exp.tripId.replace("TRIP-", "")}`;
     const routeLabel = `${exp.origin ? exp.origin.name.split(" ")[0] : "Subang"} &rarr; ${exp.destination ? exp.destination.name.split(" ")[0] : "Bogor"}`;
     const isNonToll = exp.routeType === "NON_TOLL";
     const routeDistKm = exp.totalDistanceKm || (isNonToll ? 172 : 145);
     const routeTag = isNonToll
-      ? `<span class="route-badge nontoll">🛤️ Non Toll (${routeDistKm} km)</span>`
+      ? `<span class="route-badge nontoll">🛤️ Non-Toll (${routeDistKm} km)</span>`
       : `<span class="route-badge toll">🛣️ Toll (${routeDistKm} km)</span>`;
 
     tr.innerHTML = `
       <td>
         <strong>${exp.tripId}</strong><br>
         <span class="delivery-order-tag">${doCode}</span>
-        ${isCurrent ? '<br><span style="color:#38bdf8;font-size:10px;font-weight:700;">★ Dipilih (Rightbar)</span>' : ""}
+        ${isCurrent ? '<br><span style="color:#38bdf8;font-size:10px;font-weight:700;">★ Selected (Rightbar)</span>' : ""}
       </td>
       <td>
         <strong>${exp.title}</strong><br>
@@ -133,7 +133,7 @@ export function renderExpeditionsTable(filter = "ALL") {
       <td><code>${exp.truckId}</code></td>
       <td>${exp.driverName}</td>
       <td>
-        <strong>${(exp.quantity || 38400).toLocaleString("id-ID")} DOC</strong><br>
+        <strong>${(exp.quantity || 38400).toLocaleString("en-US")} DOC</strong><br>
         ${packagingInfo}
       </td>
       <td>${scheduleStr ? `<strong>${scheduleStr}</strong><br>` : ""}${timeLabel} &bull; ${weatherLabel}</td>
@@ -141,10 +141,10 @@ export function renderExpeditionsTable(filter = "ALL") {
       <td style="white-space:nowrap;">
         ${
           !isCurrent
-            ? `<button class="btn btn-outline btn-sm btn-select-trip" data-id="${exp.tripId}">⚙️ Buka Kontrol</button>`
-            : '<button class="btn btn-primary btn-sm btn-select-trip" data-id="' + exp.tripId + '">✓ Buka Kontrol (Aktif)</button>'
+            ? `<button class="btn btn-outline btn-sm btn-select-trip" data-id="${exp.tripId}">⚙️ Open Controls</button>`
+            : '<button class="btn btn-primary btn-sm btn-select-trip" data-id="' + exp.tripId + '">✓ Open Controls (Active)</button>'
         }
-        <button class="btn btn-outline btn-sm btn-delete-trip" data-id="${exp.tripId}" title="Hapus pengiriman ini" style="color:#ef4444; border-color:#ef4444; margin-left:4px;">🗑️</button>
+        <button class="btn btn-outline btn-sm btn-delete-trip" data-id="${exp.tripId}" title="Delete this dispatch" style="color:#ef4444; border-color:#ef4444; margin-left:4px;">🗑️</button>
       </td>
     `;
 
@@ -180,7 +180,7 @@ export function renderExpeditionsTable(filter = "ALL") {
     btn.addEventListener("click", async e => {
       e.stopPropagation();
       const tid = btn.getAttribute("data-id");
-      if (confirm(`Hapus data pengiriman ${tid}?`)) {
+      if (confirm(`Delete dispatch manifest ${tid}?`)) {
         try {
           await fetch(`/api/v1/simulation/trips/${tid}`, { method: "DELETE" });
         } catch (err) {}
@@ -200,7 +200,7 @@ export function renderExpeditionsTable(filter = "ALL") {
 }
 
 /**
- * Render Tabel Armada Truk Terdaftar di Sistem (Tersinkronisasi Real-Time via API /api/v1/simulation/vehicles)
+ * Render Registered Fleet Vehicles Table (Synchronized Real-Time via API /api/v1/simulation/vehicles)
  */
 export function renderVehiclesTable() {
   const tbody = document.getElementById("vehiclesTableBody");
@@ -219,11 +219,11 @@ export function renderVehiclesTable() {
     
     let movementTag = "";
     if (isMoving) {
-      movementTag = `<span style="color:#4ade80; font-weight:600; font-size:11px;">🟢 Bergerak (${speed} km/j)</span>`;
+      movementTag = `<span style="color:#4ade80; font-weight:600; font-size:11px;">🟢 In Motion (${speed} km/h)</span>`;
     } else if (v.status === "ON_TRIP") {
-      movementTag = `<span style="color:#fbbf24; font-weight:600; font-size:11px;">🟡 Berhenti Sementara (0 km/j)</span>`;
+      movementTag = `<span style="color:#fbbf24; font-weight:600; font-size:11px;">🟡 Stationary Stop (0 km/h)</span>`;
     } else {
-      movementTag = `<span style="color:#94a3b8; font-weight:600; font-size:11px;">🅿️ Standby di Pool</span>`;
+      movementTag = `<span style="color:#94a3b8; font-weight:600; font-size:11px;">🅿️ Depot Standby</span>`;
     }
 
     const gpsCell = `
@@ -238,23 +238,23 @@ export function renderVehiclesTable() {
     tr.innerHTML = `
       <td><strong>${v.truckId}</strong></td>
       <td><code>${v.licensePlate}</code></td>
-      <td><strong>${v.model || tmpl.model || "Truk Logistik DOC"}</strong><br><small style="color:#94a3b8;">${v.vendor || tmpl.vendor || "Vendor Industri"}</small></td>
+      <td><strong>${v.model || tmpl.model || "DOC Logistics Truck"}</strong><br><small style="color:#94a3b8;">${v.vendor || tmpl.vendor || "Industry Vendor"}</small></td>
       <td>${v.airflow || tmpl.airflow || "Laminar Airflow"}</td>
-      <td>${(v.capacity || tmpl.capacity || 36000).toLocaleString("id-ID")} DOC</td>
+      <td>${(v.capacity || tmpl.capacity || 36000).toLocaleString("en-US")} DOC</td>
       <td>${(v.setpoint || tmpl.setpoint || 26.0).toFixed(1)}°C</td>
-      <td><span style="color:#38bdf8;">${v.sensors || tmpl.sensors || "Dual Probe Ambien & Kontainer (RS-485)"}</span></td>
+      <td><span style="color:#38bdf8;">${v.sensors || tmpl.sensors || "Dual Probe Ambient & Cargo (RS-485)"}</span></td>
       <td>${gpsCell}</td>
       <td><span class="status-pill active-truck">${v.status || "AVAILABLE"}</span></td>
       <td>
         <button type="button" class="btn btn-xs btn-outline btn-vehicle-spec" data-template="${tmplKey}">
-          🔍 Spesifikasi Paten
+          🔍 Patent Specs
         </button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 
-  // Event listener tombol spesifikasi paten di baris tabel
+  // Event listener for patent specs button in table rows
   tbody.querySelectorAll(".btn-vehicle-spec").forEach(btn => {
     btn.addEventListener("click", e => {
       e.stopPropagation();
@@ -265,8 +265,8 @@ export function renderVehiclesTable() {
 }
 
 /**
- * Render Grid Vendor Cards untuk Master Template Spesifikasi Paten Truk (data_truck.md)
- * Menggunakan data dynamic dari API (GET /api/v1/simulation/templates)
+ * Render Vendor Cards Grid for Master Patented Fleet Templates (data_truck.md)
+ * Consumes dynamic data from API (GET /api/v1/simulation/templates)
  */
 export function renderTemplatesGrid() {
   const container = document.querySelector("#view-templates .vendor-cards-grid");
@@ -292,17 +292,17 @@ export function renderTemplatesGrid() {
     const card = document.createElement("div");
     card.className = "vendor-card";
 
-    const countryName = (st.country || tmpl.country || "INTERNASIONAL").toUpperCase();
-    const badgeType = k === "joinaldy" ? "RISET EMPIRIS" : "PATEN";
+    const countryName = (st.country || tmpl.country || "INTERNATIONAL").toUpperCase();
+    const badgeType = k === "joinaldy" ? "EMPIRICAL RESEARCH" : "PATENT";
     const badgeText = `${countryName} &bull; ${badgeType}`;
     const modelName = st.model_name || tmpl.model || k;
-    const desc = (st.features && st.features[0]) || tmpl.features?.[0] || "Standar spesifikasi armada logistik DOC internasional.";
-    const airflowText = st.airflow_m3h ? `${st.airflow_m3h.toLocaleString("id-ID")} m³/jam` : (tmpl.airflow || "Standar");
-    const zonesText = st.sensor_zones ? `${st.sensor_zones.length}-Zona` : (tmpl.zones || "Multi-Zona");
-    const metaText = `Sirkulasi: ${airflowText} &bull; ${zonesText}`;
+    const desc = (st.features && st.features[0]) || tmpl.features?.[0] || "Standard international DOC cold-chain fleet specification.";
+    const airflowText = st.airflow_m3h ? `${st.airflow_m3h.toLocaleString("en-US")} m³/h` : (tmpl.airflow || "Standard");
+    const zonesText = st.sensor_zones ? `${st.sensor_zones.length}-Zone` : (tmpl.zones || "Multi-Zone");
+    const metaText = `Circulation: ${airflowText} &bull; ${zonesText}`;
 
     card.innerHTML = `
-      <div class="vendor-img-wrapper" style="cursor: pointer;" title="Klik untuk melihat spesifikasi paten armada">
+      <div class="vendor-img-wrapper" style="cursor: pointer;" title="Click to view fleet patent specifications">
         <img src="/assets/images/trucks/truck_${k}.png?v=2" alt="${modelName}" class="vendor-card-img" onerror="this.onerror=null; this.src='/assets/images/trucks/truck_${k}.jpg';">
       </div>
       <div>
@@ -312,18 +312,18 @@ export function renderTemplatesGrid() {
         <div class="vendor-meta">${metaText}</div>
       </div>
       <div class="vendor-card-actions">
-        <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="${k}">🔍 Spesifikasi Paten</button>
-        <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="${k}">📦 Contoh Payload</button>
+        <button type="button" class="btn btn-sm btn-outline btn-view-spec" data-template="${k}">🔍 Patent Specs</button>
+        <button type="button" class="btn btn-sm btn-primary btn-view-payload" data-template="${k}">📦 Example Payload</button>
       </div>
     `;
 
-    // Klik gambar membuka modal spesifikasi
+    // Click on image opens spec modal
     const imgWrap = card.querySelector(".vendor-img-wrapper");
     if (imgWrap) {
       imgWrap.addEventListener("click", () => openSpecModal(k));
     }
 
-    // Tombol spesifikasi paten
+    // Button: Patent Specs
     const btnSpec = card.querySelector(".btn-view-spec");
     if (btnSpec) {
       btnSpec.addEventListener("click", e => {
@@ -332,7 +332,7 @@ export function renderTemplatesGrid() {
       });
     }
 
-    // Tombol contoh payload
+    // Button: Example Payload
     const btnPayload = card.querySelector(".btn-view-payload");
     if (btnPayload) {
       btnPayload.addEventListener("click", e => {
@@ -392,66 +392,66 @@ export function openSpecModal(templateKey) {
         <span class="spec-country-pill">${tmpl.country}</span>
       </div>
       <h3>${tmpl.model}</h3>
-      <p class="spec-desc">${tmpl.description || "Spesifikasi baku armada berpendingin DOC standar industri internasional."}</p>
+      <p class="spec-desc">${tmpl.description || "Standard international industrial specification for refrigerated DOC logistics."}</p>
       <div class="spec-ref-row">
-        <span>📄 Dokumen Acuan Riset / Vendor:</span>
+        <span>📄 Research / Vendor Literature Reference:</span>
         <code>${tmpl.reference}</code>
       </div>
     </div>
 
-    <!-- Visualisasi Armada Paten -->
+    <!-- Patented Fleet Visualization -->
     <div class="spec-truck-visual-card">
       <div class="spec-truck-img-wrapper">
         <img src="${tmpl.truckImage}" alt="${tmpl.model}" class="spec-truck-img" onerror="this.onerror=null; this.src='${tmpl.truckImage.replace('.png', '.jpg')}';">
-        <span class="spec-img-badge">🚚 VISUALISASI ARMADA PATEN: ${tmpl.model}</span>
+        <span class="spec-img-badge">🚚 PATENTED VEHICLE: ${tmpl.model}</span>
       </div>
     </div>
 
-    <div class="spec-section-title">📐 SPESIFIKASI FISIK & REKAYASA SISTEM TATA UDARA</div>
+    <div class="spec-section-title">📐 PHYSICAL DIMENSIONS & AIRFLOW SYSTEM ENGINEERING</div>
     <div class="spec-grid-layout">
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Kapasitas Maksimal</span>
-        <strong class="spec-cell-value accent-amber">${tmpl.capacityFormatted || (tmpl.capacity.toLocaleString("id-ID") + " DOC")}</strong>
-        <small class="spec-cell-note">Dibatasi neraca panas DOC</small>
+        <span class="spec-cell-label">Maximum Capacity</span>
+        <strong class="spec-cell-value accent-amber">${tmpl.capacityFormatted || (tmpl.capacity.toLocaleString("en-US") + " DOC")}</strong>
+        <small class="spec-cell-note">Constrained by metabolic heat</small>
       </div>
 
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Target Suhu Setpoint</span>
+        <span class="spec-cell-label">Target Temperature Setpoint</span>
         <strong class="spec-cell-value accent-cyan">${tmpl.setpoint.toFixed(1)}°C</strong>
-        <small class="spec-cell-note">Ambang aman SLA: 23.0°C – 27.0°C</small>
+        <small class="spec-cell-note">SLA safety threshold: 23.0°C – 27.0°C</small>
       </div>
 
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Sistem Sirkulasi Udara</span>
+        <span class="spec-cell-label">Air Circulation System</span>
         <strong class="spec-cell-value">${tmpl.airflow}</strong>
-        <small class="spec-cell-note">Aliran udara internal kargo</small>
+        <small class="spec-cell-note">Internal cargo envelope airflow</small>
       </div>
 
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Pasokan Udara Segar</span>
-        <strong class="spec-cell-value">${tmpl.freshAir || "Otomatis terkendali"}</strong>
-        <small class="spec-cell-note">Mencegah akumulasi CO2</small>
+        <span class="spec-cell-label">Fresh Air Intake</span>
+        <strong class="spec-cell-value">${tmpl.freshAir || "Automatically controlled"}</strong>
+        <small class="spec-cell-note">Mitigates CO2 accumulation</small>
       </div>
 
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Daya Pendingin (HVAC)</span>
-        <strong class="spec-cell-value">${tmpl.coolingCapacity || "Kompresor Reefer"}</strong>
-        <small class="spec-cell-note">Kapasitas penyerapan kalor</small>
+        <span class="spec-cell-label">Cooling Power (HVAC)</span>
+        <strong class="spec-cell-value">${tmpl.coolingCapacity || "Reefer Compressor"}</strong>
+        <small class="spec-cell-note">Heat absorption capacity</small>
       </div>
 
       <div class="spec-card-cell">
-        <span class="spec-cell-label">Catu Daya & Genset</span>
-        <strong class="spec-cell-value">${tmpl.powerType} (${tmpl.fuelTank} Liter)</strong>
-        <small class="spec-cell-note">Daya mandiri saat mesin mati</small>
+        <span class="spec-cell-label">Auxiliary Power & Genset</span>
+        <strong class="spec-cell-value">${tmpl.powerType} (${tmpl.fuelTank} Liters)</strong>
+        <small class="spec-cell-note">Autonomous off-engine runtime</small>
       </div>
     </div>
 
-    <div class="spec-section-title">📡 SUITE INSTRUMEN SENSOR TELEMETRI TERPASANG (PATEN)</div>
+    <div class="spec-section-title">📡 INSTALLED TELEMETRY SENSOR INSTRUMENTATION SUITE (PATENTED)</div>
     <div class="spec-sensors-layout">
       <div class="spec-sensors-img-card">
         <div class="spec-sensor-img-wrapper">
-          <img src="${tmpl.sensorsImage}" alt="Sensor Suite ${tmpl.model}" class="spec-sensor-img" onerror="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'200\\' viewBox=\\'0 0 400 200\\'><rect fill=\\'%23111827\\' width=\\'400\\' height=\\'200\\'/><text fill=\\'%236b7280\\' font-family=\\'sans-serif\\' font-size=\\'14\\' dy=\\'10.5\\' font-weight=\\'bold\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>Visual Sensor Terpasang</text></svg>'">
-          <span class="spec-img-badge">📡 INSTALASI SENSOR IOT TERPASANG</span>
+          <img src="${tmpl.sensorsImage}" alt="Sensor Suite ${tmpl.model}" class="spec-sensor-img" onerror="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'200\\' viewBox=\\'0 0 400 200\\'><rect fill=\\'%23111827\\' width=\\'400\\' height=\\'200\\'/><text fill=\\'%236b7280\\' font-family=\\'sans-serif\\' font-size=\\'14\\' dy=\\'10.5\\' font-weight=\\'bold\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\'>Installed Sensor Instrumentation</text></svg>'">
+          <span class="spec-img-badge">📡 INSTALLED IOT SENSORS</span>
         </div>
       </div>
       <div class="spec-sensors-container" style="margin-bottom: 0;">
@@ -462,7 +462,7 @@ export function openSpecModal(templateKey) {
     </div>
 
     ${featureItemsHtml ? `
-      <div class="spec-section-title">⭐ KEUNGGULAN ARSITEKTURAL & KESELAMATAN KELANGSUNGAN HIDUP DOC</div>
+      <div class="spec-section-title">⭐ ARCHITECTURAL HIGHLIGHTS & DOC WELFARE SAFEGUARDS</div>
       <div class="spec-features-container">
         <ul class="spec-features-ul">
           ${featureItemsHtml}
@@ -584,7 +584,7 @@ export function closeRightbar() {
 }
 
 /**
- * Update Sidebar Kanan (Rightbar Kontrol & Detail Pengiriman)
+ * Update Rightbar (Dispatch Details & Controls Deck)
  */
 export function updateRightbar() {
   const exp = getActiveExpedition();
@@ -592,14 +592,14 @@ export function updateRightbar() {
     const statusBadge = document.getElementById("rbTripStatusBadge");
     if (statusBadge) {
       statusBadge.className = "status-pill";
-      statusBadge.innerText = "TIDAK ADA PENGIRIMAN";
+      statusBadge.innerText = "NO DISPATCH SELECTED";
     }
     const idEl = document.getElementById("ctrlTripId");
     if (idEl) idEl.innerText = "-";
     const doEl = document.getElementById("ctrlTripDO");
     if (doEl) doEl.innerText = "-";
     const titleEl = document.getElementById("ctrlTripTitle");
-    if (titleEl) titleEl.innerText = "Belum Ada Pengiriman Terdaftar";
+    if (titleEl) titleEl.innerText = "No Dispatch Manifest Registered";
     const strainEl = document.getElementById("ctrlStrainInfo");
     if (strainEl) strainEl.innerText = "-";
     const genderEl = document.getElementById("ctrlGenderInfo");
@@ -626,13 +626,13 @@ export function updateRightbar() {
     statusBadge.className = "status-pill";
     if (exp.status === "RUNNING") {
       statusBadge.classList.add("running");
-      statusBadge.innerText = "SEDANG BERJALAN";
+      statusBadge.innerText = "IN TRANSIT";
     } else if (exp.status === "COMPLETED") {
       statusBadge.classList.add("completed");
-      statusBadge.innerText = "SELESAI (ARSIP)";
+      statusBadge.innerText = "COMPLETED (ARCHIVED)";
     } else {
       statusBadge.classList.add("ready");
-      statusBadge.innerText = "SIAP BERANGKAT";
+      statusBadge.innerText = "SCHEDULED / READY";
     }
   }
 
@@ -649,22 +649,22 @@ export function updateRightbar() {
   if (strainEl) strainEl.innerText = exp.strain || "Cobb 500";
 
   const genderEl = document.getElementById("ctrlGenderInfo");
-  if (genderEl) genderEl.innerText = exp.gender || "Campur / As-Hatched (50:50)";
+  if (genderEl) genderEl.innerText = exp.gender || "As-Hatched / Straight Run (50:50)";
 
   const biomassEl = document.getElementById("ctrlBiomassInfo");
   if (biomassEl) {
     const qty = exp.quantity || 38400;
     const w = exp.averageWeightGrams || 42.0;
-    const totalKg = ((qty * w) / 1000).toLocaleString("id-ID", { maximumFractionDigits: 1 });
-    biomassEl.innerText = `${totalKg} kg (${w.toFixed(1)} g/ekor)`;
+    const totalKg = ((qty * w) / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 });
+    biomassEl.innerText = `${totalKg} kg (${w.toFixed(1)} g/chick)`;
   }
 
   const breederAgeEl = document.getElementById("ctrlBreederAgeInfo");
-  if (breederAgeEl) breederAgeEl.innerText = exp.breederAge || "Prime (30 - 50 Minggu)";
+  if (breederAgeEl) breederAgeEl.innerText = exp.breederAge || "Prime (30 - 50 Weeks)";
 
   const packagingEl = document.getElementById("ctrlPackagingInfo");
   if (packagingEl) {
-    packagingEl.innerText = `${exp.boxType || "Boks Plastik Berventilasi (Crate)"} (${exp.chicksPerBox || 100} ekor/boks)`;
+    packagingEl.innerText = `${exp.boxType || "Ventilated Plastic Crate"} (${exp.chicksPerBox || 100} chicks/box)`;
   }
 
   const truckEl = document.getElementById("ctrlTruckInfo");
@@ -677,7 +677,7 @@ export function updateRightbar() {
   if (driverEl) driverEl.innerText = exp.driverName;
 
   const loadEl = document.getElementById("ctrlLoadInfo");
-  if (loadEl) loadEl.innerText = `${(exp.quantity || 38400).toLocaleString("id-ID")} DOC`;
+  if (loadEl) loadEl.innerText = `${(exp.quantity || 38400).toLocaleString("en-US")} DOC`;
 
   const setpointEl = document.getElementById("ctrlSetpointInfo");
   if (setpointEl) setpointEl.innerText = `${(exp.setpoint || 25.0).toFixed(1)}°C`;
@@ -688,7 +688,7 @@ export function updateRightbar() {
   // Update Status Daya & Genset
   const powerEl = document.getElementById("ctrlPowerInfo");
   if (powerEl) {
-    powerEl.innerText = `${runtime.fuelLevelPct.toFixed(1)}% Solar &bull; ${runtime.batteryVoltage.toFixed(1)} V`;
+    powerEl.innerText = `${runtime.fuelLevelPct.toFixed(1)}% Reefer Fuel &bull; ${runtime.batteryVoltage.toFixed(1)} V`;
     if (runtime.fuelLevelPct < 15 || runtime.batteryVoltage < 11.5) {
       powerEl.style.color = "#ef4444";
     } else {
@@ -714,7 +714,7 @@ export function updateRightbar() {
     hashEl.innerText = `Seq #${runtime.sequenceNumber} • 1.0 Hz Active`;
   }
 
-  // SEKSI 4: RUTE GEOSPASIAL & WAKTU KEBERANGKATAN
+  // SECTION 4: GEOSPATIAL ROUTE & DEPARTURE SCHEDULE
   const depTimeEl = document.getElementById("ctrlDepartureTime");
   if (depTimeEl) {
     const dateStr = exp.departureDate ? `${exp.departureDate} &bull; ` : "";
@@ -723,7 +723,7 @@ export function updateRightbar() {
       : exp.timeOfDay === "DAY"
       ? "08:00 WIB"
       : "21:30 WIB";
-    const icon = exp.timeOfDay === "DAY" ? "☀️ Siang" : "🌙 Malam";
+    const icon = exp.timeOfDay === "DAY" ? "☀️ Daytime" : "🌙 Nighttime";
     depTimeEl.innerHTML = `${dateStr}${timeStr} (${icon})`;
   }
 
@@ -731,10 +731,10 @@ export function updateRightbar() {
   if (weatherEl) {
     const wText =
       exp.weather === "SUNNY"
-        ? "Cerah 🌤️"
+        ? "Clear 🌤️"
         : exp.weather === "LIGHT_RAIN"
-        ? "Hujan Ringan 🌧️"
-        : "Badai Ekstrem ⛈️";
+        ? "Light Rain 🌧️"
+        : "Severe Storm ⛈️";
     weatherEl.innerText = wText;
   }
 
@@ -745,7 +745,7 @@ export function updateRightbar() {
       const lng = typeof exp.origin.lng === "number" ? exp.origin.lng.toFixed(4) : exp.origin.lng;
       originEl.innerText = `${exp.origin.name} (${lat}, ${lng})`;
     } else {
-      originEl.innerText = "Subang Hatchery (Hulu) (-6.5650, 107.7600)";
+      originEl.innerText = "Subang Hatchery (-6.5650, 107.7600)";
     }
   }
 
@@ -756,11 +756,11 @@ export function updateRightbar() {
       const lng = typeof exp.destination.lng === "number" ? exp.destination.lng.toFixed(4) : exp.destination.lng;
       destEl.innerText = `${exp.destination.name} (${lat}, ${lng})`;
     } else {
-      destEl.innerText = "Bogor Broiler Farm (Hilir) (-6.5980, 106.7990)";
+      destEl.innerText = "Bogor Broiler Farm (-6.5980, 106.7990)";
     }
   }
 
-  // Update Tipe Jalur Rute & Label Segmen Dinamis
+  // Update Route Path Type & Dynamic Segment Labels
   const routeCfg = getRouteConfig(exp.routeType || "TOLL");
   const routeTypeEl = document.getElementById("ctrlRouteType");
   if (routeTypeEl) {
@@ -777,7 +777,7 @@ export function updateRightbar() {
     }
   }
 
-  // Dropdown Kondisi 5 Segmen Rute & Sinyal di Rightbar
+  // Rightbar 5-Segment Roadway & Cellular Signal Dropdowns
   if (exp.segments) {
     for (let i = 0; i < 5; i++) {
       const segEl = document.getElementById(`rbSeg${i + 1}`);
@@ -801,7 +801,7 @@ export function updateRightbar() {
 }
 
 /**
- * Update UI Status Tombol Power & Indikator Mesin
+ * Update Engine Power UI & Status Indicator
  */
 export function updateEngineUI() {
   const badge = document.getElementById("engineStatusBadge");
@@ -814,21 +814,21 @@ export function updateEngineUI() {
 
   if (runtime.engineRunning) {
     badge.className = "engine-badge engine-on";
-    badgeText.innerText = "MESIN AKTIF (BERJALAN)";
+    badgeText.innerText = "ENGINE ACTIVE (IN TRANSIT)";
     btn.className = "btn btn-engine-power btn-stop";
-    title.innerText = "🛑 MATIKAN MESIN KENDARAAN";
-    sub.innerText = "Hentikan truk & matikan pemancar data telemetri";
+    title.innerText = "🛑 STOP VEHICLE ENGINE";
+    sub.innerText = "Halt vehicle & stop telemetry transmission";
   } else {
     badge.className = "engine-badge";
-    badgeText.innerText = "MESIN MATI (STANDBY)";
+    badgeText.innerText = "ENGINE OFF (STANDBY)";
     btn.className = "btn btn-engine-power btn-start";
-    title.innerText = "⚡ HIDUPKAN MESIN & BERANGKATKAN TRUK";
-    sub.innerText = "Kalkulasi fisika aktif & jalankan simulasi pergerakan truk";
+    title.innerText = "⚡ START ENGINE & DISPATCH TRUCK";
+    sub.innerText = "Activate physics pipeline & stream live telemetry";
   }
 }
 
 /**
- * Update status pill baris trip tertentu pada tabel pengiriman secara langsung tanpa re-render penuh
+ * Update trip table row status pill directly without full re-render
  */
 export function updateTripTableRowStatus(tripId, status, engineRunning) {
   const exp = expeditions.find(e => e.tripId === tripId);
@@ -843,13 +843,13 @@ export function updateTripTableRowStatus(tripId, status, engineRunning) {
       if (pill) {
         if (status === "RUNNING" || engineRunning) {
           pill.className = "status-pill running";
-          pill.innerText = "SEDANG BERJALAN";
+          pill.innerText = "IN TRANSIT";
         } else if (status === "COMPLETED") {
           pill.className = "status-pill completed";
-          pill.innerText = "SELESAI (ARSIP)";
+          pill.innerText = "COMPLETED (ARCHIVED)";
         } else {
           pill.className = "status-pill ready";
-          pill.innerText = "SIAP BERANGKAT";
+          pill.innerText = "SCHEDULED / READY";
         }
       }
     }
@@ -1017,18 +1017,18 @@ export function bindSidebar() {
       const bc = document.getElementById("breadcrumbPage");
       if (bc) {
         if (viewId === "view-expeditions") {
-          bc.innerText = "Daftar Pengiriman & Rencana Perjalanan";
+          bc.innerText = "Dispatch Manifests & Itinerary Planning";
           renderExpeditionsTable();
         } else if (viewId === "view-vehicles") {
-          bc.innerText = "Daftar Armada Truk Terdaftar";
+          bc.innerText = "Registered Vehicle Fleet";
           syncConfigFromBackend().then(() => renderVehiclesTable());
         } else if (viewId === "view-templates") {
-          bc.innerText = "Template Spesifikasi Paten Truk & Sensor (data_truck.md)";
+          bc.innerText = "Patented Vehicle Specifications & Sensor Suites (data_truck.md)";
           renderTemplatesGrid();
         }
       }
 
-      // Pada layar mobile/tablet, otomatis tutup sidebar setelah memilih menu
+      // Automatically close sidebar on mobile/tablet upon navigation
       if (window.innerWidth <= 900) {
         closeSidebar();
       }
@@ -1045,7 +1045,7 @@ export function bindSidebar() {
 }
 
 /**
- * Binding Kontrol Mesin, Speed Multipliers, Aktuator, Faults & Dropdown Segmen
+ * Binding Lifecycle Controls, Speed Multipliers, Actuators, Faults & Segment Dropdowns
  */
 export function bindLifecycleControls() {
   const btnToggle = document.getElementById("btnToggleEngine");
@@ -1059,7 +1059,7 @@ export function bindLifecycleControls() {
   const btnReset = document.getElementById("btnResetTrip");
   if (btnReset) {
     btnReset.addEventListener("click", () => {
-      if (confirm("Reset posisi perjalanan ke titik awal Subang?")) {
+      if (confirm("Reset trip position to origin Subang (KM 0)?")) {
         resetTrip();
       }
     });
@@ -1073,7 +1073,7 @@ export function bindLifecycleControls() {
     });
   });
 
-  // A. Aktuator Fan Speed & Air Inlet Damper
+  // A. Blower Speed & Air Inlet Damper Actuators
   const fanSelect = document.getElementById("ctrlFanSpeed");
   if (fanSelect) {
     fanSelect.addEventListener("change", e => {
@@ -1094,7 +1094,7 @@ export function bindLifecycleControls() {
     });
   }
 
-  // B. Injeksi Gangguan Mekanis & Kelistrikan
+  // B. Mechanical & Electrical Fault Injections
   const faultMappings = [
     { id: "toggleChiller", key: "chillerFail" },
     { id: "toggleDoor", key: "doorOpen" },
@@ -1120,13 +1120,13 @@ export function bindLifecycleControls() {
   if (btnGap) {
     btnGap.addEventListener("click", () => {
       runtime.sequenceNumber += 10;
-      alert(`⚠️ Injeksi Sequence Gap Berhasil: Sequence Number melonjak ke #${runtime.sequenceNumber}. Ini akan memicu flag pelanggaran audit on-chain.`);
+      alert(`⚠️ Sequence Gap Injection Triggered: Sequence number jumped to #${runtime.sequenceNumber}. This will trigger an on-chain audit violation flag.`);
       updateRightbar();
       broadcastTelemetry();
     });
   }
 
-  // D. Dropdown Kondisi Jalan & Sinyal 5 Segmen Rute
+  // D. Roadway Condition & Cellular Signal Dropdowns across 5 Route Segments
   for (let i = 1; i <= 5; i++) {
     const elSeg = document.getElementById(`rbSeg${i}`);
     if (elSeg) {
@@ -1156,7 +1156,7 @@ export function bindLifecycleControls() {
 }
 
 /**
- * Binding Modal Dialog (Ekspedisi Baru & Armada Truk Baru)
+ * Binding Modal Dialogs (New Expedition & New Vehicle)
  */
 export function bindModals() {
   const mExp = document.getElementById("modalNewExpedition");
@@ -1165,7 +1165,7 @@ export function bindModals() {
   const btnClearExp = document.getElementById("btnClearExpeditions");
   if (btnClearExp) {
     btnClearExp.addEventListener("click", async () => {
-      if (confirm("⚠️ Apakah Anda yakin ingin membersihkan seluruh data pengiriman logistik? Antrean akan dikosongkan untuk pembuatan pengiriman baru.")) {
+      if (confirm("⚠️ Are you sure you want to clear all dispatch manifests? Queue will be emptied for new dispatch planning.")) {
         try {
           await fetch("/api/v1/simulation/trips/clear", { method: "POST" });
         } catch (err) {}
@@ -1176,7 +1176,7 @@ export function bindModals() {
         renderExpeditionsTable();
         updateRightbar();
         broadcastTelemetry();
-        alert("✅ Seluruh data pengiriman telah dibersihkan.");
+        alert("✅ All dispatch manifests have been cleared.");
       }
     });
   }
@@ -1226,7 +1226,7 @@ export function bindModals() {
       if (routeSel) routeSel.value = "TOLL";
       const routeHint = document.getElementById("newTripRouteHint");
       if (routeHint) {
-        routeHint.innerText = "Preferensi rute untuk kalkulasi OSRM API (Toll / Non Toll)";
+        routeHint.innerText = "Route preference for OSRM API routing calculation (Toll / Non-Toll)";
         routeHint.style.color = "#94a3b8";
       }
 
@@ -1266,10 +1266,10 @@ export function bindModals() {
       if (!val) return;
       const h = parseInt(val.split(":")[0], 10) || 0;
       if (h >= 6 && h < 18) {
-        depTimeHint.innerText = `☀️ Siang Hari (Pukul 06:00 - 18:00)`;
+        depTimeHint.innerText = `☀️ Daytime (06:00 - 18:00)`;
         depTimeHint.style.color = "#38bdf8";
       } else {
-        depTimeHint.innerText = `🌙 Malam Hari (Pukul 18:00 - 06:00)`;
+        depTimeHint.innerText = `🌙 Nighttime (18:00 - 06:00)`;
         depTimeHint.style.color = "#93c5fd";
       }
     });
@@ -1281,10 +1281,10 @@ export function bindModals() {
     routeTypeSelect.addEventListener("change", e => {
       const val = e.target.value;
       if (val === "NON_TOLL") {
-        routeTypeHint.innerText = "Preferensi Non Toll: Rute dihitung via OSRM API dengan parameter hindari jalan tol (exclude=toll)";
+        routeTypeHint.innerText = "Non-Toll Preference: Route calculated via OSRM API with exclude=toll parameter";
         routeTypeHint.style.color = "#fbbf24";
       } else {
-        routeTypeHint.innerText = "Preferensi Toll: Rute dihitung via OSRM API menggunakan jalan tol tercepat";
+        routeTypeHint.innerText = "Toll Preference: Route calculated via OSRM API using fastest expressway";
         routeTypeHint.style.color = "#38bdf8";
       }
     });
@@ -1322,9 +1322,9 @@ export function bindModals() {
         totalDistanceKm: routeCfg.distanceKm,
         strain: document.getElementById("newTripStrain")?.value || "Cobb 500",
         averageWeightGrams: parseFloat(document.getElementById("newTripWeight")?.value) || 42.0,
-        breederAge: document.getElementById("newTripBreederAge")?.value || "Prime (30 - 50 Minggu)",
-        gender: document.getElementById("newTripGender")?.value || "As-Hatched (Campur 50:50)",
-        boxType: document.getElementById("newTripBoxType")?.value || "Boks Plastik Berventilasi (Crate)",
+        breederAge: document.getElementById("newTripBreederAge")?.value || "Prime (30 - 50 Weeks)",
+        gender: document.getElementById("newTripGender")?.value || "As-Hatched (Straight Run 50:50)",
+        boxType: document.getElementById("newTripBoxType")?.value || "Ventilated Plastic Crate",
         chicksPerBox: parseInt(document.getElementById("newTripDensity")?.value, 10) || 100,
         truckId: document.getElementById("newTripVehicleSelect")?.value,
         driverName: (document.getElementById("newTripDriver")?.value || "").trim(),
@@ -1370,15 +1370,15 @@ export function bindModals() {
       updateRightbar();
       broadcastTelemetry();
 
-      // Feedback visual tombol submit
+      // Submit button visual feedback
       const submitBtn = formExp.querySelector('button[type="submit"]');
-      const origText = submitBtn ? submitBtn.innerHTML : "💾 Simpan Rencana Pengiriman";
+      const origText = submitBtn ? submitBtn.innerHTML : "💾 Save Dispatch Manifest";
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = "⏳ Menghitung Rute OSRM (Profil Car)...";
+        submitBtn.innerHTML = "⏳ Calculating OSRM Route (Car Profile)...";
       }
 
-      // Kirim sinkronisasi pendaftaran trip ke backend FastAPI (otomatis kalkulasi rute OSRM profil car)
+      // Synchronize dispatch registration to FastAPI backend (auto-calculates OSRM car route)
       fetch("/api/v1/simulation/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1425,7 +1425,7 @@ export function bindModals() {
 
       mExp.classList.remove("show");
       openRightbar();
-      alert(`✅ Rencana Pengiriman ${newExp.tripId} (${newExp.deliveryOrder}) berhasil dibuat dan langsung tampil di Rightbar Kontrol!`);
+      alert(`✅ Dispatch Manifest ${newExp.tripId} (${newExp.deliveryOrder}) created successfully!`);
     });
   }
 
@@ -1497,7 +1497,7 @@ export function bindModals() {
     });
   });
 
-  // Salin JSON Payload ke Clipboard
+  // Copy JSON Payload to Clipboard
   const btnCopyPayload = document.getElementById("btnCopyPayload");
   if (btnCopyPayload) {
     btnCopyPayload.addEventListener("click", () => {
@@ -1506,22 +1506,22 @@ export function bindModals() {
       navigator.clipboard.writeText(jsonStr).then(() => {
         const copyText = document.getElementById("copyText");
         const copyIcon = document.getElementById("copyIcon");
-        if (copyText) copyText.innerText = "Tersalin ke Clipboard!";
+        if (copyText) copyText.innerText = "Copied to Clipboard!";
         if (copyIcon) copyIcon.innerText = "✅";
         btnCopyPayload.classList.add("copied");
 
         setTimeout(() => {
-          if (copyText) copyText.innerText = "Salin JSON";
+          if (copyText) copyText.innerText = "Copy JSON";
           if (copyIcon) copyIcon.innerText = "📋";
           btnCopyPayload.classList.remove("copied");
         }, 2000);
       }).catch(err => {
-        console.error("Gagal menyalin JSON:", err);
+        console.error("Failed to copy JSON:", err);
       });
     });
   }
 
-  // Unduh JSON Payload sebagai file .json
+  // Download JSON Payload as .json file
   const btnDownloadPayload = document.getElementById("btnDownloadPayloadJson");
   if (btnDownloadPayload) {
     btnDownloadPayload.addEventListener("click", () => {
@@ -1539,7 +1539,7 @@ export function bindModals() {
     });
   }
 
-  // Modal Pendaftaran Kendaraan Baru (Cukup ID, Plat Nomor, & Pilihan Template)
+  // Modal Register New Fleet Vehicle (Inherits Audy Joinaldy Patent Specifications)
   const mVeh = document.getElementById("modalNewVehicle");
   const btnOpenVeh = document.getElementById("btnOpenNewVehicleModal");
 
@@ -1568,11 +1568,11 @@ export function bindModals() {
   const btnCancelVeh = document.getElementById("btnCancelVehicleModal");
   if (btnCancelVeh && mVeh) btnCancelVeh.addEventListener("click", () => mVeh.classList.remove("show"));
 
-  // Listener perubahan template pada modal pendaftaran
+  // Template select change listener
   const tmplSelect = document.getElementById("vehicleTemplateSelect");
   if (tmplSelect) {
     tmplSelect.addEventListener("change", e => {
-      // Hanya template Audy yang diperbolehkan
+      // Exclusively Audy Joinaldy template permitted
       if (e.target.value !== "joinaldy") {
         e.target.value = "joinaldy";
       }
@@ -1580,7 +1580,7 @@ export function bindModals() {
     });
   }
 
-  // Submit Handler: Mewarisi seluruh parameter detail paten dari template Audy Joinaldy
+  // Submit Handler: Inherits all patent parameters from Audy Joinaldy template
   const formVeh = document.getElementById("formNewVehicle");
   if (formVeh && mVeh) {
     formVeh.addEventListener("submit", e => {
@@ -1588,20 +1588,20 @@ export function bindModals() {
 
       const truckIdVal = (document.getElementById("vTruckId")?.value || "").trim();
       const licensePlateVal = (document.getElementById("vLicensePlate")?.value || "").trim();
-      const tmplKey = "joinaldy"; // Eksklusif template Audy Joinaldy
+      const tmplKey = "joinaldy"; // Exclusive Audy Joinaldy research template
       const tmpl = VEHICLE_TEMPLATES.joinaldy;
 
       if (!truckIdVal || !licensePlateVal) {
-        alert("Harap lengkapi Nomor ID Truk dan Nomor Polisi Kendaraan!");
+        alert("Please complete both Vehicle ID (Truck ID) and License Plate!");
         return;
       }
 
       if (vehicles.some(v => v.truckId.toLowerCase() === truckIdVal.toLowerCase())) {
-        alert(`Nomor ID Truk '${truckIdVal}' sudah terdaftar di sistem! Harap gunakan ID lain.`);
+        alert(`Vehicle ID '${truckIdVal}' is already registered! Please use a unique ID.`);
         return;
       }
 
-      // Seluruh spesifikasi fisik, kapasitas, pendingin, dan sensor paten mewarisi template Audy
+      // Inherit all physical dimensions, capacity, ventilation, and sensor suite from Audy template
       const newVeh = {
         truckId: truckIdVal,
         licensePlate: licensePlateVal,
@@ -1632,7 +1632,7 @@ export function bindModals() {
       saveConfigData();
       renderVehiclesTable();
 
-      // Kirim sinkronisasi armada baru ke backend FastAPI
+      // Synchronize new vehicle to FastAPI backend
       fetch("/api/v1/simulation/vehicles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1646,11 +1646,11 @@ export function bindModals() {
       }).catch(err => console.warn("Sync new vehicle to backend failed:", err));
 
       mVeh.classList.remove("show");
-      alert(`✅ Armada Truk ${newVeh.truckId} (${newVeh.model}) berhasil didaftarkan!\nSeluruh spesifikasi fisik & sensor paten otomatis mewarisi template riset empiris Audy Joinaldy (2020).`);
+      alert(`✅ Fleet Vehicle ${newVeh.truckId} (${newVeh.model}) registered successfully!\nAll physical dimensions & sensors automatically inherit Audy Joinaldy (2020) empirical benchmarks.`);
     });
   }
 
-  // Tutup semua modal & floating rightbar saat menekan tombol ESC
+  // Dismiss modals & rightbar upon ESC key
   window.addEventListener("keydown", e => {
     if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
       document.querySelectorAll(".modal-backdrop.show").forEach(m => {
@@ -1660,7 +1660,7 @@ export function bindModals() {
     }
   });
 
-  // Tutup modal jika user mengklik area backdrop di luar konten dialog
+  // Dismiss modal when clicking backdrop
   document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
     backdrop.addEventListener("click", e => {
       if (e.target === backdrop) {
@@ -1669,7 +1669,7 @@ export function bindModals() {
     });
   });
 
-  // Event listener tombol close dan backdrop floating rightbar
+  // Event listener for rightbar close button and backdrop
   const btnCloseRb = document.getElementById("btnCloseRightbar");
   if (btnCloseRb) {
     btnCloseRb.addEventListener("click", () => {
@@ -1684,7 +1684,7 @@ export function bindModals() {
     });
   }
 
-  // Event listener tombol pemicu mengambang (floating trigger button)
+  // Event listener for floating trigger button
   const btnOpenFloating = document.getElementById("btnOpenFloatingRightbar");
   if (btnOpenFloating) {
     btnOpenFloating.addEventListener("click", () => {

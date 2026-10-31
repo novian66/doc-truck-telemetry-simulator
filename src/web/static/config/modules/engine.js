@@ -165,7 +165,7 @@ export async function syncBackendFault(tripId, anomalyType, active) {
 export function startEngine() {
   const exp = getActiveExpedition();
   if (!exp) {
-    alert("⚠️ Belum ada pengiriman terdaftar. Silakan buat rencana pengiriman baru terlebih dahulu.");
+    alert("⚠️ No registered dispatch manifests found. Please create a new dispatch manifest first.");
     return;
   }
 
@@ -406,7 +406,7 @@ export function simulationTick() {
       saveConfigData();
       renderExpeditionsTable();
       const routeCfg = getRouteConfig(exp.routeType || "TOLL");
-      alert(`🎉 Pengiriman ${exp.tripId} telah tiba di tujuan (${exp.destination ? exp.destination.name : 'Bogor Broiler Farm'}) via ${routeCfg.name}! Perjalanan ${runtime.totalDistanceKm} km selesai.`);
+      alert(`🎉 Dispatch ${exp.tripId} has arrived at destination (${exp.destination ? exp.destination.name : 'Bogor Broiler Farm'}) via ${routeCfg.name}! Journey of ${runtime.totalDistanceKm} km completed.`);
       return;
     }
   }
