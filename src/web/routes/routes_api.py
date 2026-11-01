@@ -38,7 +38,8 @@ async def generate_route(req: RouteGenerateRequest):
         dest_name=req.destination_name
     )
 
-    route_id = f"ROUTE-{req.route_type}-{abs(hash(req.origin_name + req.destination_name)) % 10000:04d}"
+    norm_type = "NON_TOLL_ARTERIAL" if "NON_TOLL" in req.route_type else "TOLL_HIGHWAY"
+    route_id = f"ROUTE-{'NON_TOLL' if 'NON_TOLL' in req.route_type else 'TOLL'}-{abs(hash(req.origin_name + req.destination_name)) % 10000:04d}"
     route_record = {
         "route_id": route_id,
         "origin_name": req.origin_name,
@@ -47,7 +48,7 @@ async def generate_route(req: RouteGenerateRequest):
         "destination_name": req.destination_name,
         "destination_lat": req.destination_lat,
         "destination_lng": req.destination_lng,
-        "route_type": req.route_type,
+        "route_type": norm_type,
         "total_distance_km": res["total_distance_km"],
         "estimated_duration_min": res["estimated_duration_min"],
         "waypoints_count": res["waypoints_count"],

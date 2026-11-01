@@ -9,20 +9,15 @@ import httpx
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 from src.routing.route_manager import haversine_distance
+from src.routing.arterial_corridors import select_arterial_waypoints
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CACHE_ROUTES_DIR = BASE_DIR / "data" / "cache_routes"
 
 OSRM_BASE_URL = "https://router.project-osrm.org/route/v1/car"
 
-# Koordinat perantara untuk memaksa rute menghindari jalan tol (jalur arteri Purwakarta - Cileungsi)
-NON_TOLL_WAYPOINTS = [
-    (107.4430, -6.5560), # Sadang / Purwakarta
-    (107.0540, -6.4670)  # Jonggol / Cileungsi
-]
-
 class OSRMClient:
-    def __init__(self, timeout_sec: float = 8.0):
+    def __init__(self, timeout_sec: float = 15.0):
         self.timeout = timeout_sec
         CACHE_ROUTES_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -39,17 +34,27 @@ class OSRMClient:
         """
         Memanggil OSRM API (profil car) secara asinkron.
         Mengembalikan struktur data rute lengkap (GeoJSON LineString, jarak total km, estimasi menit).
+        Untuk rute NON_TOLL, menggunakan seleksi koridor dinamis arteri nasional (Option A)
+        agar terhindar dari jalan tol tanpa hardcoded titik rute tunggal.
         """
         # Susun daftar koordinat OSRM: {lon1},{lat1};{lon2},{lat2}
         if route_type in ("NON_TOLL", "NON_TOLL_ARTERIAL"):
-            # Sisipkan titik arteri nasional non-tol
-            pts = [f"{origin_lng},{origin_lat}"]
-            for w_lng, w_lat in NON_TOLL_WAYPOINTS:
-                pts.append(f"{w_lng},{w_lat}")
-            pts.append(f"{dest_lng},{dest_lat}")
-            coords_str = ";".join(pts)
+            arterial_pts = select_arterial_waypoints(
+                origin_lng=origin_lng,
+                origin_lat=origin_lat,
+                dest_lng=dest_lng,
+                dest_lat=dest_lat
+            )
+            if arterial_pts:
+                pts = [f"{origin_lng:.6f},{origin_lat:.6f}"]
+                for w_lng, w_lat, _ in arterial_pts:
+                    pts.append(f"{w_lng:.6f},{w_lat:.6f}")
+                pts.append(f"{dest_lng:.6f},{dest_lat:.6f}")
+                coords_str = ";".join(pts)
+            else:
+                coords_str = f"{origin_lng:.6f},{origin_lat:.6f};{dest_lng:.6f},{dest_lat:.6f}"
         else:
-            coords_str = f"{origin_lng},{origin_lat};{dest_lng},{dest_lat}"
+            coords_str = f"{origin_lng:.6f},{origin_lat:.6f};{dest_lng:.6f},{dest_lat:.6f}"
 
         url = f"{OSRM_BASE_URL}/{coords_str}?overview=full&geometries=geojson&steps=false"
 
@@ -69,7 +74,7 @@ class OSRMClient:
                         geojson_feature = {
                             "type": "Feature",
                             "properties": {
-                                "route_name": f"{origin_name} ke {dest_name} ({'Tol' if route_type == 'TOLL_HIGHWAY' else 'Non-Tol'})",
+                                "route_name": f"{origin_name} to {dest_name} ({'Toll' if route_type in ('TOLL', 'TOLL_HIGHWAY') else 'Non-Toll'})",
                                 "origin_name": origin_name,
                                 "destination_name": dest_name,
                                 "road_length_km": dist_km,
