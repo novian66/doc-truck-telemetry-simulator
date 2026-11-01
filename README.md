@@ -12,12 +12,8 @@ The service is deployed in production as a continuous *systemd background daemon
 
 ```text
 03_implementation/
-├── configs/
-│   └── routes/
-│       └── waypoints_subang_bogor.json   # Local fallback cache for Subang - Bogor corridor (145 km)
-│
 ├── data/
-│   ├── metadata.db                       # Relational SQLite master metadata database
+│   ├── metadata.db                       # Relational SQLite master metadata database (schema & seeds)
 │   └── trips/
 │       ├── telemetry_TRIP-20261030-01.jsonl    # Canonical 25-field raw sensor stream log
 │       └── ground_truth_TRIP-20261030-01.jsonl # Noise-free physical ground truth log

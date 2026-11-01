@@ -230,30 +230,48 @@ class DatabaseManager:
                 VALUES (?, ?, ?, ?, ?, ?)
                 """, vehicles)
 
-            # Cek Rute default
+            # Default initial route seeding (pure in-memory seed, zero file dependency)
             cursor.execute("SELECT COUNT(*) FROM routes")
             if cursor.fetchone()[0] == 0:
-                route_file = BASE_DIR / "configs" / "routes" / "waypoints_subang_bogor.json"
-                if route_file.exists():
-                    with open(route_file, "r", encoding="utf-8") as rf:
-                        rdata = json.load(rf)
-                        coords = rdata.get("geometry", {}).get("coordinates", [])
-                        cursor.execute("""
-                        INSERT INTO routes (
-                            route_id, origin_name, origin_lat, origin_lng, destination_name,
-                            destination_lat, destination_lng, route_type, total_distance_km,
-                            estimated_duration_min, waypoints_count, waypoints_geojson
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (
-                            'ROUTE-SBG-BGR-TOLL',
-                            rdata.get("properties", {}).get("origin_name", "Subang Hatchery (KM 0)"),
-                            -6.5650, 107.7600,
-                            rdata.get("properties", {}).get("destination_name", "Bogor Broiler Farm (KM 145)"),
-                            -6.5980, 106.7990,
-                            'TOLL_HIGHWAY',
-                            145.0, 175.0, len(coords),
-                            json.dumps(rdata)
-                        ))
+                default_coords = [
+                    [107.7600, -6.5650], [107.7200, -6.5520], [107.6750, -6.5380], [107.5600, -6.4950],
+                    [107.5050, -6.4680], [107.4500, -6.4420], [107.4000, -6.4180], [107.3800, -6.4010],
+                    [107.3100, -6.3680], [107.2100, -6.3250], [107.1200, -6.3000], [107.0100, -6.2650],
+                    [106.9600, -6.2550], [106.8900, -6.3100], [106.8950, -6.3720], [106.8850, -6.4500],
+                    [106.8650, -6.4950], [106.8550, -6.5350], [106.8250, -6.5820], [106.8120, -6.5920],
+                    [106.7990, -6.5980]
+                ]
+                rdata = {
+                    "type": "Feature",
+                    "properties": {
+                        "route_name": "Subang Hatchery - Bogor Broiler Farm Expressway Corridor",
+                        "origin_name": "Subang Hatchery (KM 0)",
+                        "destination_name": "Bogor Broiler Farm (KM 145)",
+                        "road_length_km": 145.0,
+                        "estimated_duration_min": 175.0,
+                        "route_type": "TOLL_HIGHWAY"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": default_coords
+                    }
+                }
+                cursor.execute("""
+                INSERT INTO routes (
+                    route_id, origin_name, origin_lat, origin_lng, destination_name,
+                    destination_lat, destination_lng, route_type, total_distance_km,
+                    estimated_duration_min, waypoints_count, waypoints_geojson
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    'ROUTE-SBG-BGR-TOLL',
+                    'Subang Hatchery (KM 0)',
+                    -6.5650, 107.7600,
+                    'Bogor Broiler Farm (KM 145)',
+                    -6.5980, 106.7990,
+                    'TOLL_HIGHWAY',
+                    145.0, 175.0, len(default_coords),
+                    json.dumps(rdata)
+                ))
 
             conn.commit()
 

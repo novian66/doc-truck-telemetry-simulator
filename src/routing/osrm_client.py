@@ -8,9 +8,9 @@ import json
 import httpx
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
+from src.routing.route_manager import haversine_distance
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CONFIG_ROUTES_DIR = BASE_DIR / "configs" / "routes"
 CACHE_ROUTES_DIR = BASE_DIR / "data" / "cache_routes"
 
 OSRM_BASE_URL = "https://router.project-osrm.org/route/v1/car"
@@ -90,43 +90,73 @@ class OSRMClient:
                             "geojson": geojson_feature,
                             "coordinates": coords
                         }
-        except Exception as e:
-            # Gagal koneksi / timeout / offline -> Fallback
+        except Exception:
+            # Network failure / timeout / offline -> Dynamic Geodesic Fallback
             pass
 
-        # Fallback ke cache rute lokal
-        return self._get_fallback_route(origin_name, dest_name, route_type)
+        # Fallback to dynamic geodesic interpolation (zero file dependency)
+        return self._get_fallback_route(
+            origin_lng=origin_lng,
+            origin_lat=origin_lat,
+            dest_lng=dest_lng,
+            dest_lat=dest_lat,
+            origin_name=origin_name,
+            dest_name=dest_name,
+            route_type=route_type
+        )
 
-    def _get_fallback_route(self, origin_name: str, dest_name: str, route_type: str) -> Dict[str, Any]:
-        fallback_file = CONFIG_ROUTES_DIR / "waypoints_subang_bogor.json"
-        if fallback_file.exists():
-            with open(fallback_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                coords = data.get("geometry", {}).get("coordinates", [])
-                dist_km = data.get("properties", {}).get("road_length_km", 145.0)
-                dur_min = data.get("properties", {}).get("estimated_duration_min", 175)
-                return {
-                    "success": True,
-                    "source": "OFFLINE_CACHE_FALLBACK",
-                    "total_distance_km": dist_km,
-                    "estimated_duration_min": dur_min,
-                    "waypoints_count": len(coords),
-                    "geojson": data,
-                    "coordinates": coords
-                }
-        
-        # Skenario ekstrim: Buat garis lurus dasar
-        coords = [[107.7600, -6.5650], [106.7990, -6.5980]]
+    def _get_fallback_route(
+        self,
+        origin_lng: float,
+        origin_lat: float,
+        dest_lng: float,
+        dest_lat: float,
+        origin_name: str,
+        dest_name: str,
+        route_type: str
+    ) -> Dict[str, Any]:
+        """
+        Dynamic Geodesic Fallback
+        Calculates Great-Circle geodesic waypoints between arbitrary coordinates
+        when external OSRM API is unreachable or rate-limited.
+        """
+        direct_dist = haversine_distance(origin_lat, origin_lng, dest_lat, dest_lng)
+        # Apply typical roadway winding factor (1.25x for expressway, 1.35x for arterial)
+        winding_factor = 1.25 if route_type in ("TOLL", "TOLL_HIGHWAY") else 1.35
+        dist_km = max(1.0, round(direct_dist * winding_factor, 2))
+        avg_speed = 75.0 if route_type in ("TOLL", "TOLL_HIGHWAY") else 50.0
+        dur_min = round((dist_km / avg_speed) * 60.0, 1)
+
+        # Generate intermediate interpolated coordinates (5 to 35 steps based on distance)
+        num_steps = max(5, min(35, int(dist_km / 5.0)))
+        coords = []
+        for i in range(num_steps + 1):
+            ratio = i / float(num_steps)
+            lng_i = round(origin_lng + ratio * (dest_lng - origin_lng), 6)
+            lat_i = round(origin_lat + ratio * (dest_lat - origin_lat), 6)
+            coords.append([lng_i, lat_i])
+
+        geojson_feature = {
+            "type": "Feature",
+            "properties": {
+                "route_name": f"{origin_name} to {dest_name} ({'Toll' if route_type in ('TOLL', 'TOLL_HIGHWAY') else 'Non-Toll'})",
+                "origin_name": origin_name,
+                "destination_name": dest_name,
+                "road_length_km": dist_km,
+                "estimated_duration_min": dur_min,
+                "route_type": route_type
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": coords
+            }
+        }
         return {
             "success": True,
-            "source": "MINIMAL_FALLBACK",
-            "total_distance_km": 145.0,
-            "estimated_duration_min": 180,
+            "source": "DYNAMIC_GEODESIC_FALLBACK",
+            "total_distance_km": dist_km,
+            "estimated_duration_min": dur_min,
             "waypoints_count": len(coords),
-            "geojson": {
-                "type": "Feature",
-                "properties": { "route_name": f"{origin_name} ke {dest_name}", "road_length_km": 145.0 },
-                "geometry": { "type": "LineString", "coordinates": coords }
-            },
+            "geojson": geojson_feature,
             "coordinates": coords
         }
