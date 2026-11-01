@@ -239,8 +239,8 @@ export async function syncConfigFromBackend() {
           tripId: st.trip_id,
           routeId: st.route_id,
           deliveryOrder: st.delivery_order || `DO-CPI-SBG-${st.trip_id.replace("TRIP-", "")}`,
-          title: st.title || `Dispatch ${st.origin_name ? st.origin_name.split(" ")[0] : "Subang"} to ${st.destination_name ? st.destination_name.split(" ")[0] : "Bogor"} (${st.truck_id})`,
-          routeType: st.route_type === "NON_TOLL" ? "NON_TOLL" : "TOLL",
+          title: st.title || `Dispatch ${st.origin_name || "Origin"} to ${st.destination_name || "Destination"} (${st.truck_id})`,
+          routeType: (st.route_type && st.route_type.includes("NON_TOLL")) || (st.route_id && st.route_id.includes("NON_TOLL")) ? "NON_TOLL" : "TOLL",
           totalDistanceKm: st.total_distance_km || 145.0,
           truckId: st.truck_id,
           driverName: st.driver_name,
@@ -255,8 +255,8 @@ export async function syncConfigFromBackend() {
           weather: st.weather || "SUNNY",
           status: st.status || "SCHEDULED",
           createdAt: st.created_at,
-          origin: { name: st.origin_name || "Subang Hatchery", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
-          destination: { name: st.destination_name || "Bogor Broiler Farm", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
+          origin: { name: st.origin_name || "Origin Facility", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
+          destination: { name: st.destination_name || "Destination Farm", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
         }));
         expeditions.splice(0, expeditions.length, ...mappedTrips);
         localStorage.setItem(STORAGE_KEYS.EXPEDITIONS, JSON.stringify(expeditions));

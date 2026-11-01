@@ -190,8 +190,25 @@ export function consumePacket(p) {
     pillWeather.innerHTML = `<span class="icon">${weatherIcon}</span> Weather: <strong>${weatherLabel}</strong>`;
   }
 
-  // Traffic / Roadway Conditions (evaluated from live vehicle speed)
+  // Traffic / Roadway Conditions (evaluated from live vehicle speed & Rush Hour Modulator)
   const currentSpeed = isEngineRunning ? (p.vehicle?.speed_kmh != null ? p.vehicle.speed_kmh : 0) : 0;
+  
+  let isRushHour = false;
+  let rushName = "";
+  if (p.identity?.timestamp) {
+    try {
+      const dtObj = new Date(p.identity.timestamp);
+      const h = dtObj.getUTCHours() + (dtObj.getUTCMinutes() / 60.0);
+      if (h >= 6.5 && h <= 9.0) {
+        isRushHour = true;
+        rushName = "JAM SIBUK PAGI";
+      } else if (h >= 16.0 && h <= 19.0) {
+        isRushHour = true;
+        rushName = "JAM SIBUK SORE";
+      }
+    } catch (e) {}
+  }
+
   let roadLabel = "FREE FLOW (EXPRESSWAY)";
   let roadClass = "badge-flow";
   if (!isEngineRunning) {
@@ -200,6 +217,9 @@ export function consumePacket(p) {
   } else if (currentSpeed === 0) {
     roadLabel = "STOPPED (0 km/h)";
     roadClass = "badge-gridlock";
+  } else if (isRushHour && currentSpeed < 60) {
+    roadLabel = `RUSH HOUR ${rushName} (${Math.round(currentSpeed)} km/h)`;
+    roadClass = "badge-congested";
   } else if (currentSpeed < 40) {
     roadLabel = `CONGESTED / SLOW (${Math.round(currentSpeed)} km/h)`;
     roadClass = "badge-congested";

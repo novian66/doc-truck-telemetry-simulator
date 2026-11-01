@@ -355,7 +355,8 @@ class DatabaseManager:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-            SELECT tr.*, v.plate_number, v.template_key, r.origin_name, r.destination_name, r.total_distance_km
+            SELECT tr.*, v.plate_number, v.template_key, r.origin_name, r.origin_lat, r.origin_lng, 
+                   r.destination_name, r.destination_lat, r.destination_lng, r.route_type, r.total_distance_km
             FROM trips tr
             JOIN vehicles v ON tr.truck_id = v.truck_id
             JOIN routes r ON tr.route_id = r.route_id
@@ -367,7 +368,8 @@ class DatabaseManager:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-            SELECT tr.*, v.plate_number, v.template_key, r.origin_name, r.destination_name, r.total_distance_km, r.waypoints_geojson
+            SELECT tr.*, v.plate_number, v.template_key, r.origin_name, r.origin_lat, r.origin_lng, 
+                   r.destination_name, r.destination_lat, r.destination_lng, r.route_type, r.total_distance_km, r.waypoints_geojson
             FROM trips tr
             JOIN vehicles v ON tr.truck_id = v.truck_id
             JOIN routes r ON tr.route_id = r.route_id

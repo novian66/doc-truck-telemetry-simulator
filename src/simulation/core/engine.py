@@ -99,8 +99,9 @@ class SimulationEngine:
 
         # 1. Lingkungan Diurnal
         amb = self.env.get_ambient_state(self.clock.elapsed_simulation_seconds)
+        clock_hours = amb.get("clock_hours", 8.0)
 
-        # 2. Kinematika Posisi & Kecepatan
+        # 2. Kinematika Posisi & Kecepatan (Termasuk Modulator Jam Sibuk / Rush Hour)
         # Ambil kondisi jalan segmen saat ini
         pos_peek = self.track.get_position_at_distance(self.kinematics.distance_traveled_km)
         current_seg = pos_peek.get("segment_idx", 0)
@@ -110,7 +111,8 @@ class SimulationEngine:
             dt_seconds=dt,
             road_condition=seg_road_cond,
             traffic_stop_fault=self.state.fault_traffic_stop,
-            route_type=self.route_type
+            route_type=self.route_type,
+            clock_hours=clock_hours
         )
         if pos["is_completed"]:
             self.is_completed = True

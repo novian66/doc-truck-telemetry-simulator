@@ -59,17 +59,40 @@ class KinematicsEngine:
         # Stokastik mikro pengemudi (mean-reverting Ornstein-Uhlenbeck noise)
         self.rng = random.Random(random_seed)
         self.driver_noise_kmh = 0.0
+        self.current_rush_factor = 1.0
+
+    @staticmethod
+    def calculate_rush_hour_factor(clock_hours: float, is_non_toll: bool = False) -> float:
+        """
+        Modulator Jam Sibuk (Rush Hour Modulator)
+        Menghasilkan faktor pengali kecepatan kontinual [0.45 s/d 1.00] berdasarkan jam biologis lalu lintas (WIB):
+        - Puncak Pagi (07:00 - 08:30 WIB): perlambatan ~35% (Tol) / ~44% (Non-Tol)
+        - Puncak Sore (16:30 - 18:30 WIB): perlambatan ~40% (Tol) / ~50% (Non-Tol)
+        - Siang Hari (11:30 - 13:30 WIB): perlambatan ringan ~8%
+        - Malam & Dini Hari (21:00 - 05:00 WIB): arus lancar bebas hambatan (faktor 1.00)
+        """
+        t = clock_hours % 24.0
+        morn_dip = 0.35 * math.exp(-((t - 7.5) ** 2) / (2.0 * (0.9 ** 2)))
+        eve_dip = 0.40 * math.exp(-((t - 17.5) ** 2) / (2.0 * (1.1 ** 2)))
+        mid_dip = 0.08 * math.exp(-((t - 12.5) ** 2) / (2.0 * (1.5 ** 2)))
+
+        total_dip = morn_dip + eve_dip + mid_dip
+        if is_non_toll:
+            total_dip *= 1.25 # Arteri nasional lebih rentan kemacetan jam sibuk
+
+        return max(0.45, min(1.0, 1.0 - total_dip))
 
     def step(
         self,
         dt_seconds: float,
         road_condition: str,
         traffic_stop_fault: bool = False,
-        route_type: Optional[str] = None
+        route_type: Optional[str] = None,
+        clock_hours: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Melakukan update kinematika 1 tick diskrit dengan profil kecepatan adaptif:
-        v_target = min(v_road, v_dep, v_arr, v_curve) + eta_driver
+        v_target = min(v_road * K_rush, v_dep, v_arr, v_curve) + eta_driver
         """
         self.traffic_stop_fault = traffic_stop_fault
         self.current_road_condition = road_condition
@@ -86,6 +109,7 @@ class KinematicsEngine:
                 "distance_km": round(self.distance_traveled_km, 3),
                 "curve_radius_m": round(self.current_curve_radius_m, 1),
                 "lateral_accel_g": 0.0,
+                "rush_hour_factor": round(self.current_rush_factor, 2),
                 "lat": pos["lat"],
                 "lng": pos["lng"],
                 "latitude": pos.get("latitude", pos["lat"]),
@@ -100,12 +124,18 @@ class KinematicsEngine:
         is_non_toll = self.route_type in ("NON_TOLL", "NON_TOLL_ARTERIAL")
         speed_map = ROAD_SPEED_TARGETS_NON_TOLL if is_non_toll else ROAD_SPEED_TARGETS_TOLL
 
-        # 1. Base Road Target Speed berdasarkan kondisi lalu lintas
+        # 1. Base Road Target Speed berdasarkan kondisi lalu lintas dan Modulator Jam Sibuk
         if self.traffic_stop_fault or self.current_road_condition in ("GRIDLOCK", "DISASTER_BLOCKED"):
             v_road = 0.0
+            self.current_rush_factor = 1.0
         else:
             default_v = 45.0 if is_non_toll else 75.0
-            v_road = speed_map.get(self.current_road_condition, default_v)
+            base_v = speed_map.get(self.current_road_condition, default_v)
+            if clock_hours is not None:
+                self.current_rush_factor = self.calculate_rush_hour_factor(clock_hours, is_non_toll)
+            else:
+                self.current_rush_factor = 1.0
+            v_road = base_v * self.current_rush_factor
 
         s = self.distance_traveled_km
 

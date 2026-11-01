@@ -323,11 +323,28 @@ export function simulationTick() {
   const roadParams = ROAD_PARAMS[currentCondition] || ROAD_PARAMS.FREE_FLOW;
 
   // A. KINEMATIKA & PROFIL KECEPATAN ADAPTIF (Model 10)
-  // 1. Kecepatan dasar ruas jalan (Tol vs Non-Tol)
+  // 1. Kecepatan dasar ruas jalan (Tol vs Non-Tol) & Modulator Jam Sibuk (Rush Hour Modulator)
   let vRoad = roadParams.targetSpeed;
   if (exp.routeType === "NON_TOLL") {
     vRoad = Math.round(vRoad * 0.68); // Batas kecepatan arteri komersial non-tol
   }
+
+  // Modulator Jam Sibuk (Rush Hour Modulator)
+  const depTimeParts = (exp.departureTime || "08:00").split(":");
+  const depHour = parseFloat(depTimeParts[0]) || 8.0;
+  const depMin = parseFloat(depTimeParts[1]) || 0.0;
+  const simSeconds = (depHour * 3600 + depMin * 60 + (runtime.elapsedSec || 0)) % 86400;
+  const simHour = simSeconds / 3600.0;
+
+  const mornDip = 0.35 * Math.exp(-Math.pow(simHour - 7.5, 2) / (2.0 * Math.pow(0.9, 2)));
+  const eveDip = 0.40 * Math.exp(-Math.pow(simHour - 17.5, 2) / (2.0 * Math.pow(1.1, 2)));
+  const midDip = 0.08 * Math.exp(-Math.pow(simHour - 12.5, 2) / (2.0 * Math.pow(1.5, 2)));
+  let rushDip = mornDip + eveDip + midDip;
+  if (exp.routeType === "NON_TOLL") rushDip *= 1.25;
+  const rushFactor = Math.max(0.45, Math.min(1.0, 1.0 - rushDip));
+  runtime.rushHourFactor = Math.round(rushFactor * 100) / 100;
+  vRoad = vRoad * rushFactor;
+
   if (runtime.faults.trafficStop) vRoad = 0;
   if (exp.weather === "HEAVY_STORM") vRoad = Math.max(0, vRoad * 0.6);
 
