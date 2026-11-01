@@ -50,7 +50,7 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
   });
   startMarker = window.L.marker([WAYPOINTS_RAW[0].lat, WAYPOINTS_RAW[0].lng], { icon: startIcon })
     .addTo(map)
-    .bindPopup("<b>Point A: Subang Hatchery</b><br>DOC Cargo Origin");
+    .bindPopup("<b>Point A: Origin Depot</b><br>DOC Cargo Origin Facility");
 
   // Point B: Finish Broiler Farm
   const lastPt = WAYPOINTS_RAW[WAYPOINTS_RAW.length - 1];
@@ -61,7 +61,7 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
   });
   finishMarker = window.L.marker([lastPt.lat, lastPt.lng], { icon: finishIcon })
     .addTo(map)
-    .bindPopup("<b>Point B: Bogor Broiler Farm</b><br>DOC Final Destination");
+    .bindPopup("<b>Point B: Final Destination</b><br>Receiving Commercial Broiler Farm");
 
   // Geodesic Trail
   trailPolyline = window.L.polyline([], {

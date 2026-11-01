@@ -98,7 +98,7 @@ export function consumePacket(p) {
         if (bDesc) bDesc.innerText = "Telemetry streaming paused. Press 'Start Engine' on simulator control console to resume transit.";
       } else {
         if (bTitle) bTitle.innerText = "Vehicle Parked / Engine Inactive";
-        if (bDesc) bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at Subang Hatchery depot.`;
+        if (bDesc) bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at ${exp?.origin?.name || "origin depot"}.`;
       }
     }
   }
@@ -671,7 +671,7 @@ export function renderStandbyState(exp, lastPayload = null) {
       if (lastDistance > 0.5) {
         bDesc.innerText = `Fleet vehicle ${truckId} is currently stopped at KM ${lastDistance.toFixed(1)}. Engine is inactive, telematics telemetry stream offline until ignition.`;
       } else {
-        bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at Subang Hatchery depot. Sensors remain offline until ignition.`;
+        bDesc.innerText = `Fleet vehicle ${truckId} is currently on standby at ${exp?.origin?.name || "origin depot"}. Sensors remain offline until ignition.`;
       }
     }
   }

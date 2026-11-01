@@ -184,7 +184,7 @@
                     <span class="rb-trip-id" id="ctrlTripId">TRIP-20261029-01</span>
                     <span class="rb-do-pill" id="ctrlTripDO">DO-CPI-SBG-20261029-01</span>
                   </div>
-                  <h4 class="rb-trip-title" id="ctrlTripTitle">Main Dispatch Subang &rarr; Bogor Farm</h4>
+                  <h4 class="rb-trip-title" id="ctrlTripTitle">Active Transit Dispatch</h4>
                   
                   <div class="rb-detail-grid">
                     <!-- SECTION 2: BIOMETRIC CHARACTERISTICS & PACKAGING -->
@@ -258,15 +258,15 @@
                     </div>
                     <div class="rb-detail-item full-width">
                       <span class="rb-label">🛣️ Route Category:</span>
-                      <strong id="ctrlRouteType">Toll Expressway (145 km)</strong>
+                      <strong id="ctrlRouteType">Toll Expressway</strong>
                     </div>
                     <div class="rb-detail-item full-width">
                       <span class="rb-label">📍 Origin (Point A):</span>
-                      <strong id="ctrlOriginInfo">Subang Hatchery (-6.5650, 107.7600)</strong>
+                      <strong id="ctrlOriginInfo">Origin Hatchery Facility</strong>
                     </div>
                     <div class="rb-detail-item full-width">
                       <span class="rb-label">🏁 Destination (Point B):</span>
-                      <strong id="ctrlDestInfo">Bogor Broiler Farm (-6.5980, 106.7990)</strong>
+                      <strong id="ctrlDestInfo">Destination Broiler Farm</strong>
                     </div>
                   </div>
                 </div>
@@ -370,7 +370,7 @@
               <div class="rb-section">
                 <div class="rb-section-header">
                   <span class="rb-sec-icon">🛣️</span>
-                  <h4>ROADWAY CONDITIONS & SIGNAL (SUBANG &rarr; BOGOR)</h4>
+                  <h4 id="rbRoadwayHeader">ROADWAY CONDITIONS & CELLULAR SIGNAL</h4>
                 </div>
                 
                 <div class="segment-config-grid">
@@ -698,7 +698,7 @@
             <div class="form-row">
               <div class="form-group full-width">
                 <label>Dispatch Itinerary Title:</label>
-                <input type="text" id="newTripTitle" class="form-input" value="Main DOC Dispatch Subang to Broiler Farm Bogor" required>
+                <input type="text" id="newTripTitle" class="form-input" value="Commercial DOC Logistics Dispatch" required>
               </div>
             </div>
 
@@ -835,7 +835,7 @@
             <div class="form-row">
               <div class="form-group col-half">
                 <label>📍 Origin Facility (Point A):</label>
-                <input type="text" id="newOriginName" class="form-input" value="Subang Hatchery (Hulu)" required>
+                <input type="text" id="newOriginName" class="form-input" value="Origin Hatchery Facility" required>
                 <small class="field-hint">DOC hatchery loading facility</small>
               </div>
               <div class="form-group col-half">
@@ -859,7 +859,7 @@
             <div class="form-row">
               <div class="form-group col-half">
                 <label>🏁 Destination Facility (Point B):</label>
-                <input type="text" id="newDestName" class="form-input" value="Bogor Broiler Farm (Hilir)" required>
+                <input type="text" id="newDestName" class="form-input" value="Destination Broiler Farm" required>
                 <small class="field-hint">Receiving commercial broiler farm</small>
               </div>
               <div class="form-group col-half">

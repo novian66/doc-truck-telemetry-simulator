@@ -767,6 +767,17 @@ export function updateRightbar() {
     routeTypeEl.innerText = `${routeCfg.icon} ${routeCfg.name} (${exp.totalDistanceKm || routeCfg.distanceKm} km)`;
   }
 
+  const rbHeaderEl = document.getElementById("rbRoadwayHeader");
+  if (rbHeaderEl) {
+    const orig = exp.origin?.name ? exp.origin.name.split(" ")[0] : "";
+    const dest = exp.destination?.name ? exp.destination.name.split(" ")[0] : "";
+    if (orig && dest) {
+      rbHeaderEl.innerText = `ROADWAY CONDITIONS & SIGNAL (${orig.toUpperCase()} → ${dest.toUpperCase()})`;
+    } else {
+      rbHeaderEl.innerText = "ROADWAY CONDITIONS & CELLULAR SIGNAL";
+    }
+  }
+
   if (routeCfg.segments) {
     for (let i = 0; i < 5; i++) {
       const segInfo = routeCfg.segments[i];
@@ -1059,7 +1070,7 @@ export function bindLifecycleControls() {
   const btnReset = document.getElementById("btnResetTrip");
   if (btnReset) {
     btnReset.addEventListener("click", () => {
-      if (confirm("Reset trip position to origin Subang (KM 0)?")) {
+      if (confirm("Reset trip position to route origin (KM 0)?")) {
         resetTrip();
       }
     });
@@ -1300,11 +1311,11 @@ export function bindModals() {
       const depHour = parseInt(depTime.split(":")[0], 10) || 8;
       const timeOfDay = (depHour >= 6 && depHour < 18) ? "DAY" : "NIGHT";
 
-      const originName = (document.getElementById("newOriginName")?.value || "").trim() || "Subang Hatchery (Hulu)";
+      const originName = (document.getElementById("newOriginName")?.value || "").trim() || "Origin Hatchery Facility";
       const originLat = parseFloat(document.getElementById("newOriginLat")?.value) || -6.5650;
       const originLng = parseFloat(document.getElementById("newOriginLng")?.value) || 107.7600;
 
-      const destName = (document.getElementById("newDestName")?.value || document.getElementById("newDestinationName")?.value || "").trim() || "Bogor Broiler Farm (Hilir)";
+      const destName = (document.getElementById("newDestName")?.value || document.getElementById("newDestinationName")?.value || "").trim() || "Destination Broiler Farm";
       const destLat = parseFloat(document.getElementById("newDestLat")?.value) || -6.5980;
       const destLng = parseFloat(document.getElementById("newDestLng")?.value) || 106.7990;
 
