@@ -22,7 +22,7 @@ import {
   isWsConnected,
   lastKnownTruckPositions
 } from "./state.js";
-import { updateTruckPosition, renderSegmentPolylines, clearTrail } from "./map.js";
+import { updateTruckPosition, renderSegmentPolylines, clearTrail, updateRouteSegmentColors } from "./map.js";
 import { pushChartSample, clearChartHistory } from "./chart.js";
 import { updateTripStatusPill } from "./trip-selector.js";
 
@@ -263,6 +263,23 @@ export function consumePacket(p) {
   if (roadBadge) {
     roadBadge.innerText = roadLabel;
     roadBadge.className = roadClass;
+  }
+
+  // Sinkronkan warna segmen jalan, zona bottleneck, dan gangguan sinyal setiap 10 tick telemetri
+  if (p.identity?.sequence_number && p.identity.sequence_number % 10 === 0 && selectedTripId) {
+    fetch(`/api/v1/simulation/status?trip_id=${encodeURIComponent(selectedTripId)}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => {
+        if (data && data.road_conditions) {
+          updateRouteSegmentColors(
+            data.road_conditions,
+            data.road_hazard_zones,
+            data.signal_conditions,
+            data.signal_hazard_zones
+          );
+        }
+      })
+      .catch(() => {});
   }
 
   // 7. Kinematika Truk (Kecepatan, Guncangan, Jarak Tempuh)

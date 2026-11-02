@@ -159,7 +159,7 @@ export async function syncBackendFault(tripId, anomalyType, active) {
   }
 }
 
-export async function syncBackendSegments(tripId, segments) {
+export async function syncBackendSegments(tripId, segments, spans = null, signalSegments = null, signalSpans = null) {
   try {
     const segMap = {};
     if (Array.isArray(segments)) {
@@ -169,10 +169,44 @@ export async function syncBackendSegments(tripId, segments) {
     } else if (typeof segments === "object" && segments !== null) {
       Object.assign(segMap, segments);
     }
+
+    const spanMap = {};
+    if (Array.isArray(spans)) {
+      spans.forEach((sp, idx) => {
+        spanMap[idx.toString()] = sp;
+      });
+    } else if (typeof spans === "object" && spans !== null) {
+      Object.assign(spanMap, spans);
+    }
+
+    const sigMap = {};
+    if (Array.isArray(signalSegments)) {
+      signalSegments.forEach((sig, idx) => {
+        sigMap[idx.toString()] = sig;
+      });
+    } else if (typeof signalSegments === "object" && signalSegments !== null) {
+      Object.assign(sigMap, signalSegments);
+    }
+
+    const sigSpanMap = {};
+    if (Array.isArray(signalSpans)) {
+      signalSpans.forEach((sp, idx) => {
+        sigSpanMap[idx.toString()] = sp;
+      });
+    } else if (typeof signalSpans === "object" && signalSpans !== null) {
+      Object.assign(sigSpanMap, signalSpans);
+    }
+
     await fetch("/api/v1/simulation/configure", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ trip_id: tripId, route_segments: segMap })
+      body: JSON.stringify({
+        trip_id: tripId,
+        route_segments: segMap,
+        route_spans: spanMap,
+        signal_segments: sigMap,
+        signal_spans: sigSpanMap
+      })
     });
   } catch (e) {
     console.warn("Backend segment sync warning:", e);

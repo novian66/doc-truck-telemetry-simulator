@@ -49,6 +49,9 @@ class FaultRequest(BaseModel):
 class ConfigureRequest(BaseModel):
     trip_id: str
     route_segments: Optional[Dict[str, str]] = None # e.g. {"0": "FREE_FLOW", "2": "CONGESTED"}
+    route_spans: Optional[Dict[str, str]] = None # e.g. {"2": "25", "3": "FULL"}
+    signal_segments: Optional[Dict[str, str]] = None # e.g. {"3": "BAD", "4": "GOOD"}
+    signal_spans: Optional[Dict[str, str]] = None # e.g. {"3": "15", "4": "FULL"}
 
 @router.post("/start")
 async def start_simulation(req: StartRequest):
@@ -83,19 +86,38 @@ async def set_speed(req: SpeedRequest):
 
 @router.post("/configure")
 async def configure_simulation(req: ConfigureRequest):
-    """Update route segment road conditions dynamically"""
+    """Update route segment road conditions and congestion spans dynamically"""
     engine = simulation_manager.get_or_create_engine(req.trip_id)
     if not engine:
         raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} not found.")
 
+    seg_dict = None
     if req.route_segments:
         seg_dict = {int(k): str(v).upper() for k, v in req.route_segments.items() if str(k).isdigit()}
-        simulation_manager.configure_segments(req.trip_id, seg_dict)
+
+    span_dict = None
+    if req.route_spans:
+        span_dict = {int(k): str(v).upper() for k, v in req.route_spans.items() if str(k).isdigit()}
+
+    sig_dict = None
+    if req.signal_segments:
+        sig_dict = {int(k): str(v).upper() for k, v in req.signal_segments.items() if str(k).isdigit()}
+
+    sig_span_dict = None
+    if req.signal_spans:
+        sig_span_dict = {int(k): str(v).upper() for k, v in req.signal_spans.items() if str(k).isdigit()}
+
+    simulation_manager.configure_segments(req.trip_id, seg_dict, span_dict, sig_dict, sig_span_dict)
 
     return {
         "status": "SUCCESS",
         "trip_id": req.trip_id,
-        "road_conditions": engine.road_conditions_map
+        "road_conditions": engine.road_conditions_map,
+        "road_spans": engine.road_spans_map,
+        "road_hazard_zones": engine.road_hazard_zones,
+        "signal_conditions": engine.signal_conditions_map,
+        "signal_spans": engine.signal_spans_map,
+        "signal_hazard_zones": engine.signal_hazard_zones
     }
 
 @router.post("/actuator")

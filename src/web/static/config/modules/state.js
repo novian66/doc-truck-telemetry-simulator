@@ -162,6 +162,7 @@ export function loadConfigData() {
     if (!exp.fuelLevelPct) exp.fuelLevelPct = 100.0;
     if (!exp.batteryVoltage) exp.batteryVoltage = 24.2;
     if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+    if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
     if (!exp.routeType) exp.routeType = "TOLL";
     if (!exp.totalDistanceKm) exp.totalDistanceKm = exp.routeType === "NON_TOLL" ? 172.0 : 145.0;
   });
@@ -255,7 +256,9 @@ export async function syncConfigFromBackend() {
           weather: st.weather || "SUNNY",
           status: st.status || "SCHEDULED",
           segments: st.segments || ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"],
+          spans: st.spans || ["FULL", "FULL", "25", "FULL", "FULL"],
           signalSegments: st.signal_segments || ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"],
+          signalSpans: st.signal_spans || ["FULL", "FULL", "FULL", "15", "FULL"],
           createdAt: st.created_at,
           origin: { name: st.origin_name || "Origin Facility", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
           destination: { name: st.destination_name || "Destination Farm", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
@@ -294,15 +297,24 @@ export async function syncConfigFromBackend() {
         const statusRes = await fetch(`/api/v1/simulation/status?trip_id=${encodeURIComponent(activeTripId)}`);
         if (statusRes.ok) {
           const sData = await statusRes.json();
-          if (sData && sData.road_conditions) {
-            const exp = expeditions.find(e => e.tripId === activeTripId);
-            if (exp) {
+          const exp = expeditions.find(e => e.tripId === activeTripId);
+          if (exp && sData) {
+            if (sData.road_conditions) {
               exp.segments = [
                 sData.road_conditions["0"] || sData.road_conditions[0] || "FREE_FLOW",
                 sData.road_conditions["1"] || sData.road_conditions[1] || "FREE_FLOW",
                 sData.road_conditions["2"] || sData.road_conditions[2] || "CONGESTED",
                 sData.road_conditions["3"] || sData.road_conditions[3] || "FREE_FLOW",
                 sData.road_conditions["4"] || sData.road_conditions[4] || "FREE_FLOW"
+              ];
+            }
+            if (sData.road_spans) {
+              exp.spans = [
+                sData.road_spans["0"] || sData.road_spans[0] || "FULL",
+                sData.road_spans["1"] || sData.road_spans[1] || "FULL",
+                sData.road_spans["2"] || sData.road_spans[2] || "25",
+                sData.road_spans["3"] || sData.road_spans[3] || "FULL",
+                sData.road_spans["4"] || sData.road_spans[4] || "FULL"
               ];
             }
           }

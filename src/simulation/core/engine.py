@@ -68,14 +68,127 @@ class SimulationEngine:
         self.road_conditions_map = {
             0: "FREE_FLOW", 1: "FREE_FLOW", 2: "CONGESTED", 3: "FREE_FLOW", 4: "FREE_FLOW"
         }
+        self.road_spans_map = {
+            0: "FULL", 1: "FULL", 2: "25", 3: "FULL", 4: "FULL"
+        }
+        self.road_hazard_zones: Dict[int, Dict[str, Any]] = {}
+
+        self.signal_conditions_map = {
+            0: "GOOD", 1: "GOOD", 2: "GOOD", 3: "BAD", 4: "GOOD"
+        }
+        self.signal_spans_map = {
+            0: "FULL", 1: "FULL", 2: "FULL", 3: "15", 4: "FULL"
+        }
+        self.signal_hazard_zones: Dict[int, Dict[str, Any]] = {}
+        self._recalc_hazard_zones()
 
         self.is_running = False
         self.is_paused = False
         self.is_completed = False
 
-    def configure_segments(self, segments_map: Dict[int, str]):
-        """Mengatur kondisi jalan per segmen (0 s/d 4)"""
-        self.road_conditions_map.update(segments_map)
+    def _recalc_hazard_zones(self, active_truck_dist: Optional[float] = None):
+        """
+        Menghitung batas KM zona hambatan jalan (road_hazard_zones) dan zona gangguan sinyal (signal_hazard_zones)
+        untuk setiap segmen berdasarkan konfigurasi road_spans_map dan signal_spans_map.
+        Jika span adalah 'FULL', maka seluruh segmen terkena hambatan / gangguan.
+        Jika span berupa angka (misal '15', '25' km), maka gangguan dibatasi sepanjang span km.
+        """
+        tot_km = self.total_road_km if self.total_road_km > 0 else 145.0
+        seg_len = tot_km / 5.0
+
+        for seg_idx in range(5):
+            seg_start = seg_idx * seg_len
+            seg_end = (seg_idx + 1) * seg_len
+
+            # 1. Zona Hambatan Jalan
+            cond = self.road_conditions_map.get(seg_idx, "FREE_FLOW")
+            span_val = str(self.road_spans_map.get(seg_idx, "FULL")).upper()
+
+            if cond == "FREE_FLOW" or span_val == "FULL":
+                self.road_hazard_zones[seg_idx] = {
+                    "start_km": round(seg_start, 2),
+                    "end_km": round(seg_end, 2),
+                    "span_km": round(seg_end - seg_start, 2),
+                    "is_full": True,
+                    "condition": cond
+                }
+            else:
+                try:
+                    span_km = float(span_val)
+                except ValueError:
+                    span_km = 25.0
+
+                span_km = min(span_km, seg_end - seg_start)
+
+                if active_truck_dist is not None and seg_start <= active_truck_dist < seg_end:
+                    zone_start = max(seg_start, active_truck_dist - 1.0)
+                    zone_end = min(seg_end, zone_start + span_km)
+                else:
+                    mid = (seg_start + seg_end) / 2.0
+                    zone_start = max(seg_start, mid - (span_km / 2.0))
+                    zone_end = min(seg_end, zone_start + span_km)
+
+                self.road_hazard_zones[seg_idx] = {
+                    "start_km": round(zone_start, 2),
+                    "end_km": round(zone_end, 2),
+                    "span_km": round(span_km, 2),
+                    "is_full": False,
+                    "condition": cond
+                }
+
+            # 2. Zona Gangguan Sinyal Seluler (Blank Spot / Fading)
+            sig_cond = self.signal_conditions_map.get(seg_idx, "GOOD")
+            sig_span_val = str(self.signal_spans_map.get(seg_idx, "FULL")).upper()
+
+            if sig_cond == "GOOD" or sig_span_val == "FULL":
+                self.signal_hazard_zones[seg_idx] = {
+                    "start_km": round(seg_start, 2),
+                    "end_km": round(seg_end, 2),
+                    "span_km": round(seg_end - seg_start, 2),
+                    "is_full": True,
+                    "condition": sig_cond
+                }
+            else:
+                try:
+                    sig_span_km = float(sig_span_val)
+                except ValueError:
+                    sig_span_km = 15.0
+
+                sig_span_km = min(sig_span_km, seg_end - seg_start)
+
+                if active_truck_dist is not None and seg_start <= active_truck_dist < seg_end:
+                    zone_start = max(seg_start, active_truck_dist - 1.0)
+                    zone_end = min(seg_end, zone_start + sig_span_km)
+                else:
+                    mid = (seg_start + seg_end) / 2.0
+                    zone_start = max(seg_start, mid - (sig_span_km / 2.0))
+                    zone_end = min(seg_end, zone_start + sig_span_km)
+
+                self.signal_hazard_zones[seg_idx] = {
+                    "start_km": round(zone_start, 2),
+                    "end_km": round(zone_end, 2),
+                    "span_km": round(sig_span_km, 2),
+                    "is_full": False,
+                    "condition": sig_cond
+                }
+
+    def configure_segments(
+        self,
+        segments_map: Optional[Dict[int, str]] = None,
+        spans_map: Optional[Dict[int, str]] = None,
+        signals_map: Optional[Dict[int, str]] = None,
+        sig_spans_map: Optional[Dict[int, str]] = None
+    ):
+        """Mengatur kondisi jalan, panjang rentang hambatan, dan kondisi sinyal per segmen (0 s/d 4)"""
+        if segments_map:
+            self.road_conditions_map.update(segments_map)
+        if spans_map:
+            self.road_spans_map.update(spans_map)
+        if signals_map:
+            self.signal_conditions_map.update(signals_map)
+        if sig_spans_map:
+            self.signal_spans_map.update(sig_spans_map)
+        self._recalc_hazard_zones(self.kinematics.distance_traveled_km)
 
     def set_actuators(self, fan_speed: Optional[str] = None, air_inlet: Optional[str] = None, chiller: Optional[bool] = None):
         if fan_speed is not None:
@@ -101,11 +214,33 @@ class SimulationEngine:
         amb = self.env.get_ambient_state(self.clock.elapsed_simulation_seconds)
         clock_hours = amb.get("clock_hours", 8.0)
 
-        # 2. Kinematika Posisi & Kecepatan (Termasuk Modulator Jam Sibuk / Rush Hour)
+        # 2. Kinematika Posisi & Kecepatan (Termasuk Modulator Jam Sibuk / Rush Hour & Dynamic Hazard Span)
         # Ambil kondisi jalan segmen saat ini
-        pos_peek = self.track.get_position_at_distance(self.kinematics.distance_traveled_km)
+        curr_dist_km = self.kinematics.distance_traveled_km
+        pos_peek = self.track.get_position_at_distance(curr_dist_km)
         current_seg = pos_peek.get("segment_idx", 0)
-        seg_road_cond = self.road_conditions_map.get(current_seg, "FREE_FLOW")
+        base_road_cond = self.road_conditions_map.get(current_seg, "FREE_FLOW")
+
+        # Evaluasi apakah posisi saat ini berada dalam rentang bottleneck / hambatan
+        zone = self.road_hazard_zones.get(current_seg)
+        if zone and not zone.get("is_full", True):
+            if zone["start_km"] <= curr_dist_km <= zone["end_km"]:
+                seg_road_cond = base_road_cond
+            else:
+                seg_road_cond = "FREE_FLOW"
+        else:
+            seg_road_cond = base_road_cond
+
+        # Evaluasi apakah posisi saat ini berada dalam rentang gangguan sinyal seluler
+        base_sig_cond = self.signal_conditions_map.get(current_seg, "GOOD")
+        sig_zone = self.signal_hazard_zones.get(current_seg)
+        if sig_zone and not sig_zone.get("is_full", True):
+            if sig_zone["start_km"] <= curr_dist_km <= sig_zone["end_km"]:
+                active_sig_cond = base_sig_cond
+            else:
+                active_sig_cond = "GOOD"
+        else:
+            active_sig_cond = base_sig_cond
 
         pos = self.kinematics.step(
             dt_seconds=dt,
@@ -185,7 +320,7 @@ class SimulationEngine:
         }
         self.logger.log_ground_truth(gt_record)
 
-        # 8. Sensor Emulation (Derau Gaussian + Fault Injection)
+        # 8. Sensor Emulation (Derau Gaussian + Fault Injection + Gangguan Sinyal Kanal)
         true_for_sensors = {
             "temp_zone_1_c": thermal_res["temp_zone_1_c"],
             "temp_zone_2_c": thermal_res["temp_zone_2_c"],
@@ -196,7 +331,7 @@ class SimulationEngine:
             "fuel_level_pct": pwr["fuel_remaining_pct"],
             "battery_voltage_v": pwr["battery_voltage_v"]
         }
-        rep = self.state.process_reported_sensors(dt, true_for_sensors)
+        rep = self.state.process_reported_sensors(dt, true_for_sensors, signal_condition=active_sig_cond)
 
         # 9. Rakit 25-Field Telemetry Payload Baku
         total_biomass = round((self.cargo_quantity * self.average_weight_g) / 1000.0, 1)

@@ -374,6 +374,7 @@
                 </div>
                 
                 <div class="segment-config-grid">
+                  <!-- Segmen 1 -->
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
                       <span class="seg-label" id="rbSegLabel1">KM 0-25: Subang Arterial</span>
@@ -394,8 +395,29 @@
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
+                    <!-- Roadway Span Row (Sembunyi jika FREE_FLOW) -->
+                    <div id="rbSpanRow1" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSpanLabel1" style="font-size:10px; color:#94a3b8;">Panjang Macet:</span>
+                      <select id="rbSpan1" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="25" selected>🟡 Realistis (25 km)</option>
+                        <option value="15">🟡 Ringan (15 km)</option>
+                        <option value="40">🟡 Panjang (40 km)</option>
+                        <option value="FULL">🟡 Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
+                    <!-- Signal Span Row (Sembunyi jika GOOD) -->
+                    <div id="rbSigSpanRow1" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSigSpanLabel1" style="font-size:10px; color:#94a3b8;">Panjang Blank Spot:</span>
+                      <select id="rbSigSpan1" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="15" selected>❌ Terowongan/Bukit (15 km)</option>
+                        <option value="5">❌ Singkat (5 km)</option>
+                        <option value="25">❌ Blank Spot Luas (25 km)</option>
+                        <option value="FULL">❌ Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
                   </div>
 
+                  <!-- Segmen 2 -->
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
                       <span class="seg-label" id="rbSegLabel2">KM 25-65: Cipali Tollway</span>
@@ -416,8 +438,27 @@
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
+                    <div id="rbSpanRow2" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSpanLabel2" style="font-size:10px; color:#94a3b8;">Panjang Macet:</span>
+                      <select id="rbSpan2" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="25" selected>🟡 Realistis (25 km)</option>
+                        <option value="15">🟡 Ringan (15 km)</option>
+                        <option value="40">🟡 Panjang (40 km)</option>
+                        <option value="FULL">🟡 Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
+                    <div id="rbSigSpanRow2" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSigSpanLabel2" style="font-size:10px; color:#94a3b8;">Panjang Blank Spot:</span>
+                      <select id="rbSigSpan2" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="15" selected>❌ Terowongan/Bukit (15 km)</option>
+                        <option value="5">❌ Singkat (5 km)</option>
+                        <option value="25">❌ Blank Spot Luas (25 km)</option>
+                        <option value="FULL">❌ Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
                   </div>
 
+                  <!-- Segmen 3 -->
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
                       <span class="seg-label" id="rbSegLabel3">KM 65-105: Japek Tollway</span>
@@ -438,8 +479,27 @@
                         <option value="BAD">❌ Blank Spot</option>
                       </select>
                     </div>
+                    <div id="rbSpanRow3" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSpanLabel3" style="font-size:10px; color:#94a3b8;">Panjang Macet:</span>
+                      <select id="rbSpan3" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="25" selected>🟡 Realistis (25 km)</option>
+                        <option value="15">🟡 Ringan (15 km)</option>
+                        <option value="40">🟡 Panjang (40 km)</option>
+                        <option value="FULL">🟡 Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
+                    <div id="rbSigSpanRow3" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSigSpanLabel3" style="font-size:10px; color:#94a3b8;">Panjang Blank Spot:</span>
+                      <select id="rbSigSpan3" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="15" selected>❌ Terowongan/Bukit (15 km)</option>
+                        <option value="5">❌ Singkat (5 km)</option>
+                        <option value="25">❌ Blank Spot Luas (25 km)</option>
+                        <option value="FULL">❌ Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
                   </div>
 
+                  <!-- Segmen 4 -->
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0; border-bottom:1px solid #1e293b;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
                       <span class="seg-label" id="rbSegLabel4">KM 105-135: Jagorawi Tollway</span>
@@ -460,8 +520,27 @@
                         <option value="BAD" selected>❌ Blank Spot</option>
                       </select>
                     </div>
+                    <div id="rbSpanRow4" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSpanLabel4" style="font-size:10px; color:#94a3b8;">Panjang Macet:</span>
+                      <select id="rbSpan4" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="25" selected>🟡 Realistis (25 km)</option>
+                        <option value="15">🟡 Ringan (15 km)</option>
+                        <option value="40">🟡 Panjang (40 km)</option>
+                        <option value="FULL">🟡 Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
+                    <div id="rbSigSpanRow4" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSigSpanLabel4" style="font-size:10px; color:#94a3b8;">Panjang Blank Spot:</span>
+                      <select id="rbSigSpan4" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="15" selected>❌ Terowongan/Bukit (15 km)</option>
+                        <option value="5">❌ Singkat (5 km)</option>
+                        <option value="25">❌ Blank Spot Luas (25 km)</option>
+                        <option value="FULL">❌ Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
                   </div>
 
+                  <!-- Segmen 5 -->
                   <div class="seg-config-row" style="flex-direction:column; align-items:flex-start; gap:4px; padding:6px 0;">
                     <div style="display:flex; justify-content:space-between; width:100%;">
                       <span class="seg-label" id="rbSegLabel5">KM 135-145: Bogor Arterial</span>
@@ -480,6 +559,24 @@
                         <option value="GOOD">📶 4G Online</option>
                         <option value="FADING">📶 Fading</option>
                         <option value="BAD">❌ Blank Spot</option>
+                      </select>
+                    </div>
+                    <div id="rbSpanRow5" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSpanLabel5" style="font-size:10px; color:#94a3b8;">Panjang Macet:</span>
+                      <select id="rbSpan5" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="25" selected>🟡 Realistis (25 km)</option>
+                        <option value="15">🟡 Ringan (15 km)</option>
+                        <option value="40">🟡 Panjang (40 km)</option>
+                        <option value="FULL">🟡 Sepanjang Segmen (Full)</option>
+                      </select>
+                    </div>
+                    <div id="rbSigSpanRow5" style="display:none; align-items:center; justify-content:space-between; width:100%; margin-top:2px;">
+                      <span id="rbSigSpanLabel5" style="font-size:10px; color:#94a3b8;">Panjang Blank Spot:</span>
+                      <select id="rbSigSpan5" class="form-select-sm" style="font-size:10px; padding:2px 6px; width:170px;">
+                        <option value="15" selected>❌ Terowongan/Bukit (15 km)</option>
+                        <option value="5">❌ Singkat (5 km)</option>
+                        <option value="25">❌ Blank Spot Luas (25 km)</option>
+                        <option value="FULL">❌ Sepanjang Segmen (Full)</option>
                       </select>
                     </div>
                   </div>

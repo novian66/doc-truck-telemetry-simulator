@@ -173,14 +173,25 @@ export function renderExpeditionsTable(filter = "ALL") {
         const sRes = await fetch(`/api/v1/simulation/status?trip_id=${encodeURIComponent(exp.tripId)}`);
         if (sRes.ok) {
           const sData = await sRes.json();
-          if (sData && sData.road_conditions) {
-            exp.segments = [
-              sData.road_conditions["0"] || sData.road_conditions[0] || "FREE_FLOW",
-              sData.road_conditions["1"] || sData.road_conditions[1] || "FREE_FLOW",
-              sData.road_conditions["2"] || sData.road_conditions[2] || "CONGESTED",
-              sData.road_conditions["3"] || sData.road_conditions[3] || "FREE_FLOW",
-              sData.road_conditions["4"] || sData.road_conditions[4] || "FREE_FLOW"
-            ];
+          if (sData) {
+            if (sData.road_conditions) {
+              exp.segments = [
+                sData.road_conditions["0"] || sData.road_conditions[0] || "FREE_FLOW",
+                sData.road_conditions["1"] || sData.road_conditions[1] || "FREE_FLOW",
+                sData.road_conditions["2"] || sData.road_conditions[2] || "CONGESTED",
+                sData.road_conditions["3"] || sData.road_conditions[3] || "FREE_FLOW",
+                sData.road_conditions["4"] || sData.road_conditions[4] || "FREE_FLOW"
+              ];
+            }
+            if (sData.road_spans) {
+              exp.spans = [
+                sData.road_spans["0"] || sData.road_spans[0] || "FULL",
+                sData.road_spans["1"] || sData.road_spans[1] || "FULL",
+                sData.road_spans["2"] || sData.road_spans[2] || "25",
+                sData.road_spans["3"] || sData.road_spans[3] || "FULL",
+                sData.road_spans["4"] || sData.road_spans[4] || "FULL"
+              ];
+            }
           }
         }
       } catch (e) {}
@@ -616,6 +627,139 @@ export function closeRightbar() {
 }
 
 /**
+ * Mengatur visibilitas dan opsi panjang hambatan jalan per segmen
+ * Sesuai spesifikasi: FREE_FLOW menyembunyikan dropdown span; selain FREE_FLOW menampilkan opsi sesuai profil
+ */
+export function updateRoadSpanVisibility(segIdx, condition, selectedSpanValue) {
+  const row = document.getElementById(`rbSpanRow${segIdx + 1}`);
+  const labelEl = document.getElementById(`rbSpanLabel${segIdx + 1}`);
+  const spanSelect = document.getElementById(`rbSpan${segIdx + 1}`);
+  if (!row || !spanSelect) return;
+
+  if (condition === "FREE_FLOW") {
+    row.style.display = "none";
+    return;
+  }
+
+  row.style.display = "flex";
+
+  let labelText = "Panjang Hambatan:";
+  let options = [
+    { value: "15", text: "🟡 Ringan (15 km)" },
+    { value: "25", text: "🟡 Realistis (25 km)" },
+    { value: "40", text: "🟡 Parah (40 km)" },
+    { value: "FULL", text: "🟡 Sepanjang Segmen (Full)" }
+  ];
+
+  if (condition === "CONGESTED") {
+    labelText = "Panjang Macet:";
+    options = [
+      { value: "25", text: "🟡 Realistis (25 km)" },
+      { value: "15", text: "🟡 Ringan (15 km)" },
+      { value: "40", text: "🟡 Parah (40 km)" },
+      { value: "FULL", text: "🟡 Sepanjang Segmen (Full)" }
+    ];
+  } else if (condition === "GRIDLOCK") {
+    labelText = "Panjang Macet Total:";
+    options = [
+      { value: "5", text: "🔴 Bottleneck Padat (5 km)" },
+      { value: "15", text: "🔴 Macet Total (15 km)" },
+      { value: "25", text: "🔴 Parah (25 km)" },
+      { value: "FULL", text: "🔴 Sepanjang Segmen (Full)" }
+    ];
+  } else if (condition === "DAMAGED_ROAD") {
+    labelText = "Panjang Jalan Rusak:";
+    options = [
+      { value: "5", text: "⚠️ Titik Berlubang (5 km)" },
+      { value: "15", text: "⚠️ Ruas Rusak (15 km)" },
+      { value: "25", text: "⚠️ Parah (25 km)" },
+      { value: "FULL", text: "⚠️ Sepanjang Segmen (Full)" }
+    ];
+  } else if (condition === "FLOODED") {
+    labelText = "Panjang Titik Banjir:";
+    options = [
+      { value: "2", text: "🌊 Titik Banjir (2 km)" },
+      { value: "5", text: "🌊 Genangan Air (5 km)" },
+      { value: "15", text: "🌊 Banjir Luas (15 km)" },
+      { value: "FULL", text: "🌊 Sepanjang Segmen (Full)" }
+    ];
+  } else if (condition === "DISASTER_BLOCKED") {
+    labelText = "Panjang Blokade/Longsor:";
+    options = [
+      { value: "2", text: "⛔ Titik Longsor (2 km)" },
+      { value: "5", text: "⛔ Zona Tertutup (5 km)" },
+      { value: "FULL", text: "⛔ Sepanjang Segmen (Full)" }
+    ];
+  }
+
+  if (labelEl) labelEl.innerText = labelText;
+
+  const currentVal = selectedSpanValue || spanSelect.value || options[0].value;
+  spanSelect.innerHTML = options
+    .map(opt => `<option value="${opt.value}" ${opt.value === currentVal ? "selected" : ""}>${opt.text}</option>`)
+    .join("");
+
+  if (!options.some(opt => opt.value === currentVal)) {
+    spanSelect.value = options[0].value;
+  }
+}
+
+/**
+ * Mengatur visibilitas dan opsi panjang gangguan sinyal per segmen
+ * Sesuai spesifikasi: GOOD menyembunyikan dropdown; FADING & BAD menampilkan opsi terkonfigurasi
+ */
+export function updateSignalSpanVisibility(segIdx, sigCondition, selectedSigSpanValue) {
+  const row = document.getElementById(`rbSigSpanRow${segIdx + 1}`);
+  const labelEl = document.getElementById(`rbSigSpanLabel${segIdx + 1}`);
+  const sigSpanSelect = document.getElementById(`rbSigSpan${segIdx + 1}`);
+  if (!row || !sigSpanSelect) return;
+
+  if (sigCondition === "GOOD") {
+    row.style.display = "none";
+    return;
+  }
+
+  row.style.display = "flex";
+
+  let labelText = "Panjang Blank Spot:";
+  let options = [
+    { value: "15", text: "❌ Terowongan/Bukit (15 km)" },
+    { value: "5", text: "❌ Singkat (5 km)" },
+    { value: "25", text: "❌ Blank Spot Luas (25 km)" },
+    { value: "FULL", text: "❌ Sepanjang Segmen (Full)" }
+  ];
+
+  if (sigCondition === "BAD") {
+    labelText = "Panjang Blank Spot:";
+    options = [
+      { value: "15", text: "❌ Terowongan/Bukit (15 km)" },
+      { value: "5", text: "❌ Singkat (5 km)" },
+      { value: "25", text: "❌ Blank Spot Luas (25 km)" },
+      { value: "FULL", text: "❌ Sepanjang Segmen (Full)" }
+    ];
+  } else if (sigCondition === "FADING") {
+    labelText = "Panjang Sinyal Lemah:";
+    options = [
+      { value: "15", text: "📶 Area Pinggiran (15 km)" },
+      { value: "5", text: "📶 Fluktuasi Singkat (5 km)" },
+      { value: "25", text: "📶 Zona Sinyal Buruk (25 km)" },
+      { value: "FULL", text: "📶 Sepanjang Segmen (Full)" }
+    ];
+  }
+
+  if (labelEl) labelEl.innerText = labelText;
+
+  const currentVal = selectedSigSpanValue || sigSpanSelect.value || options[0].value;
+  sigSpanSelect.innerHTML = options
+    .map(opt => `<option value="${opt.value}" ${opt.value === currentVal ? "selected" : ""}>${opt.text}</option>`)
+    .join("");
+
+  if (!options.some(opt => opt.value === currentVal)) {
+    sigSpanSelect.value = options[0].value;
+  }
+}
+
+/**
  * Update Rightbar (Dispatch Details & Controls Deck)
  */
 export function updateRightbar() {
@@ -833,16 +977,22 @@ export function updateRightbar() {
     }
   }
 
-  // Rightbar 5-Segment Roadway & Cellular Signal Dropdowns
+  // Rightbar 5-Segment Roadway, Span & Cellular Signal Dropdowns
   if (exp.segments) {
+    if (!exp.spans) exp.spans = ["FULL", "FULL", "25", "FULL", "FULL"];
+    if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+    if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
+
     for (let i = 0; i < 5; i++) {
       const segEl = document.getElementById(`rbSeg${i + 1}`);
       if (segEl && exp.segments[i]) segEl.value = exp.segments[i];
 
+      updateRoadSpanVisibility(i, exp.segments[i], exp.spans[i]);
+
       const sigEl = document.getElementById(`rbSig${i + 1}`);
-      if (sigEl && exp.signalSegments && exp.signalSegments[i]) {
-        sigEl.value = exp.signalSegments[i];
-      }
+      if (sigEl && exp.signalSegments[i]) sigEl.value = exp.signalSegments[i];
+
+      updateSignalSpanVisibility(i, exp.signalSegments[i], exp.signalSpans[i]);
     }
   }
 
@@ -1188,7 +1338,7 @@ export function bindLifecycleControls() {
     });
   }
 
-  // D. Roadway Condition & Cellular Signal Dropdowns across 5 Route Segments
+  // D. Roadway Condition, Dynamic Span & Cellular Signal Dropdowns across 5 Route Segments
   for (let i = 1; i <= 5; i++) {
     const elSeg = document.getElementById(`rbSeg${i}`);
     if (elSeg) {
@@ -1196,9 +1346,35 @@ export function bindLifecycleControls() {
         const exp = getActiveExpedition();
         if (exp) {
           if (!exp.segments) exp.segments = ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"];
+          if (!exp.spans) exp.spans = ["FULL", "FULL", "25", "FULL", "FULL"];
+          if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+          if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
+
           exp.segments[i - 1] = e.target.value;
+          updateRoadSpanVisibility(i - 1, exp.segments[i - 1], exp.spans[i - 1]);
+          const spanEl = document.getElementById(`rbSpan${i}`);
+          if (spanEl) exp.spans[i - 1] = spanEl.value;
+
           saveConfigData();
-          syncBackendSegments(exp.tripId, exp.segments);
+          syncBackendSegments(exp.tripId, exp.segments, exp.spans, exp.signalSegments, exp.signalSpans);
+          broadcastTelemetry();
+        }
+      });
+    }
+
+    const elSpan = document.getElementById(`rbSpan${i}`);
+    if (elSpan) {
+      elSpan.addEventListener("change", e => {
+        const exp = getActiveExpedition();
+        if (exp) {
+          if (!exp.segments) exp.segments = ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"];
+          if (!exp.spans) exp.spans = ["FULL", "FULL", "25", "FULL", "FULL"];
+          if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+          if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
+
+          exp.spans[i - 1] = e.target.value;
+          saveConfigData();
+          syncBackendSegments(exp.tripId, exp.segments, exp.spans, exp.signalSegments, exp.signalSpans);
           broadcastTelemetry();
         }
       });
@@ -1209,9 +1385,36 @@ export function bindLifecycleControls() {
       elSig.addEventListener("change", e => {
         const exp = getActiveExpedition();
         if (exp) {
+          if (!exp.segments) exp.segments = ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"];
+          if (!exp.spans) exp.spans = ["FULL", "FULL", "25", "FULL", "FULL"];
           if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+          if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
+
           exp.signalSegments[i - 1] = e.target.value;
+          updateSignalSpanVisibility(i - 1, exp.signalSegments[i - 1], exp.signalSpans[i - 1]);
+          const sigSpanEl = document.getElementById(`rbSigSpan${i}`);
+          if (sigSpanEl) exp.signalSpans[i - 1] = sigSpanEl.value;
+
           saveConfigData();
+          syncBackendSegments(exp.tripId, exp.segments, exp.spans, exp.signalSegments, exp.signalSpans);
+          broadcastTelemetry();
+        }
+      });
+    }
+
+    const elSigSpan = document.getElementById(`rbSigSpan${i}`);
+    if (elSigSpan) {
+      elSigSpan.addEventListener("change", e => {
+        const exp = getActiveExpedition();
+        if (exp) {
+          if (!exp.segments) exp.segments = ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"];
+          if (!exp.spans) exp.spans = ["FULL", "FULL", "25", "FULL", "FULL"];
+          if (!exp.signalSegments) exp.signalSegments = ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"];
+          if (!exp.signalSpans) exp.signalSpans = ["FULL", "FULL", "FULL", "15", "FULL"];
+
+          exp.signalSpans[i - 1] = e.target.value;
+          saveConfigData();
+          syncBackendSegments(exp.tripId, exp.segments, exp.spans, exp.signalSegments, exp.signalSpans);
           broadcastTelemetry();
         }
       });

@@ -49,9 +49,10 @@ class SimulationState:
         self.fault_sensor_null = faults_dict.get("sensorNull", self.fault_sensor_null)
         self.fault_seq_gap = faults_dict.get("seqGap", self.fault_seq_gap)
 
-    def process_reported_sensors(self, dt: float, true_values: Dict[str, Any]) -> Dict[str, Any]:
+    def process_reported_sensors(self, dt: float, true_values: Dict[str, Any], signal_condition: str = "GOOD") -> Dict[str, Any]:
         """
         Menghasilkan nilai sensor terlapor: ground truth + derau Gaussian + fault
+        Serta evaluasi status koneksi jaringan berdasarkan signal_condition & blankSpot fault
         """
         if self.fault_door_open:
             self.door_open_seconds += int(dt)
@@ -127,6 +128,16 @@ class SimulationState:
         elif sensor_status != "HEALTHY":
             alarm_code = "ALARM_SENSOR_FAULT"
 
+        # Evaluasi Koneksi Jaringan & Blank Spot (Model Gilbert-Elliott §10)
+        if self.fault_blank_spot:
+            net_conn = "OFFLINE_LOCAL_BUFFER"
+        elif signal_condition == "BAD":
+            net_conn = "OFFLINE_LOCAL_BUFFER"
+        elif signal_condition == "FADING":
+            net_conn = "OFFLINE_LOCAL_BUFFER" if self.rng.random() < 0.33 else "ONLINE_4G_LTE"
+        else:
+            net_conn = "ONLINE_4G_LTE"
+
         return {
             "reported_temp_z1": rep_t1,
             "reported_temp_z2": rep_t2,
@@ -137,5 +148,5 @@ class SimulationState:
             "sensor_status": sensor_status,
             "alarm_code": alarm_code,
             "door_open_seconds": self.door_open_seconds,
-            "network_connection": "OFFLINE_LOCAL_BUFFER" if self.fault_blank_spot else "ONLINE_4G_LTE"
+            "network_connection": net_conn
         }

@@ -363,9 +363,9 @@ export function onExpeditionSelected(tripId) {
     pillWeather.innerHTML = `<span class="icon">🌤️</span> Weather: <strong>${weatherLabel}</strong>`;
   }
 
-  // Render rute: prioritaskan kurva jalan riil OSRM dari backend
+  // Render rute: prioritaskan kurva jalan riil OSRM dari backend dengan 5 segmen berwarna
   if (exp.routeId) {
-    renderRealOsrmRoute(exp.routeId, routeType).then(loaded => {
+    renderRealOsrmRoute(exp.routeId, routeType, exp.segments, exp.tripId).then(loaded => {
       if (!loaded && exp.segments) {
         renderSegmentPolylines(exp.segments, routeType);
       }

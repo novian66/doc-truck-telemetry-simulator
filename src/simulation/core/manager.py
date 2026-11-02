@@ -5,6 +5,7 @@ Mengelola konkurensi multi-truk/ekspedisi secara simultan menggunakan asyncio ba
 
 import asyncio
 import json
+from pathlib import Path
 from typing import Dict, Optional, Any
 from src.storage.db_manager import DatabaseManager
 from src.simulation.core.engine import SimulationEngine
@@ -37,6 +38,33 @@ class SimulationManager:
         coords = route_geojson.get("geometry", {}).get("coordinates", [])
 
         engine = SimulationEngine(trip_data, template, coords)
+
+        # Restore telemetry state if resuming an active trip
+        telemetry_file = trip_data.get("telemetry_file_path")
+        if telemetry_file and Path(telemetry_file).exists() and trip_data.get("status") in ("RUNNING", "PAUSED", "ON_TRIP"):
+            try:
+                with open(telemetry_file, "r") as f:
+                    lines = [line.strip() for line in f if line.strip()]
+                    best_entry = None
+                    for l in reversed(lines):
+                        try:
+                            d = json.loads(l)
+                            dist = d.get("vehicle", {}).get("distance_traveled_km", 0.0)
+                            if dist > 0.0:
+                                if best_entry is None or dist > best_entry.get("vehicle", {}).get("distance_traveled_km", 0.0):
+                                    best_entry = d
+                        except Exception:
+                            continue
+                    if best_entry:
+                        restored_dist = best_entry["vehicle"]["distance_traveled_km"]
+                        restored_seq = best_entry["identity"]["sequence_number"]
+                        engine.kinematics.distance_traveled_km = restored_dist
+                        engine.clock.sequence_number = restored_seq
+                        engine.clock.elapsed_simulation_seconds = restored_seq
+                        print(f"🔄 [Restore] Trip {trip_id} state restored to KM {restored_dist:.2f} (Seq #{restored_seq})")
+            except Exception as e:
+                print(f"Error restoring telemetry state for {trip_id}: {e}")
+
         self.engines[trip_id] = engine
         return engine
 
@@ -257,10 +285,17 @@ class SimulationManager:
             return True
         return False
 
-    def configure_segments(self, trip_id: str, segments_map: Dict[int, str]) -> bool:
+    def configure_segments(
+        self,
+        trip_id: str,
+        segments_map: Optional[Dict[int, str]] = None,
+        spans_map: Optional[Dict[int, str]] = None,
+        signals_map: Optional[Dict[int, str]] = None,
+        sig_spans_map: Optional[Dict[int, str]] = None
+    ) -> bool:
         engine = self.get_or_create_engine(trip_id)
         if engine:
-            engine.configure_segments(segments_map)
+            engine.configure_segments(segments_map, spans_map, signals_map, sig_spans_map)
             return True
         return False
 
@@ -285,7 +320,12 @@ class SimulationManager:
             "sequence_number": engine.clock.sequence_number,
             "distance_traveled_km": engine.kinematics.distance_traveled_km,
             "total_distance_km": engine.total_road_km,
-            "road_conditions": engine.road_conditions_map
+            "road_conditions": engine.road_conditions_map,
+            "road_spans": engine.road_spans_map,
+            "road_hazard_zones": engine.road_hazard_zones,
+            "signal_conditions": engine.signal_conditions_map,
+            "signal_spans": engine.signal_spans_map,
+            "signal_hazard_zones": engine.signal_hazard_zones
         }
 
 db_manager = DatabaseManager()
