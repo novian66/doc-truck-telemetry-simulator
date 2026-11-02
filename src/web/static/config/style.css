@@ -2233,3 +2233,38 @@ body {
     display: block;
   }
 }
+
+/* Fleet Overview Map Styles */
+.fleet-map-card {
+  position: relative;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+#fleetOverviewMap {
+  background: #0b1120;
+}
+
+.fleet-truck-custom-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.fleet-marker-container {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fleet-marker-container:hover {
+  transform: translate(-50%, -105%) scale(1.1) !important;
+  z-index: 1000 !important;
+}
+
+.btn-locate-truck:hover {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+}
+

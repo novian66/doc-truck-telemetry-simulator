@@ -34,6 +34,12 @@ import {
   syncBackendActuator
 } from "./engine.js";
 import { initRoutePickerMap } from "./map-picker.js";
+import {
+  initFleetMap,
+  renderFleetMap,
+  focusTruckOnMap,
+  fitFleetMapBounds
+} from "./fleet-map.js";
 
 /**
  * Render Tabel Rencana Pengiriman
@@ -245,13 +251,25 @@ export function renderVehiclesTable() {
       <td><span style="color:#38bdf8;">${v.sensors || tmpl.sensors || "Dual Probe Ambient & Cargo (RS-485)"}</span></td>
       <td>${gpsCell}</td>
       <td><span class="status-pill active-truck">${v.status || "AVAILABLE"}</span></td>
-      <td>
+      <td style="white-space: nowrap;">
         <button type="button" class="btn btn-xs btn-outline btn-vehicle-spec" data-template="${tmplKey}">
           🔍 Patent Specs
+        </button>
+        <button type="button" class="btn btn-xs btn-outline btn-locate-truck" data-truck="${v.truckId}" style="margin-left: 4px; border-color: #38bdf8; color: #38bdf8;" title="Pusatkan posisi armada pada peta">
+          📍 Peta
         </button>
       </td>
     `;
     tbody.appendChild(tr);
+  });
+
+  // Event listener for locate truck on map button
+  tbody.querySelectorAll(".btn-locate-truck").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const tid = btn.getAttribute("data-truck");
+      if (tid) focusTruckOnMap(tid);
+    });
   });
 
   // Event listener for patent specs button in table rows
@@ -884,6 +902,7 @@ export function updateVehicleFromTelemetry(p) {
     v.activeTripId = p.identity.trip_id;
     if (p.vehicle.location_name) v.lastLocationName = p.vehicle.location_name;
     renderVehiclesTable();
+    renderFleetMap();
   }
 }
 
@@ -1032,7 +1051,12 @@ export function bindSidebar() {
           renderExpeditionsTable();
         } else if (viewId === "view-vehicles") {
           bc.innerText = "Registered Vehicle Fleet";
-          syncConfigFromBackend().then(() => renderVehiclesTable());
+          syncConfigFromBackend().then(() => {
+            renderVehiclesTable();
+            initFleetMap();
+            renderFleetMap();
+            fitFleetMapBounds();
+          });
         } else if (viewId === "view-templates") {
           bc.innerText = "Patented Vehicle Specifications & Sensor Suites (data_truck.md)";
           renderTemplatesGrid();

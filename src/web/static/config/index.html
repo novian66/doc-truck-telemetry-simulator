@@ -511,6 +511,39 @@
           </button>
         </div>
 
+        <!-- Fleet Overview Map: Real-Time Geographic Positioning of All Operational Trucks -->
+        <div class="card fleet-map-card" style="margin-bottom: 1.5rem; border: 1px solid #334155; border-radius: 12px; overflow: hidden; background: #1e293b; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid #334155; background: #0f172a;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span style="font-size: 1.35rem;">🗺️</span>
+              <div>
+                <h3 style="margin: 0; font-size: 1.05rem; color: #f8fafc; font-weight: 600;">Peta Sebaran & Posisi Terakhir Seluruh Armada Truk</h3>
+                <p style="margin: 2px 0 0; font-size: 0.8rem; color: #94a3b8;">Visualisasi geospasial real-time koordinat GPS, status operasional, dan lokasi terkini seluruh armada</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <button type="button" class="btn btn-outline btn-xs" id="btnFitFleetMap" title="Pusatkan Peta ke Seluruh Armada" style="display: inline-flex; align-items: center; gap: 5px; font-weight: 600; padding: 5px 10px;">
+                <span>🎯</span> Pusatkan Peta
+              </button>
+            </div>
+          </div>
+          <div id="fleetOverviewMap" style="height: 380px; width: 100%; background: #0b1120; z-index: 1;"></div>
+          <div class="fleet-map-legend" style="padding: 0.65rem 1.25rem; background: #0f172a; border-top: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.78rem; color: #cbd5e1; align-items: center;">
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+              <strong>Bergerak / ON_TRIP</strong> (Kecepatan &gt; 0 km/j)
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 8px #f59e0b;"></span>
+              <strong>Berhenti Sementara / ON_TRIP</strong> (0 km/j)
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #64748b;"></span>
+              <strong>Standby di Pangkalan</strong> (AVAILABLE)
+            </span>
+          </div>
+        </div>
+
         <!-- Table of Registered Vehicles -->
         <div class="card table-card">
           <div class="card-header">

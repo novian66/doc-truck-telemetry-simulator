@@ -12,6 +12,7 @@ import {
 } from "./modules/state.js";
 import { initDensePath } from "./modules/engine.js";
 import { broadcastTelemetry } from "./modules/telemetry.js";
+import { initFleetMap, renderFleetMap } from "./modules/fleet-map.js";
 import {
   renderExpeditionsTable,
   renderVehiclesTable,
@@ -113,6 +114,8 @@ export async function init() {
   initDensePath();
   renderExpeditionsTable();
   renderVehiclesTable();
+  initFleetMap();
+  renderFleetMap();
   renderTemplatesGrid();
   updateRightbar();
   updateEngineUI();
