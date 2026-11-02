@@ -14,7 +14,7 @@ import {
 import { getRouteConfig } from "../../shared/constants.js";
 import { renderSegmentPolylines, renderRealOsrmRoute, setTruckMarkerToEnd, clearTrail } from "./map.js";
 import { clearChartHistory } from "./chart.js";
-import { renderStandbyState } from "./consumer.js";
+import { renderStandbyState, formatSimulationClock } from "./consumer.js";
 
 let activeFleetFilter = "ALL";
 let fleetSearchQuery = "";
@@ -342,6 +342,15 @@ export function onExpeditionSelected(tripId) {
     const timeDetail = [depDate, depTime ? `${depTime} (${timeLabel})` : timeLabel].filter(Boolean).join(" • ");
     pillTime.innerHTML = `<span class="icon">${exp.timeOfDay === "DAY" ? "☀️" : "🌙"}</span> Departure: <strong>${timeDetail}</strong>`;
   }
+
+  // Update Jam Realtime Dunia Simulasi
+  const simClock = formatSimulationClock(null, exp.departureDate, exp.departureTime);
+  const simTimeEl = document.getElementById("simClockTime");
+  if (simTimeEl) simTimeEl.innerText = simClock.time;
+  const simDateEl = document.getElementById("simClockDate");
+  if (simDateEl) simDateEl.innerText = simClock.date;
+  const barSimClock = document.getElementById("barSimClock");
+  if (barSimClock) barSimClock.innerText = simClock.time;
 
   const weatherLabel =
     exp.weather === "SUNNY"

@@ -27,6 +27,28 @@ import { pushChartSample, clearChartHistory } from "./chart.js";
 import { updateTripStatusPill } from "./trip-selector.js";
 
 /**
+ * Format timestamp simulasi ISO ke jam dan tanggal lokal dunia simulasi (WIB)
+ */
+export function formatSimulationClock(isoTimestamp, fallbackDate = null, fallbackTime = null) {
+  if (isoTimestamp && typeof isoTimestamp === "string" && isoTimestamp.includes("T")) {
+    const [datePart, timeRaw] = isoTimestamp.split("T");
+    const timeClean = timeRaw ? timeRaw.replace("Z", "").slice(0, 8) : "08:00:00";
+    return {
+      time: `${timeClean} WIB`,
+      date: datePart,
+      timeRaw: timeClean
+    };
+  }
+  const d = fallbackDate || "2026-11-01";
+  const t = (fallbackTime ? (fallbackTime.length === 5 ? `${fallbackTime}:00` : fallbackTime) : "08:00:00");
+  return {
+    time: `${t} WIB`,
+    date: d,
+    timeRaw: t
+  };
+}
+
+/**
  * Konsumsi dan render paket telemetri masuk ke dashboard DOM
  * Mendukung format 25-field baku FastAPI (identity, vehicle, microclimate, biometrics, systems, safety)
  * serta kompatibilitas backward BroadcastChannel simulator.
@@ -103,7 +125,7 @@ export function consumePacket(p) {
     }
   }
 
-  // 4. Timer / Waktu Tempuh Simulasi (Elapsed Seconds)
+  // 4. Timer / Waktu Tempuh Simulasi & Jam Realtime Dunia Simulasi
   const elapsed = p.elapsedSeconds != null 
     ? p.elapsedSeconds 
     : (p.identity?.sequence_number || 0);
@@ -112,6 +134,15 @@ export function consumePacket(p) {
   const secs = String(elapsed % 60).padStart(2, "0");
   const timerEl = document.getElementById("tripTimer");
   if (timerEl) timerEl.innerText = `${hrs}:${mins}:${secs}`;
+
+  const rawSimTs = p.identity?.timestamp || p.timestamp;
+  const simClock = formatSimulationClock(rawSimTs, exp?.departureDate, exp?.departureTime);
+  const simTimeEl = document.getElementById("simClockTime");
+  if (simTimeEl) simTimeEl.innerText = simClock.time;
+  const simDateEl = document.getElementById("simClockDate");
+  if (simDateEl) simDateEl.innerText = simClock.date;
+  const barSimClock = document.getElementById("barSimClock");
+  if (barSimClock) barSimClock.innerText = simClock.time;
 
   // 5. Cargo Summary Header (Top Summary Bar)
   const doCode = p.identity?.delivery_order || p.expedition?.deliveryOrder || exp?.deliveryOrder || `DO-CPI-SBG-${tripId?.replace("TRIP-", "") || "01"}`;
@@ -512,7 +543,7 @@ export function renderStandbyState(exp, lastPayload = null) {
     ?? 0.0
   );
 
-  // 2. Timer: Jika ada riwayat waktu tempuh saat berhenti, tampilkan; jika belum jalan (KM 0), tampilkan 00:00:00
+  // 2. Timer & Jam Realtime Dunia Simulasi saat Standby
   const elapsed = lastDistance > 0.05
     ? (lastPayload?.elapsedSeconds != null ? lastPayload.elapsedSeconds : (lastPayload?.identity?.sequence_number || 0))
     : 0;
@@ -521,6 +552,14 @@ export function renderStandbyState(exp, lastPayload = null) {
   const secs = String(elapsed % 60).padStart(2, "0");
   const timerEl = document.getElementById("tripTimer");
   if (timerEl) timerEl.innerText = `${hrs}:${mins}:${secs}`;
+
+  const simClock = formatSimulationClock(lastPayload?.identity?.timestamp, exp.departureDate, exp.departureTime);
+  const simTimeEl = document.getElementById("simClockTime");
+  if (simTimeEl) simTimeEl.innerText = simClock.time;
+  const simDateEl = document.getElementById("simClockDate");
+  if (simDateEl) simDateEl.innerText = simClock.date;
+  const barSimClock = document.getElementById("barSimClock");
+  if (barSimClock) barSimClock.innerText = simClock.time;
 
   // 3. Cargo Summary Header (Standby Metadata)
   const doCode = exp.deliveryOrder || `DO-CPI-SBG-${tripId?.replace("TRIP-", "") || "01"}`;

@@ -257,6 +257,13 @@ class SimulationManager:
             return True
         return False
 
+    def configure_segments(self, trip_id: str, segments_map: Dict[int, str]) -> bool:
+        engine = self.get_or_create_engine(trip_id)
+        if engine:
+            engine.configure_segments(segments_map)
+            return True
+        return False
+
     def get_status(self, trip_id: str) -> Dict[str, Any]:
         engine = self.engines.get(trip_id)
         if not engine:
@@ -277,7 +284,8 @@ class SimulationManager:
             "tick_interval_ms": engine.clock.get_tick_interval_ms(),
             "sequence_number": engine.clock.sequence_number,
             "distance_traveled_km": engine.kinematics.distance_traveled_km,
-            "total_distance_km": engine.total_road_km
+            "total_distance_km": engine.total_road_km,
+            "road_conditions": engine.road_conditions_map
         }
 
 db_manager = DatabaseManager()

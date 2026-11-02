@@ -20,6 +20,46 @@ let osrmPolyline = null;
 let startMarker = null;
 let finishMarker = null;
 
+let baseLayers = {};
+let overlayLayers = {};
+let currentLayerType = "street";
+let layersControl = null;
+
+/**
+ * Mengganti layer dasar peta (street, satellite, hybrid)
+ */
+export function setMapLayer(type = "street") {
+  if (!map || !baseLayers.street || !baseLayers.satellite) return;
+  currentLayerType = type;
+
+  // Hapus tile layer yang ada
+  if (map.hasLayer(baseLayers.street)) map.removeLayer(baseLayers.street);
+  if (map.hasLayer(baseLayers.satellite)) map.removeLayer(baseLayers.satellite);
+  if (overlayLayers.labels && map.hasLayer(overlayLayers.labels)) map.removeLayer(overlayLayers.labels);
+
+  if (type === "satellite") {
+    map.addLayer(baseLayers.satellite);
+  } else if (type === "hybrid") {
+    map.addLayer(baseLayers.satellite);
+    if (overlayLayers.labels) map.addLayer(overlayLayers.labels);
+  } else {
+    map.addLayer(baseLayers.street);
+  }
+
+  // Sinkronkan status tombol UI
+  const btnStreet = document.getElementById("btnLayerStreet");
+  const btnSat = document.getElementById("btnLayerSatellite");
+  const btnHyb = document.getElementById("btnLayerHybrid");
+
+  if (btnStreet) btnStreet.classList.toggle("active", type === "street");
+  if (btnSat) btnSat.classList.toggle("active", type === "satellite");
+  if (btnHyb) btnHyb.classList.toggle("active", type === "hybrid");
+
+  try {
+    localStorage.setItem("monitor_map_layer", type);
+  } catch (e) {}
+}
+
 /**
  * Inisialisasi peta Leaflet dan layer dasar
  */
@@ -37,10 +77,76 @@ export function initMap(initialLat = -6.48, initialLng = 107.25, initialZoom = 1
     wheelPxPerZoomLevel: 120
   });
 
-  window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-    maxZoom: 18
-  }).addTo(map);
+  // Layer 1: OpenStreetMap Standard (Street)
+  const streetLayer = window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  });
+
+  // Layer 2: Esri World Imagery (Satellite)
+  const satelliteLayer = window.L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    maxZoom: 19
+  });
+
+  // Layer 3: Esri World Boundaries & Places Overlay (Hybrid Labels)
+  const labelsLayer = window.L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", {
+    attribution: 'Labels &copy; Esri',
+    maxZoom: 19,
+    pane: "overlayPane"
+  });
+
+  baseLayers = {
+    street: streetLayer,
+    satellite: satelliteLayer
+  };
+  overlayLayers = {
+    labels: labelsLayer
+  };
+
+  // Muat layer tersimpan atau default street
+  const savedLayer = (typeof localStorage !== "undefined" && localStorage.getItem("monitor_map_layer")) || "street";
+  setMapLayer(savedLayer);
+
+  // Hook up event switcher tombol kustom
+  const btnStreet = document.getElementById("btnLayerStreet");
+  const btnSat = document.getElementById("btnLayerSatellite");
+  const btnHyb = document.getElementById("btnLayerHybrid");
+
+  if (btnStreet) btnStreet.addEventListener("click", () => setMapLayer("street"));
+  if (btnSat) btnSat.addEventListener("click", () => setMapLayer("satellite"));
+  if (btnHyb) btnHyb.addEventListener("click", () => setMapLayer("hybrid"));
+
+  // Leaflet Layer Control bawaan (topright)
+  const baseMaps = {
+    "🗺️ Street Map": streetLayer,
+    "🛰️ Satellite Imagery": satelliteLayer
+  };
+  const overlays = {
+    "🏷️ Roads & Places Labels": labelsLayer
+  };
+  layersControl = window.L.control.layers(baseMaps, overlays, { position: "topright" }).addTo(map);
+
+  map.on("baselayerchange", e => {
+    if (e.layer === satelliteLayer) {
+      const isHybrid = overlayLayers.labels && map.hasLayer(overlayLayers.labels);
+      setMapLayer(isHybrid ? "hybrid" : "satellite");
+    } else {
+      setMapLayer("street");
+    }
+  });
+
+  map.on("overlayadd", e => {
+    if (e.layer === labelsLayer && currentLayerType === "satellite") {
+      setMapLayer("hybrid");
+    }
+  });
+
+  map.on("overlayremove", e => {
+    if (e.layer === labelsLayer && currentLayerType === "hybrid") {
+      setMapLayer("satellite");
+    }
+  });
 
   // Point A: Start Hatchery
   const startIcon = window.L.divIcon({

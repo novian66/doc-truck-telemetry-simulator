@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <!-- Custom Styling -->
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -91,6 +91,13 @@
     </div>
 
     <div class="header-right">
+      <div class="sim-clock-box" id="simClockBox" title="Authoritative Realtime Clock inside Simulation World">
+        <small><span class="icon">🌐</span> SIM WORLD CLOCK:</small>
+        <div class="sim-clock-values">
+          <span class="sim-clock-time" id="simClockTime">08:00:00 WIB</span>
+          <span class="sim-clock-date" id="simClockDate">2026-11-01</span>
+        </div>
+      </div>
       <div class="trip-timer-box">
         <small>ELAPSED TIME:</small>
         <span class="trip-timer" id="tripTimer">00:00:00</span>
@@ -125,6 +132,7 @@
     <div class="summary-pill"><span class="icon">📦</span> Packaging: <strong id="barPackaging">Perforated Crate (100/box)</strong></div>
     <div class="summary-pill" id="pillRouteType"><span class="icon">🛣️</span> Route: <strong id="barRouteType">Tollway (146.9 km)</strong></div>
     <div class="summary-pill" id="pillTime"><span class="icon">☀️</span> Departure: <strong>2026-10-31 • 08:00 WIB (Daytime)</strong></div>
+    <div class="summary-pill" id="pillSimClock"><span class="icon">⏱️</span> World Clock: <strong id="barSimClock">08:00:00 WIB</strong></div>
     <div class="summary-pill" id="pillWeather"><span class="icon">🌤️</span> Weather: <strong>Clear / Sunny</strong></div>
     <div class="summary-pill"><span class="icon">🛣️</span> Roadway: <strong id="currentRoadBadge" class="badge-flow">FREE FLOW (HIGHWAY)</strong></div>
     <div class="summary-pill"><span class="icon">❤️</span> Welfare Status: <strong id="welfareBadge" class="badge-normal">OPTIMAL (NORMAL)</strong></div>
@@ -138,9 +146,17 @@
       <div class="card map-card">
         <div class="card-header">
           <h2>Geospatial Fleet Tracking & Route Navigation</h2>
-          <div class="map-badges">
-            <span class="info-badge" id="gpsCoordBadge">Lat: -6.5650, Lng: 107.7600</span>
-            <span class="info-badge" id="bearingBadge">Bearing: 268°</span>
+          <div class="map-controls-bar">
+            <!-- Satellite / Street View Layer Switcher -->
+            <div class="map-layer-switcher" id="mapLayerSwitcher">
+              <button type="button" class="layer-btn active" id="btnLayerStreet" title="Street Map View (OpenStreetMap)">🗺️ Street</button>
+              <button type="button" class="layer-btn" id="btnLayerSatellite" title="Satellite Imagery View (Esri World Imagery)">🛰️ Satellite</button>
+              <button type="button" class="layer-btn" id="btnLayerHybrid" title="Satellite with Highway & City Overlays">🛰️ Hybrid</button>
+            </div>
+            <div class="map-badges">
+              <span class="info-badge" id="gpsCoordBadge">Lat: -6.5650, Lng: 107.7600</span>
+              <span class="info-badge" id="bearingBadge">Bearing: 268°</span>
+            </div>
           </div>
         </div>
         
@@ -273,6 +289,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Application JS -->
-  <script type="module" src="app.js?v=10"></script>
+  <script type="module" src="app.js?v=12"></script>
 </body>
 </html>

@@ -254,6 +254,8 @@ export async function syncConfigFromBackend() {
           timeOfDay: (st.departure_time && (parseInt(st.departure_time.split(":")[0], 10) >= 18 || parseInt(st.departure_time.split(":")[0], 10) < 6)) ? "NIGHT" : "DAY",
           weather: st.weather || "SUNNY",
           status: st.status || "SCHEDULED",
+          segments: st.segments || ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"],
+          signalSegments: st.signal_segments || ["GOOD", "GOOD", "GOOD", "BAD", "GOOD"],
           createdAt: st.created_at,
           origin: { name: st.origin_name || "Origin Facility", lat: st.origin_lat || -6.5650, lng: st.origin_lng || 107.7600 },
           destination: { name: st.destination_name || "Destination Farm", lat: st.destination_lat || -6.5980, lng: st.destination_lng || 106.7990 }
@@ -288,6 +290,22 @@ export async function syncConfigFromBackend() {
         if (latestRes.ok) {
           const lData = await latestRes.json();
           applyTelemetryToRuntime(lData);
+        }
+        const statusRes = await fetch(`/api/v1/simulation/status?trip_id=${encodeURIComponent(activeTripId)}`);
+        if (statusRes.ok) {
+          const sData = await statusRes.json();
+          if (sData && sData.road_conditions) {
+            const exp = expeditions.find(e => e.tripId === activeTripId);
+            if (exp) {
+              exp.segments = [
+                sData.road_conditions["0"] || sData.road_conditions[0] || "FREE_FLOW",
+                sData.road_conditions["1"] || sData.road_conditions[1] || "FREE_FLOW",
+                sData.road_conditions["2"] || sData.road_conditions[2] || "CONGESTED",
+                sData.road_conditions["3"] || sData.road_conditions[3] || "FREE_FLOW",
+                sData.road_conditions["4"] || sData.road_conditions[4] || "FREE_FLOW"
+              ];
+            }
+          }
         }
       } catch (err) {}
     }

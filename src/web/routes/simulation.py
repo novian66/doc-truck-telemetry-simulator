@@ -81,6 +81,23 @@ async def set_speed(req: SpeedRequest):
     interval = engine.clock.get_tick_interval_ms() if engine else int(1000.0 / req.multiplier)
     return {"status": "SUCCESS", "speed_multiplier": req.multiplier, "tick_interval_ms": interval}
 
+@router.post("/configure")
+async def configure_simulation(req: ConfigureRequest):
+    """Update route segment road conditions dynamically"""
+    engine = simulation_manager.get_or_create_engine(req.trip_id)
+    if not engine:
+        raise HTTPException(status_code=404, detail=f"Trip {req.trip_id} not found.")
+
+    if req.route_segments:
+        seg_dict = {int(k): str(v).upper() for k, v in req.route_segments.items() if str(k).isdigit()}
+        simulation_manager.configure_segments(req.trip_id, seg_dict)
+
+    return {
+        "status": "SUCCESS",
+        "trip_id": req.trip_id,
+        "road_conditions": engine.road_conditions_map
+    }
+
 @router.post("/actuator")
 async def update_actuators(req: ActuatorRequest):
     """Control blower fan speed, air inlet damper, and refrigeration compressor"""

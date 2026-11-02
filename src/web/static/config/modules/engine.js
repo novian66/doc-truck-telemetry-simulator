@@ -159,6 +159,26 @@ export async function syncBackendFault(tripId, anomalyType, active) {
   }
 }
 
+export async function syncBackendSegments(tripId, segments) {
+  try {
+    const segMap = {};
+    if (Array.isArray(segments)) {
+      segments.forEach((seg, idx) => {
+        segMap[idx.toString()] = seg;
+      });
+    } else if (typeof segments === "object" && segments !== null) {
+      Object.assign(segMap, segments);
+    }
+    await fetch("/api/v1/simulation/configure", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trip_id: tripId, route_segments: segMap })
+    });
+  } catch (e) {
+    console.warn("Backend segment sync warning:", e);
+  }
+}
+
 /**
  * Menghidupkan mesin dan memulai discrete ticker
  */

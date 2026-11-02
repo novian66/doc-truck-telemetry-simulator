@@ -31,7 +31,8 @@ import {
   setSpeedMultiplier,
   toggleFault,
   initDensePath,
-  syncBackendActuator
+  syncBackendActuator,
+  syncBackendSegments
 } from "./engine.js";
 import { initRoutePickerMap } from "./map-picker.js";
 import {
@@ -168,6 +169,19 @@ export function renderExpeditionsTable(filter = "ALL") {
         if (res.ok) {
           const data = await res.json();
           applyTelemetryToRuntime(data);
+        }
+        const sRes = await fetch(`/api/v1/simulation/status?trip_id=${encodeURIComponent(exp.tripId)}`);
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (sData && sData.road_conditions) {
+            exp.segments = [
+              sData.road_conditions["0"] || sData.road_conditions[0] || "FREE_FLOW",
+              sData.road_conditions["1"] || sData.road_conditions[1] || "FREE_FLOW",
+              sData.road_conditions["2"] || sData.road_conditions[2] || "CONGESTED",
+              sData.road_conditions["3"] || sData.road_conditions[3] || "FREE_FLOW",
+              sData.road_conditions["4"] || sData.road_conditions[4] || "FREE_FLOW"
+            ];
+          }
         }
       } catch (e) {}
       saveConfigData();
@@ -796,13 +810,26 @@ export function updateRightbar() {
     }
   }
 
-  if (routeCfg.segments) {
-    for (let i = 0; i < 5; i++) {
-      const segInfo = routeCfg.segments[i];
-      const lblEl = document.getElementById(`rbSegLabel${i + 1}`);
-      if (lblEl && segInfo) lblEl.innerText = segInfo.name;
-      const subEl = document.getElementById(`rbSegSub${i + 1}`);
-      if (subEl && segInfo) subEl.innerText = segInfo.sub;
+  const totKm = exp.totalDistanceKm || routeCfg.distanceKm || 145.0;
+  const segStep = totKm / 5.0;
+  for (let i = 0; i < 5; i++) {
+    const segStartKm = Math.round(i * segStep);
+    const segEndKm = Math.round((i + 1) * segStep);
+    const lblEl = document.getElementById(`rbSegLabel${i + 1}`);
+    const subEl = document.getElementById(`rbSegSub${i + 1}`);
+    if (lblEl) {
+      if (Math.abs(totKm - 145.0) < 5.0 && routeCfg.segments && routeCfg.segments[i]) {
+        lblEl.innerText = routeCfg.segments[i].name;
+      } else {
+        lblEl.innerText = `Segmen ${i + 1} (KM ${segStartKm}-${segEndKm})`;
+      }
+    }
+    if (subEl) {
+      if (Math.abs(totKm - 145.0) < 5.0 && routeCfg.segments && routeCfg.segments[i]) {
+        subEl.innerText = routeCfg.segments[i].sub;
+      } else {
+        subEl.innerText = `Koridor Jalur ${i * 20}% - ${(i + 1) * 20}%`;
+      }
     }
   }
 
@@ -1167,9 +1194,11 @@ export function bindLifecycleControls() {
     if (elSeg) {
       elSeg.addEventListener("change", e => {
         const exp = getActiveExpedition();
-        if (exp && exp.segments) {
+        if (exp) {
+          if (!exp.segments) exp.segments = ["FREE_FLOW", "FREE_FLOW", "CONGESTED", "FREE_FLOW", "FREE_FLOW"];
           exp.segments[i - 1] = e.target.value;
           saveConfigData();
+          syncBackendSegments(exp.tripId, exp.segments);
           broadcastTelemetry();
         }
       });
