@@ -21,7 +21,8 @@ import { initMap } from "./modules/map.js";
 import { initChart, switchChartTab } from "./modules/chart.js";
 import {
   populateExpeditionSelector,
-  onExpeditionSelected
+  onExpeditionSelected,
+  initFleetDrawerEvents
 } from "./modules/trip-selector.js";
 import {
   consumePacket,
@@ -134,8 +135,28 @@ export async function initConsumer() {
   // Sinkronkan daftar pengiriman dari database backend FastAPI
   await syncMonitorFromBackend();
 
-  // Populate pengiriman dropdown
+  // Inisialisasi event interaktif Collapsible Fleet Drawer (Concept C)
+  initFleetDrawerEvents();
+
+  // Populate pengiriman dropdown & drawer cards
   populateExpeditionSelector();
+
+  // Listener event pemilihan ekspedisi kustom dari kartu drawer
+  window.addEventListener("trip:selected", async e => {
+    if (e.detail?.tripId) {
+      await fetchLatestFromBackend(e.detail.tripId);
+    }
+  });
+
+  // Listener navigasi riwayat peramban (Browser Back/Forward button)
+  window.addEventListener("popstate", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tripFromUrl = urlParams.get("trip") || urlParams.get("trip_id");
+    if (tripFromUrl && tripFromUrl !== selectedTripId) {
+      onExpeditionSelected(tripFromUrl);
+      await fetchLatestFromBackend(tripFromUrl);
+    }
+  });
 
   // Tampilkan data pengiriman terpilih jika ada
   if (selectedTripId) {

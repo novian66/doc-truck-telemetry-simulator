@@ -91,8 +91,40 @@ export function setActiveChartType(type) {
   activeChartType = type;
 }
 
-export function setSelectedTripId(id) {
+/**
+ * Membaca ID ekspedisi dari query parameter URL (?trip=... atau ?trip_id=...)
+ */
+export function getUrlTripId() {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("trip") || params.get("trip_id") || null;
+}
+
+/**
+ * Menyinkronkan ID ekspedisi aktif ke query parameter URL
+ */
+export function setUrlTripId(tripId, pushHistory = true) {
+  if (typeof window === "undefined" || !tripId) return;
+  const url = new URL(window.location);
+  if (url.searchParams.get("trip") === tripId) return;
+  url.searchParams.set("trip", tripId);
+  if (pushHistory) {
+    window.history.pushState({ tripId }, "", url);
+  } else {
+    window.history.replaceState({ tripId }, "", url);
+  }
+}
+
+export function setSelectedTripId(id, updateUrl = true) {
   selectedTripId = id;
+  if (id) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TRIP, id);
+    } catch (e) {}
+    if (updateUrl) {
+      setUrlTripId(id, true);
+    }
+  }
 }
 
 export function getSelectedExpedition() {
@@ -178,11 +210,16 @@ export function loadMonitorData() {
   }
   localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(vehicles));
 
+  const urlTrip = getUrlTripId();
   const aSaved = localStorage.getItem(STORAGE_KEYS.ACTIVE_TRIP);
-  if (aSaved && expeditions.some(e => e.tripId === aSaved)) {
+  if (urlTrip && expeditions.some(e => e.tripId === urlTrip)) {
+    selectedTripId = urlTrip;
+  } else if (aSaved && expeditions.some(e => e.tripId === aSaved)) {
     selectedTripId = aSaved;
+    setUrlTripId(selectedTripId, false);
   } else if (expeditions.length > 0) {
     selectedTripId = expeditions[0].tripId;
+    setUrlTripId(selectedTripId, false);
   }
 }
 
@@ -215,11 +252,21 @@ export async function syncMonitorFromBackend() {
           status: st.status || "SCHEDULED"
         }));
         localStorage.setItem(STORAGE_KEYS.EXPEDITIONS, JSON.stringify(expeditions));
-        const running = expeditions.find(e => e.status === "RUNNING");
-        if (running && (!selectedTripId || !expeditions.some(e => e.tripId === selectedTripId && e.status === "RUNNING"))) {
-          selectedTripId = running.tripId;
-        } else if (!expeditions.some(e => e.tripId === selectedTripId)) {
-          selectedTripId = expeditions[0]?.tripId || null;
+
+        // Prioritas penentuan selectedTripId:
+        // 1. URL Query Parameter (?trip=...)
+        // 2. Trip yang sedang aktif dipilih sebelumnya (jika masih valid)
+        // 3. Trip berstatus RUNNING
+        // 4. Trip pertama yang tersedia
+        const urlTripId = getUrlTripId();
+        if (urlTripId && expeditions.some(e => e.tripId === urlTripId)) {
+          selectedTripId = urlTripId;
+        } else if (selectedTripId && expeditions.some(e => e.tripId === selectedTripId)) {
+          setUrlTripId(selectedTripId, false);
+        } else {
+          const running = expeditions.find(e => e.status === "RUNNING");
+          selectedTripId = running ? running.tripId : (expeditions[0]?.tripId || null);
+          if (selectedTripId) setUrlTripId(selectedTripId, false);
         }
       }
     }

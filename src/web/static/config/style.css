@@ -2258,8 +2258,30 @@ body {
 }
 
 .fleet-marker-container:hover {
-  transform: translate(-50%, -105%) scale(1.1) !important;
+  transform: scale(1.15) !important;
   z-index: 1000 !important;
+}
+
+.fleet-truck-topview-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes truckPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
 
 .btn-locate-truck:hover {

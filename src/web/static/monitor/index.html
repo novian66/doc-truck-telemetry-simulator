@@ -15,9 +15,52 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
   <!-- Custom Styling -->
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
+
+  <!-- Concept C: Collapsible Fleet Drawer Backdrop -->
+  <div id="fleetDrawerBackdrop" class="fleet-drawer-backdrop hidden"></div>
+
+  <!-- Concept C: Collapsible Fleet Drawer Sidebar -->
+  <aside id="fleetDrawer" class="fleet-drawer" aria-label="Fleet Expeditions Drawer">
+    <div class="fleet-drawer-header">
+      <div class="fleet-drawer-title-box">
+        <span class="fleet-drawer-icon">🚚</span>
+        <div>
+          <h2 class="fleet-drawer-title">Fleet Dispatch Manifests</h2>
+          <div class="fleet-drawer-subtitle">Switch active telemetry view & telemetry stream</div>
+        </div>
+      </div>
+      <button type="button" id="closeFleetDrawerBtn" class="btn-drawer-close" title="Close drawer (Esc)">&times;</button>
+    </div>
+
+    <!-- Quick Search & Filter Tabs -->
+    <div class="fleet-drawer-controls">
+      <div class="fleet-search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="fleetSearchInput" placeholder="Search by Trip ID, Truck, Driver, Route..." autocomplete="off">
+        <button type="button" id="fleetSearchClear" class="search-clear-btn hidden" title="Clear search">&times;</button>
+      </div>
+      <div class="fleet-filter-tabs">
+        <button type="button" class="fleet-tab active" data-filter="ALL">All (<span id="countAll">0</span>)</button>
+        <button type="button" class="fleet-tab" data-filter="RUNNING">Live (<span id="countLive">0</span>)</button>
+        <button type="button" class="fleet-tab" data-filter="SCHEDULED">Standby (<span id="countStandby">0</span>)</button>
+        <button type="button" class="fleet-tab" data-filter="COMPLETED">Done (<span id="countDone">0</span>)</button>
+      </div>
+    </div>
+
+    <!-- Cards Container -->
+    <div class="fleet-cards-list" id="fleetCardsList">
+      <!-- Populated dynamically via trip-selector.js -->
+    </div>
+
+    <!-- Footer Action -->
+    <div class="fleet-drawer-footer">
+      <span class="fleet-footer-info">Showing <strong id="fleetShowingCount">0</strong> dispatch(es)</span>
+      <a href="/config/" class="btn-manage-dispatches">⚙️ Dispatch Config</a>
+    </div>
+  </aside>
 
   <!-- Top Navigation Bar (Real Fleet Monitoring) -->
   <header class="app-header">
@@ -29,11 +72,20 @@
       </div>
     </div>
 
-    <!-- TRIP/EXPEDITION SELECTOR -->
+    <!-- TRIP/EXPEDITION SELECTOR (CONCEPT C: COLLAPSIBLE FLEET DRAWER) -->
     <div class="expedition-selector-box">
-      <label for="expeditionSelector">SELECT SHIPMENT:</label>
-      <select id="expeditionSelector" class="form-select-exp">
-        <!-- Dynamically populated from active trips and archives -->
+      <button type="button" id="openFleetDrawerBtn" class="btn-fleet-drawer" title="Open Fleet Expeditions Drawer (Press T or Click)">
+        <span class="fleet-btn-icon">🚚</span>
+        <span class="fleet-btn-label">Active Fleet</span>
+        <span class="fleet-count-pill" id="fleetCountBadge">0</span>
+        <span class="fleet-active-tag" id="fleetActiveTag">
+          <span class="active-dot standby" id="fleetActiveDot"></span>
+          <span id="fleetActiveTripName">Loading Dispatches...</span>
+        </span>
+        <span class="fleet-caret">▾</span>
+      </button>
+      <select id="expeditionSelector" class="form-select-exp sr-only" aria-hidden="true" tabindex="-1">
+        <!-- Maintained for background synchronization -->
       </select>
       <span class="trip-status-pill ready" id="selectedTripStatusPill">DEPOT STANDBY</span>
     </div>
@@ -221,6 +273,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Application JS -->
-  <script type="module" src="app.js?v=9"></script>
+  <script type="module" src="app.js?v=10"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@ let fleetMarkersLayer = null;
 const truckMarkersMap = {};
 
 /**
- * Membuat custom HTML divIcon Leaflet untuk marker armada truk
+ * Membuat custom HTML divIcon Leaflet untuk marker armada truk menggunakan icon top-view kuning
  */
 function createTruckMarkerIcon(truck) {
   const isMoving = truck.isMoving || (parseFloat(truck.lastSpeedKmh) > 0);
@@ -32,27 +32,26 @@ function createTruckMarkerIcon(truck) {
   }
 
   const speedText = isMoving ? `${Math.round(truck.lastSpeedKmh)} km/j` : (isOnTrip ? "0 km/j" : "Standby");
+  const heading = truck.headingDeg != null ? Math.round(((truck.headingDeg % 360) + 360) % 360) : 0;
 
   const html = `
-    <div class="fleet-marker-container" style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: translate(-50%, -100%);">
-      <div style="background: ${badgeBg}; color: #ffffff; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 2px; letter-spacing: 0.3px;">
+    <div class="fleet-marker-container" style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+      <div style="background: ${badgeBg}; color: #ffffff; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.25); margin-bottom: 3px; letter-spacing: 0.3px; pointer-events: none;">
         ${statusIcon} ${truck.truckId} (${speedText})
       </div>
-      <div style="width: 36px; height: 36px; background: #0f172a; border: 2.5px solid ${glowColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px ${glowColor};">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="${glowColor}">
-          <path d="M18 18.5a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5m1.5-9H17V12h4.5M6 18.5A1.5 1.5 0 0 1 4.5 17 1.5 1.5 0 0 1 6 15.5 1.5 1.5 0 0 1 7.5 17 1.5 1.5 0 0 1 6 18.5M20 7.5h-3V4H3v13h1.8a3 3 0 0 0 5.4 0h4.6a3 3 0 0 0 5.4 0H21v-5.5l-1-4Z"/>
-        </svg>
+      <div class="fleet-truck-topview-wrapper" style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+        <span class="fleet-truck-halo" style="position: absolute; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, ${glowColor}55 0%, transparent 70%); border: 1.5px solid ${glowColor}; ${isMoving ? 'animation: truckPulse 2s infinite;' : ''} pointer-events: none;"></span>
+        <img src="/assets/truck_yellow_topview.png" alt="${truck.truckId}" class="fleet-truck-icon-img" style="width: 46px; height: 46px; object-fit: contain; transform: rotate(${heading}deg); transform-origin: center center; transition: transform 0.3s ease; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); pointer-events: none;" />
       </div>
-      <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 7px solid ${glowColor}; margin-top: -1px;"></div>
     </div>
   `;
 
   return window.L.divIcon({
     className: "fleet-truck-custom-icon",
     html: html,
-    iconSize: [0, 0],
-    iconAnchor: [0, 0],
-    popupAnchor: [0, -56]
+    iconSize: [60, 70],
+    iconAnchor: [30, 48],
+    popupAnchor: [0, -48]
   });
 }
 
@@ -65,6 +64,7 @@ function createTruckPopupHtml(truck) {
   const speed = typeof truck.lastSpeedKmh === "number" ? truck.lastSpeedKmh.toFixed(1) : (truck.lastSpeedKmh || "0.0");
   const lat = typeof truck.lastLatitude === "number" ? truck.lastLatitude.toFixed(4) : (truck.lastLatitude || "-6.5650");
   const lng = typeof truck.lastLongitude === "number" ? truck.lastLongitude.toFixed(4) : (truck.lastLongitude || "107.7600");
+  const heading = truck.headingDeg != null ? Math.round(((truck.headingDeg % 360) + 360) % 360) : 0;
 
   let statusBadge = `<span style="background: #334155; color: #cbd5e1; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">AVAILABLE (POOL)</span>`;
   if (isMoving) {
@@ -74,9 +74,12 @@ function createTruckPopupHtml(truck) {
   }
 
   return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-width: 230px; color: #0f172a; line-height: 1.45;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; min-width: 240px; color: #0f172a; line-height: 1.45;">
       <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 13.5px; color: #0284c7;">🚚 ${truck.truckId}</strong>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <img src="/assets/truck_yellow_topview.png" alt="Truck" style="width: 22px; height: 22px; object-fit: contain; transform: rotate(${heading}deg);" />
+          <strong style="font-size: 13.5px; color: #0284c7;">${truck.truckId}</strong>
+        </div>
         <code style="font-size: 11px; font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1;">${truck.licensePlate}</code>
       </div>
       <div style="margin-bottom: 6px;">
@@ -89,7 +92,7 @@ function createTruckPopupHtml(truck) {
         <strong>Lokasi:</strong> <span style="color: #0f172a; font-weight: 600;">${truck.lastLocationName || "Pangkalan Subang"}</span>
       </div>
       <div style="font-size: 11.5px; color: #475569; margin-bottom: 4px;">
-        <strong>Koordinat:</strong> <code>${lat}, ${lng}</code>
+        <strong>Koordinat:</strong> <code>${lat}, ${lng}</code> (Arah: ${heading}°)
       </div>
       <div style="font-size: 11.5px; color: #475569; margin-bottom: 4px;">
         <strong>Kapasitas DOC:</strong> ${(truck.capacity || 36000).toLocaleString("id-ID")} ekor
